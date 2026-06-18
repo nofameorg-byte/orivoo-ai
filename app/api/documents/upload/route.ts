@@ -57,6 +57,23 @@ export async function POST(request: NextRequest) {
       : titleFromFileName(file.name) || "Untitled document";
 
   const buffer = Buffer.from(await file.arrayBuffer());
+  const projectId =
+    typeof formData.get("projectId") === "string" && formData.get("projectId")
+      ? String(formData.get("projectId")).trim()
+      : null;
+
+  if (projectId) {
+    const { data: project, error: projectError } = await supabase
+      .from("projects")
+      .select("id")
+      .eq("id", projectId)
+      .eq("user_id", user.id)
+      .single();
+
+    if (projectError || !project) {
+      return jsonError("Project not found.", 404);
+    }
+  }
 
   const { error: documentError } = await supabase.from("documents").insert({
     file_name: file.name,
@@ -65,6 +82,7 @@ export async function POST(request: NextRequest) {
     file_type: fileType,
     id: documentId,
     mime_type: file.type,
+    project_id: projectId,
     status: "processing",
     title,
     user_id: user.id,

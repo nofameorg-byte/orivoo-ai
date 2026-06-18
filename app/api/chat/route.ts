@@ -11,6 +11,7 @@ const MAX_PROMPT_LENGTH = 12000;
 type ChatRequestBody = {
   conversationId?: string;
   message?: string;
+  projectId?: string | null;
 };
 
 const systemPrompt = `You are ORIVOO Assistant, the default AI operator inside ORIVOO AI.
@@ -70,11 +71,25 @@ export async function POST(request: NextRequest) {
   const model = process.env.GROQ_MODEL ?? DEFAULT_MODEL;
   let conversationId = body.conversationId;
   let conversationTitle = createTitle(prompt);
+  const projectId = body.projectId?.trim() || null;
+
+  if (projectId) {
+    const { data: project, error: projectError } = await supabase
+      .from("projects")
+      .select("id")
+      .eq("id", projectId)
+      .eq("user_id", user.id)
+      .single();
+
+    if (projectError || !project) {
+      return jsonError("Project not found.", 404);
+    }
+  }
 
   if (conversationId) {
     const { data: conversation, error } = await supabase
       .from("conversations")
-      .select("id,title")
+      .select("id,title,project_id")
       .eq("id", conversationId)
       .eq("user_id", user.id)
       .single();
@@ -84,11 +99,20 @@ export async function POST(request: NextRequest) {
     }
 
     conversationTitle = conversation.title;
+
+    if (projectId !== conversation.project_id) {
+      await supabase
+        .from("conversations")
+        .update({ project_id: projectId })
+        .eq("id", conversationId)
+        .eq("user_id", user.id);
+    }
   } else {
     const { data: conversation, error } = await supabase
       .from("conversations")
       .insert({
         model,
+        project_id: projectId,
         title: conversationTitle,
         user_id: user.id,
       })

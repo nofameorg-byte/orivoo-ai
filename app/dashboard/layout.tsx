@@ -7,6 +7,7 @@ import {
   Building2,
   FileText,
   FlaskConical,
+  FolderKanban,
   Globe2,
   Landmark,
   Layers3,
@@ -29,6 +30,7 @@ export const metadata: Metadata = {
 
 const navigation = [
   { name: "Assistant", icon: Bot, href: "/dashboard" },
+  { name: "Projects", icon: FolderKanban, href: "/dashboard/projects" },
   {
     name: "Document Studio",
     icon: FileText,

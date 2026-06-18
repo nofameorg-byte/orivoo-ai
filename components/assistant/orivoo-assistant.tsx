@@ -15,6 +15,7 @@ export type AssistantConversation = {
   created_at: string;
   id: string;
   model: string;
+  project_id: string | null;
   title: string;
   updated_at: string;
 };
@@ -32,6 +33,10 @@ type OrivooAssistantProps = {
   initialConversationId: string | null;
   initialConversations: AssistantConversation[];
   initialMessages: AssistantMessage[];
+  initialProjects: {
+    id: string;
+    name: string;
+  }[];
 };
 
 function formatConversationDate(value: string) {
@@ -60,10 +65,16 @@ export function OrivooAssistant({
   initialConversationId,
   initialConversations,
   initialMessages,
+  initialProjects,
 }: OrivooAssistantProps) {
   const [conversations, setConversations] = useState(initialConversations);
   const [selectedConversationId, setSelectedConversationId] = useState(
     initialConversationId,
+  );
+  const [selectedProjectId, setSelectedProjectId] = useState(
+    initialConversations.find(
+      (conversation) => conversation.id === initialConversationId,
+    )?.project_id ?? "",
   );
   const [messages, setMessages] = useState(initialMessages);
   const [input, setInput] = useState("");
@@ -110,6 +121,10 @@ export function OrivooAssistant({
       }
 
       setSelectedConversationId(conversationId);
+      const conversation = conversations.find(
+        (currentConversation) => currentConversation.id === conversationId,
+      );
+      setSelectedProjectId(conversation?.project_id ?? "");
       setMessages(body.messages ?? []);
     } catch (loadError) {
       setError(
@@ -130,7 +145,7 @@ export function OrivooAssistant({
     );
   }
 
-  function upsertConversation(id: string, title: string) {
+  function upsertConversation(id: string, title: string, projectId: string | null) {
     const now = new Date().toISOString();
 
     setConversations((currentConversations) => {
@@ -141,6 +156,7 @@ export function OrivooAssistant({
       const updatedConversation: AssistantConversation = existing
         ? {
             ...existing,
+            project_id: projectId,
             title: title || existing.title,
             updated_at: now,
           }
@@ -148,6 +164,7 @@ export function OrivooAssistant({
             created_at: now,
             id,
             model: "llama-3.3-70b-versatile",
+            project_id: projectId,
             title: title || "New chat",
             updated_at: now,
           };
@@ -199,6 +216,7 @@ export function OrivooAssistant({
         body: JSON.stringify({
           conversationId: selectedConversationId,
           message: prompt,
+          projectId: selectedProjectId || null,
         }),
       });
 
@@ -217,7 +235,7 @@ export function OrivooAssistant({
 
       if (conversationId) {
         setSelectedConversationId(conversationId);
-        upsertConversation(conversationId, title);
+        upsertConversation(conversationId, title, selectedProjectId || null);
         setMessages((currentMessages) =>
           currentMessages.map((message) =>
             message.conversation_id === "pending"
@@ -347,8 +365,25 @@ export function OrivooAssistant({
                 the conversation automatically.
               </p>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-black/35 px-4 py-3 text-sm text-muted">
-              {selectedConversation?.title ?? "New unsaved chat"}
+            <div className="flex flex-col gap-2 sm:min-w-72">
+              <div className="rounded-2xl border border-white/10 bg-black/35 px-4 py-3 text-sm text-muted">
+                {selectedConversation?.title ?? "New unsaved chat"}
+              </div>
+              <label className="text-xs text-muted">
+                Project
+                <select
+                  value={selectedProjectId}
+                  onChange={(event) => setSelectedProjectId(event.target.value)}
+                  className="mt-1 w-full rounded-2xl border border-white/10 bg-black/60 px-3 py-2 text-sm text-white outline-none transition focus:border-gold/50"
+                >
+                  <option value="">No project</option>
+                  {initialProjects.map((project) => (
+                    <option key={project.id} value={project.id}>
+                      {project.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
             </div>
           </div>
         </header>

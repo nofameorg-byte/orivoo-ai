@@ -19,6 +19,8 @@ white, and gold interface inspired by modern AI workspaces.
 - `/login` - Supabase email/password login
 - `/signup` - Supabase email/password signup
 - `/dashboard` - Protected ORIVOO AI dashboard
+- `/dashboard/projects` - Project dashboard and project creation
+- `/dashboard/projects/[projectId]` - Project detail, edit, delete, and assets
 - `/dashboard/document-studio` - Authenticated document upload and library
 - `/dashboard/document-studio/[documentId]` - Document viewer and AI actions
 
@@ -27,6 +29,7 @@ white, and gold interface inspired by modern AI workspaces.
 The dashboard sidebar includes:
 
 - Assistant
+- Projects
 - Document Studio
 - Research Studio
 - Website Builder
@@ -88,6 +91,7 @@ The included migrations create:
 
 - `profiles`
 - `workspaces`
+- `projects`
 - `conversations`
 - `messages`
 - `documents`
@@ -98,6 +102,22 @@ The included migrations create:
 - A new-user trigger that provisions a profile and workspace
 - Conversation history storage for ORIVOO Assistant
 - User-owned document storage and chunk retrieval
+- Project links through `conversations.project_id` and `documents.project_id`
+
+## ORIVOO Projects
+
+Projects are the organizational foundation for ORIVOO studios. Users can:
+
+- Create projects
+- Open a project dashboard
+- Edit project name, description, and status
+- Delete projects
+- Assign chats to projects
+- Assign documents to projects
+- View all project chats and documents in one place
+
+Conversations and documents both include nullable `project_id` references so
+future studios can attach their assets to the same project model.
 
 ## ORIVOO Assistant
 

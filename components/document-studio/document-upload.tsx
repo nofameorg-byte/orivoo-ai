@@ -13,9 +13,17 @@ const ACCEPTED_TYPES = [
   "image/gif",
 ].join(",");
 
-export function DocumentUpload() {
+type DocumentUploadProps = {
+  projects: {
+    id: string;
+    name: string;
+  }[];
+};
+
+export function DocumentUpload({ projects }: DocumentUploadProps) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
+  const [projectId, setProjectId] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -28,6 +36,7 @@ export function DocumentUpload() {
 
     const formData = new FormData();
     formData.append("file", file);
+    formData.append("projectId", projectId);
 
     setError(null);
     setMessage(null);
@@ -108,6 +117,21 @@ export function DocumentUpload() {
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row lg:items-center">
+          <label className="text-sm text-muted">
+            Project
+            <select
+              value={projectId}
+              onChange={(event) => setProjectId(event.target.value)}
+              className="mt-1 w-full rounded-full border border-white/10 bg-black/60 px-4 py-3 text-sm text-white outline-none transition focus:border-gold/50 sm:w-56"
+            >
+              <option value="">No project</option>
+              {projects.map((project) => (
+                <option key={project.id} value={project.id}>
+                  {project.name}
+                </option>
+              ))}
+            </select>
+          </label>
           <input
             ref={inputRef}
             type="file"

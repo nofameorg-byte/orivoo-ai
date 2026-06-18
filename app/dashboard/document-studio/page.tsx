@@ -44,10 +44,20 @@ export default async function DocumentStudioPage() {
   const { data: documents } = await supabase
     .from("documents")
     .select(
-      "id,title,file_name,file_type,file_size,status,created_at,updated_at,extracted_text_preview,error_message",
+      "id,title,file_name,file_type,file_size,project_id,status,created_at,updated_at,extracted_text_preview,error_message",
     )
     .eq("user_id", user.id)
     .order("updated_at", { ascending: false });
+
+  const { data: projects } = await supabase
+    .from("projects")
+    .select("id,name")
+    .eq("user_id", user.id)
+    .order("updated_at", { ascending: false });
+
+  const projectNames = new Map(
+    (projects ?? []).map((project) => [project.id, project.name]),
+  );
 
   return (
     <div id="workspace" className="space-y-8">
@@ -79,7 +89,7 @@ export default async function DocumentStudioPage() {
         </div>
       </section>
 
-      <DocumentUpload />
+      <DocumentUpload projects={projects ?? []} />
 
       <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-5 sm:p-6">
         <div className="mb-5 flex items-center justify-between">
@@ -116,6 +126,12 @@ export default async function DocumentStudioPage() {
                         </h3>
                         <p className="mt-1 truncate text-sm text-muted">
                           {document.file_name} · {formatBytes(document.file_size)}
+                        </p>
+                        <p className="mt-2 text-xs uppercase tracking-[0.2em] text-gold">
+                          {document.project_id
+                            ? projectNames.get(document.project_id) ??
+                              "Project"
+                            : "No project"}
                         </p>
                         <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted">
                           {document.extracted_text_preview ??

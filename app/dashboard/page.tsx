@@ -2,7 +2,14 @@ import { redirect } from "next/navigation";
 import { OrivooAssistant } from "@/components/assistant/orivoo-assistant";
 import { createClient } from "@/lib/supabase/server";
 
-export default async function DashboardPage() {
+type DashboardPageProps = {
+  searchParams: Promise<{
+    conversationId?: string;
+  }>;
+};
+
+export default async function DashboardPage({ searchParams }: DashboardPageProps) {
+  const { conversationId } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -28,12 +35,22 @@ export default async function DashboardPage() {
 
   const { data: conversations } = await supabase
     .from("conversations")
-    .select("id,title,model,created_at,updated_at")
+    .select("id,title,model,project_id,created_at,updated_at")
     .eq("user_id", user.id)
     .order("updated_at", { ascending: false })
     .limit(30);
 
-  const initialConversationId = conversations?.[0]?.id ?? null;
+  const { data: projects } = await supabase
+    .from("projects")
+    .select("id,name")
+    .eq("user_id", user.id)
+    .order("updated_at", { ascending: false });
+
+  const requestedConversation = conversationId
+    ? conversations?.find((conversation) => conversation.id === conversationId)
+    : null;
+  const initialConversationId =
+    requestedConversation?.id ?? conversations?.[0]?.id ?? null;
   const { data: messages } = initialConversationId
     ? await supabase
         .from("messages")
@@ -49,6 +66,7 @@ export default async function DashboardPage() {
       initialConversationId={initialConversationId}
       initialConversations={conversations ?? []}
       initialMessages={messages ?? []}
+      initialProjects={projects ?? []}
     />
   );
 }

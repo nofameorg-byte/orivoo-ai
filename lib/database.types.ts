@@ -14,6 +14,7 @@ export type Database = {
           created_at: string;
           id: string;
           model: string;
+          project_id: string | null;
           title: string;
           updated_at: string;
           user_id: string;
@@ -22,6 +23,7 @@ export type Database = {
           created_at?: string;
           id?: string;
           model?: string;
+          project_id?: string | null;
           title?: string;
           updated_at?: string;
           user_id: string;
@@ -30,6 +32,7 @@ export type Database = {
           created_at?: string;
           id?: string;
           model?: string;
+          project_id?: string | null;
           title?: string;
           updated_at?: string;
           user_id?: string;
@@ -77,6 +80,7 @@ export type Database = {
           file_type: "pdf" | "docx" | "image";
           id: string;
           mime_type: string;
+          project_id: string | null;
           status: "processing" | "ready" | "failed";
           title: string;
           updated_at: string;
@@ -92,6 +96,7 @@ export type Database = {
           file_type: "pdf" | "docx" | "image";
           id?: string;
           mime_type: string;
+          project_id?: string | null;
           status?: "processing" | "ready" | "failed";
           title: string;
           updated_at?: string;
@@ -107,6 +112,7 @@ export type Database = {
           file_type?: "pdf" | "docx" | "image";
           id?: string;
           mime_type?: string;
+          project_id?: string | null;
           status?: "processing" | "ready" | "failed";
           title?: string;
           updated_at?: string;
@@ -162,6 +168,36 @@ export type Database = {
           display_name?: string | null;
           id?: string;
           updated_at?: string;
+        };
+        Relationships: [];
+      };
+      projects: {
+        Row: {
+          created_at: string;
+          description: string | null;
+          id: string;
+          name: string;
+          status: "active" | "archived";
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          name: string;
+          status?: "active" | "archived";
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          name?: string;
+          status?: "active" | "archived";
+          updated_at?: string;
+          user_id?: string;
         };
         Relationships: [];
       };
