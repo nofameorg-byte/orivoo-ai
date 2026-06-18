@@ -20,6 +20,13 @@ function sanitizeDownloadName(name: string) {
   return name.replace(/[^a-zA-Z0-9-_]+/g, "-").replace(/-+/g, "-").slice(0, 80);
 }
 
+function toBody(buffer: Buffer) {
+  const arrayBuffer = new ArrayBuffer(buffer.byteLength);
+  const view = new Uint8Array(arrayBuffer);
+  view.set(buffer);
+  return view;
+}
+
 function pdfBuffer(reportText: string) {
   return new Promise<Buffer>((resolve, reject) => {
     const doc = new PDFDocument({ margin: 56 });
@@ -165,7 +172,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
   if (format === "pdf") {
     const buffer = await pdfBuffer(plainText);
 
-    return new Response(buffer, {
+    return new Response(toBody(buffer), {
       headers: {
         "Content-Disposition": `attachment; filename="${fileName}.pdf"`,
         "Content-Type": "application/pdf",
@@ -182,7 +189,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
       topic: report.topic,
     });
 
-    return new Response(buffer, {
+    return new Response(toBody(buffer), {
       headers: {
         "Content-Disposition": `attachment; filename="${fileName}.docx"`,
         "Content-Type":
