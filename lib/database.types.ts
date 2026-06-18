@@ -36,6 +36,84 @@ export type Database = {
         };
         Relationships: [];
       };
+      document_chunks: {
+        Row: {
+          content: string;
+          created_at: string;
+          document_id: string;
+          id: string;
+          metadata: Json;
+          chunk_index: number;
+          user_id: string;
+        };
+        Insert: {
+          content: string;
+          created_at?: string;
+          document_id: string;
+          id?: string;
+          metadata?: Json;
+          chunk_index: number;
+          user_id: string;
+        };
+        Update: {
+          content?: string;
+          created_at?: string;
+          document_id?: string;
+          id?: string;
+          metadata?: Json;
+          chunk_index?: number;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      documents: {
+        Row: {
+          created_at: string;
+          error_message: string | null;
+          extracted_text_preview: string | null;
+          file_name: string;
+          file_path: string;
+          file_size: number;
+          file_type: "pdf" | "docx" | "image";
+          id: string;
+          mime_type: string;
+          status: "processing" | "ready" | "failed";
+          title: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          error_message?: string | null;
+          extracted_text_preview?: string | null;
+          file_name: string;
+          file_path: string;
+          file_size: number;
+          file_type: "pdf" | "docx" | "image";
+          id?: string;
+          mime_type: string;
+          status?: "processing" | "ready" | "failed";
+          title: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          error_message?: string | null;
+          extracted_text_preview?: string | null;
+          file_name?: string;
+          file_path?: string;
+          file_size?: number;
+          file_type?: "pdf" | "docx" | "image";
+          id?: string;
+          mime_type?: string;
+          status?: "processing" | "ready" | "failed";
+          title?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       messages: {
         Row: {
           content: string;

@@ -19,6 +19,8 @@ white, and gold interface inspired by modern AI workspaces.
 - `/login` - Supabase email/password login
 - `/signup` - Supabase email/password signup
 - `/dashboard` - Protected ORIVOO AI dashboard
+- `/dashboard/document-studio` - Authenticated document upload and library
+- `/dashboard/document-studio/[documentId]` - Document viewer and AI actions
 
 ## Dashboard studios
 
@@ -62,6 +64,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 GROQ_API_KEY=your-groq-api-key
 GROQ_MODEL=llama-3.3-70b-versatile
+GROQ_VISION_MODEL=meta-llama/llama-4-scout-17b-16e-instruct
 ```
 
 Run the development server:
@@ -87,10 +90,14 @@ The included migrations create:
 - `workspaces`
 - `conversations`
 - `messages`
+- `documents`
+- `document_chunks`
+- Private `orivoo-documents` Supabase Storage bucket
 - Row Level Security policies
 - `updated_at` triggers
 - A new-user trigger that provisions a profile and workspace
 - Conversation history storage for ORIVOO Assistant
+- User-owned document storage and chunk retrieval
 
 ## ORIVOO Assistant
 
@@ -105,6 +112,25 @@ The included migrations create:
 
 The Assistant API route requires `GROQ_API_KEY`. `GROQ_MODEL` is optional and
 defaults to `llama-3.3-70b-versatile`.
+
+## ORIVOO Document Studio
+
+`/dashboard/document-studio` is connected to the authenticated dashboard user and
+supports:
+
+- PDF upload
+- DOCX upload
+- Image upload
+- Drag-and-drop uploads
+- Private Supabase Storage persistence
+- Document list page
+- Document viewer page
+- Text extraction and chunk storage in `document_chunks`
+- Summaries, document Q&A, key fact extraction, and timeline generation
+
+Text-based PDF and DOCX files are parsed on upload and chunked for Groq-powered
+analysis. Images are stored privately and can be analyzed through Groq vision
+when `GROQ_VISION_MODEL` is configured.
 
 ## Scripts
 
@@ -125,6 +151,7 @@ npm run typecheck
    - `NEXT_PUBLIC_SITE_URL`
    - `GROQ_API_KEY`
    - `GROQ_MODEL`
+   - `GROQ_VISION_MODEL`
 3. Deploy.
 
 For production, set `NEXT_PUBLIC_SITE_URL` to the final Vercel domain or custom
