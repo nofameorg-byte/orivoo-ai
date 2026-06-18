@@ -5,6 +5,7 @@ import {
   Bot,
   FileText,
   FolderKanban,
+  Globe2,
   Search,
   Sparkles,
 } from "lucide-react";
@@ -41,6 +42,7 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
     { data: conversations },
     { data: documents },
     { data: reports },
+    { data: websites },
   ] = await Promise.all([
       supabase
         .from("projects")
@@ -56,11 +58,16 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
         .from("research_reports")
         .select("id,project_id")
         .eq("user_id", user.id),
+      supabase
+        .from("website_projects")
+        .select("id,project_id")
+        .eq("user_id", user.id),
     ]);
 
   const chatCounts = new Map<string, number>();
   const documentCounts = new Map<string, number>();
   const reportCounts = new Map<string, number>();
+  const websiteCounts = new Map<string, number>();
 
   for (const conversation of conversations ?? []) {
     if (conversation.project_id) {
@@ -85,6 +92,15 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
       reportCounts.set(
         report.project_id,
         (reportCounts.get(report.project_id) ?? 0) + 1,
+      );
+    }
+  }
+
+  for (const website of websites ?? []) {
+    if (website.project_id) {
+      websiteCounts.set(
+        website.project_id,
+        (websiteCounts.get(website.project_id) ?? 0) + 1,
       );
     }
   }
@@ -141,7 +157,7 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
                 {project.description ??
                   "No description yet. Open this project to add context and assets."}
               </p>
-              <div className="mt-6 grid grid-cols-3 gap-3">
+              <div className="mt-6 grid grid-cols-2 gap-3">
                 <div className="rounded-2xl border border-white/10 bg-black/35 p-3">
                   <Bot className="mb-3 size-4 text-gold" aria-hidden />
                   <p className="text-sm text-white">
@@ -158,6 +174,12 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
                   <Search className="mb-3 size-4 text-gold" aria-hidden />
                   <p className="text-sm text-white">
                     {reportCounts.get(project.id) ?? 0} reports
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-black/35 p-3">
+                  <Globe2 className="mb-3 size-4 text-gold" aria-hidden />
+                  <p className="text-sm text-white">
+                    {websiteCounts.get(project.id) ?? 0} websites
                   </p>
                 </div>
               </div>

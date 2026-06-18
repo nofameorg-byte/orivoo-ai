@@ -25,6 +25,8 @@ white, and gold interface inspired by modern AI workspaces.
 - `/dashboard/document-studio/[documentId]` - Document viewer and AI actions
 - `/dashboard/research` - Research Studio dashboard
 - `/dashboard/research/[reportId]` - Research report viewer, actions, and exports
+- `/dashboard/websites` - Website Builder dashboard
+- `/dashboard/websites/[websiteId]` - Website project editor, preview, and exports
 
 ## Dashboard studios
 
@@ -100,6 +102,8 @@ The included migrations create:
 - `document_chunks`
 - `research_reports`
 - `research_sources`
+- `website_projects`
+- `website_pages`
 - Private `orivoo-documents` Supabase Storage bucket
 - Row Level Security policies
 - `updated_at` triggers
@@ -108,6 +112,7 @@ The included migrations create:
 - User-owned document storage and chunk retrieval
 - Project links through `conversations.project_id` and `documents.project_id`
 - Project links through `research_reports.project_id`
+- Project links through `website_projects.project_id`
 
 ## ORIVOO Projects
 
@@ -126,6 +131,9 @@ future studios can attach their assets to the same project model.
 
 Research reports also include nullable `project_id` references and appear in
 project detail pages alongside chats and documents.
+
+Website projects include nullable `project_id` references and appear in project
+detail pages alongside chats, documents, and research reports.
 
 ## ORIVOO Assistant
 
@@ -181,6 +189,28 @@ ORIVOO. It supports:
 
 Research reports are saved to `research_reports`, sources are saved to
 `research_sources`, and Supabase RLS restricts access to the report owner.
+
+## ORIVOO Website Builder
+
+`/dashboard/websites` lets authenticated users generate complete websites from
+prompts. It supports:
+
+- Website name, business type, and description inputs
+- Project assignment during generation
+- Home, About, Services, Contact, Privacy Policy, and Terms page generation
+- SEO meta titles and descriptions
+- Call to actions
+- Generated page editor
+- Browser-style preview mode
+- AI actions for regeneration, SEO, copy, blog ideas, marketing plans, and
+  social media plans
+- HTML export
+- Next.js export
+- Static website ZIP export
+- ZIP download
+
+Website projects are saved to `website_projects`, generated pages are saved to
+`website_pages`, and Supabase RLS restricts access to the website owner.
 
 ## Scripts
 

@@ -37,7 +37,7 @@ const navigation = [
     href: "/dashboard/document-studio",
   },
   { name: "Research Studio", icon: Search, href: "/dashboard/research" },
-  { name: "Website Builder", icon: Globe2, href: "/dashboard#workspace" },
+  { name: "Website Builder", icon: Globe2, href: "/dashboard/websites" },
   { name: "Code Studio", icon: Braces, href: "/dashboard#workspace" },
   { name: "Business Builder", icon: Building2, href: "/dashboard#workspace" },
   { name: "Design Studio", icon: Palette, href: "/dashboard#workspace" },

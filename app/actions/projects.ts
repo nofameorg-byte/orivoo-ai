@@ -4,7 +4,11 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
-type AssetType = "conversation" | "document" | "research_report";
+type AssetType =
+  | "conversation"
+  | "document"
+  | "research_report"
+  | "website_project";
 
 function formString(formData: FormData, key: string) {
   const value = formData.get(key);
@@ -131,7 +135,13 @@ export async function assignAssetToProject(formData: FormData) {
   }
 
   const { error } =
-    assetType === "research_report"
+    assetType === "website_project"
+      ? await supabase
+          .from("website_projects")
+          .update({ project_id: projectId })
+          .eq("id", assetId)
+          .eq("user_id", userId)
+      : assetType === "research_report"
       ? await supabase
           .from("research_reports")
           .update({ project_id: projectId })
@@ -168,7 +178,14 @@ export async function removeAssetFromProject(formData: FormData) {
 
   const { supabase, userId } = await getUserId();
   const { error } =
-    assetType === "research_report"
+    assetType === "website_project"
+      ? await supabase
+          .from("website_projects")
+          .update({ project_id: null })
+          .eq("id", assetId)
+          .eq("project_id", projectId)
+          .eq("user_id", userId)
+      : assetType === "research_report"
       ? await supabase
           .from("research_reports")
           .update({ project_id: null })

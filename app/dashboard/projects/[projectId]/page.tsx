@@ -5,6 +5,7 @@ import {
   Bot,
   FileText,
   FolderKanban,
+  Globe2,
   Link2,
   Search,
   Trash2,
@@ -53,9 +54,11 @@ export default async function ProjectDetailPage({
     { data: projectConversations },
     { data: projectDocuments },
     { data: projectReports },
+    { data: projectWebsites },
     { data: availableConversations },
     { data: availableDocuments },
     { data: availableReports },
+    { data: availableWebsites },
   ] = await Promise.all([
     supabase
       .from("projects")
@@ -82,6 +85,12 @@ export default async function ProjectDetailPage({
       .eq("user_id", user.id)
       .order("updated_at", { ascending: false }),
     supabase
+      .from("website_projects")
+      .select("id,title,description,status,updated_at")
+      .eq("project_id", projectId)
+      .eq("user_id", user.id)
+      .order("updated_at", { ascending: false }),
+    supabase
       .from("conversations")
       .select("id,title,updated_at")
       .is("project_id", null)
@@ -96,6 +105,12 @@ export default async function ProjectDetailPage({
     supabase
       .from("research_reports")
       .select("id,title,topic,updated_at")
+      .is("project_id", null)
+      .eq("user_id", user.id)
+      .order("updated_at", { ascending: false }),
+    supabase
+      .from("website_projects")
+      .select("id,title,description,updated_at")
       .is("project_id", null)
       .eq("user_id", user.id)
       .order("updated_at", { ascending: false }),
@@ -204,11 +219,11 @@ export default async function ProjectDetailPage({
         <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6">
           <h2 className="text-2xl font-semibold text-white">Assign assets</h2>
           <p className="mt-2 text-sm leading-6 text-muted">
-            Add unassigned chats and documents to make this project the shared
-            workspace for every future studio.
+            Add unassigned chats, documents, reports, and websites to make this
+            project the shared workspace for every future studio.
           </p>
 
-          <div className="mt-6 grid gap-4 lg:grid-cols-3">
+          <div className="mt-6 grid gap-4 lg:grid-cols-4">
             <form action={assignAssetToProject} className="rounded-3xl border border-white/10 bg-black/35 p-4">
               <input type="hidden" name="projectId" value={project.id} />
               <input type="hidden" name="assetType" value="conversation" />
@@ -289,11 +304,38 @@ export default async function ProjectDetailPage({
                 Assign report
               </button>
             </form>
+
+            <form action={assignAssetToProject} className="rounded-3xl border border-white/10 bg-black/35 p-4">
+              <input type="hidden" name="projectId" value={project.id} />
+              <input type="hidden" name="assetType" value="website_project" />
+              <Globe2 className="mb-4 size-5 text-gold" aria-hidden />
+              <label className="block text-sm font-medium text-white">
+                Add website
+                <select
+                  name="assetId"
+                  required
+                  className="mt-2 w-full rounded-2xl border border-white/10 bg-black/60 px-4 py-3 text-sm text-white outline-none focus:border-gold/50"
+                >
+                  <option value="">Choose website</option>
+                  {(availableWebsites ?? []).map((website) => (
+                    <option key={website.id} value={website.id}>
+                      {website.title}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <button
+                type="submit"
+                className="mt-4 w-full rounded-full border border-gold/35 bg-gold/10 px-4 py-2.5 text-sm font-semibold text-gold-bright transition hover:bg-gold/15"
+              >
+                Assign website
+              </button>
+            </form>
           </div>
         </section>
       </div>
 
-      <section className="grid gap-6 xl:grid-cols-3">
+      <section className="grid gap-6 xl:grid-cols-4">
         <AssetList
           title="Project chats"
           empty="No chats are assigned to this project yet."
@@ -333,6 +375,19 @@ export default async function ProjectDetailPage({
             title: report.title,
           }))}
         />
+        <AssetList
+          title="Project websites"
+          empty="No websites are assigned to this project yet."
+          icon="website"
+          projectId={project.id}
+          assetType="website_project"
+          assets={(projectWebsites ?? []).map((website) => ({
+            href: `/dashboard/websites/${website.id}`,
+            id: website.id,
+            subtitle: `${website.description} · ${website.status}`,
+            title: website.title,
+          }))}
+        />
       </section>
     </div>
   );
@@ -352,13 +407,20 @@ function AssetList({
     subtitle: string;
     title: string;
   }[];
-  assetType: "conversation" | "document" | "research_report";
+  assetType: "conversation" | "document" | "research_report" | "website_project";
   empty: string;
-  icon: "chat" | "document" | "report";
+  icon: "chat" | "document" | "report" | "website";
   projectId: string;
   title: string;
 }) {
-  const Icon = icon === "chat" ? Bot : icon === "report" ? Search : FileText;
+  const Icon =
+    icon === "chat"
+      ? Bot
+      : icon === "report"
+        ? Search
+        : icon === "website"
+          ? Globe2
+          : FileText;
 
   return (
     <div className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6">

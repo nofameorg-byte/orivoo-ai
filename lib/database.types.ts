@@ -264,6 +264,72 @@ export type Database = {
         };
         Relationships: [];
       };
+      website_pages: {
+        Row: {
+          created_at: string;
+          id: string;
+          page_content: string;
+          page_name: string;
+          page_slug: string;
+          updated_at: string;
+          website_project_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          page_content: string;
+          page_name: string;
+          page_slug: string;
+          updated_at?: string;
+          website_project_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          page_content?: string;
+          page_name?: string;
+          page_slug?: string;
+          updated_at?: string;
+          website_project_id?: string;
+        };
+        Relationships: [];
+      };
+      website_projects: {
+        Row: {
+          created_at: string;
+          description: string;
+          id: string;
+          project_id: string | null;
+          prompt: string;
+          status: "draft" | "generating" | "ready" | "failed";
+          title: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          description: string;
+          id?: string;
+          project_id?: string | null;
+          prompt: string;
+          status?: "draft" | "generating" | "ready" | "failed";
+          title: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          description?: string;
+          id?: string;
+          project_id?: string | null;
+          prompt?: string;
+          status?: "draft" | "generating" | "ready" | "failed";
+          title?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       workspaces: {
         Row: {
           created_at: string;
