@@ -1,5 +1,5 @@
 import mammoth from "mammoth";
-import pdfParse from "pdf-parse";
+import { PDFParse } from "pdf-parse";
 import type { DocumentFileType } from "@/lib/documents/config";
 
 const CHUNK_SIZE = 3200;
@@ -28,8 +28,14 @@ export async function extractTextFromBuffer(
   fileName: string,
 ) {
   if (fileType === "pdf") {
-    const result = await pdfParse(buffer);
-    return normalizeText(result.text);
+    const parser = new PDFParse({ data: buffer });
+
+    try {
+      const result = await parser.getText();
+      return normalizeText(result.text);
+    } finally {
+      await parser.destroy();
+    }
   }
 
   if (fileType === "docx") {
