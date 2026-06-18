@@ -5,6 +5,7 @@ import {
   Bot,
   FileText,
   FolderKanban,
+  Search,
   Sparkles,
 } from "lucide-react";
 import { CreateProjectModal } from "@/components/projects/create-project-modal";
@@ -35,8 +36,12 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
     redirect("/login?message=Login to access ORIVOO projects.");
   }
 
-  const [{ data: projects }, { data: conversations }, { data: documents }] =
-    await Promise.all([
+  const [
+    { data: projects },
+    { data: conversations },
+    { data: documents },
+    { data: reports },
+  ] = await Promise.all([
       supabase
         .from("projects")
         .select("id,name,description,status,created_at,updated_at")
@@ -47,10 +52,15 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
         .select("id,project_id")
         .eq("user_id", user.id),
       supabase.from("documents").select("id,project_id").eq("user_id", user.id),
+      supabase
+        .from("research_reports")
+        .select("id,project_id")
+        .eq("user_id", user.id),
     ]);
 
   const chatCounts = new Map<string, number>();
   const documentCounts = new Map<string, number>();
+  const reportCounts = new Map<string, number>();
 
   for (const conversation of conversations ?? []) {
     if (conversation.project_id) {
@@ -66,6 +76,15 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
       documentCounts.set(
         document.project_id,
         (documentCounts.get(document.project_id) ?? 0) + 1,
+      );
+    }
+  }
+
+  for (const report of reports ?? []) {
+    if (report.project_id) {
+      reportCounts.set(
+        report.project_id,
+        (reportCounts.get(report.project_id) ?? 0) + 1,
       );
     }
   }
@@ -122,7 +141,7 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
                 {project.description ??
                   "No description yet. Open this project to add context and assets."}
               </p>
-              <div className="mt-6 grid grid-cols-2 gap-3">
+              <div className="mt-6 grid grid-cols-3 gap-3">
                 <div className="rounded-2xl border border-white/10 bg-black/35 p-3">
                   <Bot className="mb-3 size-4 text-gold" aria-hidden />
                   <p className="text-sm text-white">
@@ -133,6 +152,12 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
                   <FileText className="mb-3 size-4 text-gold" aria-hidden />
                   <p className="text-sm text-white">
                     {documentCounts.get(project.id) ?? 0} documents
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-black/35 p-3">
+                  <Search className="mb-3 size-4 text-gold" aria-hidden />
+                  <p className="text-sm text-white">
+                    {reportCounts.get(project.id) ?? 0} reports
                   </p>
                 </div>
               </div>

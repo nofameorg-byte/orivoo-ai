@@ -23,6 +23,8 @@ white, and gold interface inspired by modern AI workspaces.
 - `/dashboard/projects/[projectId]` - Project detail, edit, delete, and assets
 - `/dashboard/document-studio` - Authenticated document upload and library
 - `/dashboard/document-studio/[documentId]` - Document viewer and AI actions
+- `/dashboard/research` - Research Studio dashboard
+- `/dashboard/research/[reportId]` - Research report viewer, actions, and exports
 
 ## Dashboard studios
 
@@ -96,6 +98,8 @@ The included migrations create:
 - `messages`
 - `documents`
 - `document_chunks`
+- `research_reports`
+- `research_sources`
 - Private `orivoo-documents` Supabase Storage bucket
 - Row Level Security policies
 - `updated_at` triggers
@@ -103,6 +107,7 @@ The included migrations create:
 - Conversation history storage for ORIVOO Assistant
 - User-owned document storage and chunk retrieval
 - Project links through `conversations.project_id` and `documents.project_id`
+- Project links through `research_reports.project_id`
 
 ## ORIVOO Projects
 
@@ -118,6 +123,9 @@ Projects are the organizational foundation for ORIVOO studios. Users can:
 
 Conversations and documents both include nullable `project_id` references so
 future studios can attach their assets to the same project model.
+
+Research reports also include nullable `project_id` references and appear in
+project detail pages alongside chats and documents.
 
 ## ORIVOO Assistant
 
@@ -151,6 +159,28 @@ supports:
 Text-based PDF and DOCX files are parsed on upload and chunked for Groq-powered
 analysis. Images are stored privately and can be analyzed through Groq vision
 when `GROQ_VISION_MODEL` is configured.
+
+## ORIVOO Research Studio
+
+`/dashboard/research` is the primary intelligence and research engine for
+ORIVOO. It supports:
+
+- Topic-based research report creation
+- Project assignment during creation
+- Research history for the authenticated user
+- Report delete actions
+- Report detail pages with structured sections
+- Saved research sources
+- Project reassignment
+- AI actions for executive summaries, SWOT, business opportunities,
+  competitors, grants, market research, government research, and strategic
+  recommendations
+- PDF export
+- DOCX export
+- Markdown report download
+
+Research reports are saved to `research_reports`, sources are saved to
+`research_sources`, and Supabase RLS restricts access to the report owner.
 
 ## Scripts
 

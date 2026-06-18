@@ -201,6 +201,69 @@ export type Database = {
         };
         Relationships: [];
       };
+      research_reports: {
+        Row: {
+          created_at: string;
+          id: string;
+          project_id: string | null;
+          report_content: string;
+          title: string;
+          topic: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          project_id?: string | null;
+          report_content: string;
+          title: string;
+          topic: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          project_id?: string | null;
+          report_content?: string;
+          title?: string;
+          topic?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      research_sources: {
+        Row: {
+          created_at: string;
+          id: string;
+          report_id: string;
+          source_content: string | null;
+          source_title: string;
+          source_type: string;
+          source_url: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          report_id: string;
+          source_content?: string | null;
+          source_title: string;
+          source_type?: string;
+          source_url?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          report_id?: string;
+          source_content?: string | null;
+          source_title?: string;
+          source_type?: string;
+          source_url?: string | null;
+        };
+        Relationships: [];
+      };
       workspaces: {
         Row: {
           created_at: string;

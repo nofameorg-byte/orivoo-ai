@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
-type AssetType = "conversation" | "document";
+type AssetType = "conversation" | "document" | "research_report";
 
 function formString(formData: FormData, key: string) {
   const value = formData.get(key);
@@ -131,17 +131,23 @@ export async function assignAssetToProject(formData: FormData) {
   }
 
   const { error } =
-    assetType === "document"
+    assetType === "research_report"
       ? await supabase
-          .from("documents")
+          .from("research_reports")
           .update({ project_id: projectId })
           .eq("id", assetId)
           .eq("user_id", userId)
-      : await supabase
-          .from("conversations")
-          .update({ project_id: projectId })
-          .eq("id", assetId)
-          .eq("user_id", userId);
+      : assetType === "document"
+        ? await supabase
+            .from("documents")
+            .update({ project_id: projectId })
+            .eq("id", assetId)
+            .eq("user_id", userId)
+        : await supabase
+            .from("conversations")
+            .update({ project_id: projectId })
+            .eq("id", assetId)
+            .eq("user_id", userId);
 
   if (error) {
     redirect(`/dashboard/projects/${projectId}?message=Could not assign asset.`);
@@ -162,19 +168,26 @@ export async function removeAssetFromProject(formData: FormData) {
 
   const { supabase, userId } = await getUserId();
   const { error } =
-    assetType === "document"
+    assetType === "research_report"
       ? await supabase
-          .from("documents")
+          .from("research_reports")
           .update({ project_id: null })
           .eq("id", assetId)
           .eq("project_id", projectId)
           .eq("user_id", userId)
-      : await supabase
-          .from("conversations")
-          .update({ project_id: null })
-          .eq("id", assetId)
-          .eq("project_id", projectId)
-          .eq("user_id", userId);
+      : assetType === "document"
+        ? await supabase
+            .from("documents")
+            .update({ project_id: null })
+            .eq("id", assetId)
+            .eq("project_id", projectId)
+            .eq("user_id", userId)
+        : await supabase
+            .from("conversations")
+            .update({ project_id: null })
+            .eq("id", assetId)
+            .eq("project_id", projectId)
+            .eq("user_id", userId);
 
   if (error) {
     redirect(`/dashboard/projects/${projectId}?message=Could not remove asset.`);

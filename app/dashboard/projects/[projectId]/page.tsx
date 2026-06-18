@@ -6,6 +6,7 @@ import {
   FileText,
   FolderKanban,
   Link2,
+  Search,
   Trash2,
 } from "lucide-react";
 import {
@@ -51,8 +52,10 @@ export default async function ProjectDetailPage({
     { data: project, error: projectError },
     { data: projectConversations },
     { data: projectDocuments },
+    { data: projectReports },
     { data: availableConversations },
     { data: availableDocuments },
+    { data: availableReports },
   ] = await Promise.all([
     supabase
       .from("projects")
@@ -73,6 +76,12 @@ export default async function ProjectDetailPage({
       .eq("user_id", user.id)
       .order("updated_at", { ascending: false }),
     supabase
+      .from("research_reports")
+      .select("id,title,topic,updated_at")
+      .eq("project_id", projectId)
+      .eq("user_id", user.id)
+      .order("updated_at", { ascending: false }),
+    supabase
       .from("conversations")
       .select("id,title,updated_at")
       .is("project_id", null)
@@ -81,6 +90,12 @@ export default async function ProjectDetailPage({
     supabase
       .from("documents")
       .select("id,title,file_name,updated_at")
+      .is("project_id", null)
+      .eq("user_id", user.id)
+      .order("updated_at", { ascending: false }),
+    supabase
+      .from("research_reports")
+      .select("id,title,topic,updated_at")
       .is("project_id", null)
       .eq("user_id", user.id)
       .order("updated_at", { ascending: false }),
@@ -193,7 +208,7 @@ export default async function ProjectDetailPage({
             workspace for every future studio.
           </p>
 
-          <div className="mt-6 grid gap-4 lg:grid-cols-2">
+          <div className="mt-6 grid gap-4 lg:grid-cols-3">
             <form action={assignAssetToProject} className="rounded-3xl border border-white/10 bg-black/35 p-4">
               <input type="hidden" name="projectId" value={project.id} />
               <input type="hidden" name="assetType" value="conversation" />
@@ -247,11 +262,38 @@ export default async function ProjectDetailPage({
                 Assign document
               </button>
             </form>
+
+            <form action={assignAssetToProject} className="rounded-3xl border border-white/10 bg-black/35 p-4">
+              <input type="hidden" name="projectId" value={project.id} />
+              <input type="hidden" name="assetType" value="research_report" />
+              <Search className="mb-4 size-5 text-gold" aria-hidden />
+              <label className="block text-sm font-medium text-white">
+                Add report
+                <select
+                  name="assetId"
+                  required
+                  className="mt-2 w-full rounded-2xl border border-white/10 bg-black/60 px-4 py-3 text-sm text-white outline-none focus:border-gold/50"
+                >
+                  <option value="">Choose report</option>
+                  {(availableReports ?? []).map((report) => (
+                    <option key={report.id} value={report.id}>
+                      {report.title}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <button
+                type="submit"
+                className="mt-4 w-full rounded-full border border-gold/35 bg-gold/10 px-4 py-2.5 text-sm font-semibold text-gold-bright transition hover:bg-gold/15"
+              >
+                Assign report
+              </button>
+            </form>
           </div>
         </section>
       </div>
 
-      <section className="grid gap-6 xl:grid-cols-2">
+      <section className="grid gap-6 xl:grid-cols-3">
         <AssetList
           title="Project chats"
           empty="No chats are assigned to this project yet."
@@ -278,6 +320,19 @@ export default async function ProjectDetailPage({
             title: document.title,
           }))}
         />
+        <AssetList
+          title="Project reports"
+          empty="No research reports are assigned to this project yet."
+          icon="report"
+          projectId={project.id}
+          assetType="research_report"
+          assets={(projectReports ?? []).map((report) => ({
+            href: `/dashboard/research/${report.id}`,
+            id: report.id,
+            subtitle: report.topic,
+            title: report.title,
+          }))}
+        />
       </section>
     </div>
   );
@@ -297,13 +352,13 @@ function AssetList({
     subtitle: string;
     title: string;
   }[];
-  assetType: "conversation" | "document";
+  assetType: "conversation" | "document" | "research_report";
   empty: string;
-  icon: "chat" | "document";
+  icon: "chat" | "document" | "report";
   projectId: string;
   title: string;
 }) {
-  const Icon = icon === "chat" ? Bot : FileText;
+  const Icon = icon === "chat" ? Bot : icon === "report" ? Search : FileText;
 
   return (
     <div className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6">
