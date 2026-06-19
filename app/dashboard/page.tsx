@@ -15,8 +15,15 @@ import {
   ShieldCheck,
   Sparkles,
   Trees,
+  Trash2,
+  Upload,
   Users,
 } from "lucide-react";
+import {
+  deleteProjectFile,
+  uploadProjectFile,
+} from "@/app/actions/files";
+import { ensureDefaultProject } from "@/lib/projects";
 import { createClient } from "@/lib/supabase/server";
 
 const studios = [
@@ -92,14 +99,49 @@ const studios = [
   },
 ];
 
-const metrics = [
+const baseMetrics = [
   { label: "Active studios", value: "14" },
   { label: "Auth provider", value: "Supabase" },
-  { label: "Deploy target", value: "Vercel" },
 ];
 
-export default async function DashboardPage() {
+type DashboardPageProps = {
+  searchParams?: Promise<{
+    fileMessage?: string;
+  }>;
+};
+
+const projectFilesBucket = "project-files";
+
+function formatFileSize(sizeBytes: number) {
+  if (sizeBytes < 1024) {
+    return `${sizeBytes} B`;
+  }
+
+  const units = ["KB", "MB", "GB"];
+  let size = sizeBytes / 1024;
+  let unitIndex = 0;
+
+  while (size >= 1024 && unitIndex < units.length - 1) {
+    size /= 1024;
+    unitIndex += 1;
+  }
+
+  return `${size.toFixed(size >= 10 ? 0 : 1)} ${units[unitIndex]}`;
+}
+
+function formatDate(date: string) {
+  return new Intl.DateTimeFormat("en", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(new Date(date));
+}
+
+export default async function DashboardPage({
+  searchParams,
+}: DashboardPageProps) {
   const supabase = await createClient();
+  const params = await searchParams;
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -117,6 +159,33 @@ export default async function DashboardPage() {
     (typeof user?.user_metadata.display_name === "string"
       ? user.user_metadata.display_name
       : user?.email?.split("@")[0] ?? "Operator");
+
+  const project = user ? await ensureDefaultProject(supabase, user.id) : null;
+  const { data: projectFiles } = project
+    ? await supabase
+        .from("files")
+        .select("id, name, file_type, storage_path, size_bytes, created_at")
+        .eq("project_id", project.id)
+        .order("created_at", { ascending: false })
+    : { data: [] };
+
+  const filesWithUrls = await Promise.all(
+    (projectFiles ?? []).map(async (file) => {
+      const { data } = await supabase.storage
+        .from(projectFilesBucket)
+        .createSignedUrl(file.storage_path, 60 * 60);
+
+      return {
+        ...file,
+        signedUrl: data?.signedUrl ?? null,
+      };
+    }),
+  );
+
+  const metrics = [
+    ...baseMetrics,
+    { label: "Project files", value: filesWithUrls.length.toString() },
+  ];
 
   return (
     <div className="space-y-8">
@@ -180,6 +249,144 @@ export default async function DashboardPage() {
         </div>
       </section>
 
+      <section
+        id="files"
+        className="grid gap-5 rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 lg:grid-cols-[0.8fr_1.2fr]"
+      >
+        <div className="rounded-3xl border border-gold/20 bg-black/40 p-6">
+          <div className="mb-5 flex size-12 items-center justify-center rounded-2xl border border-gold/25 bg-gold/10 text-gold">
+            <Upload className="size-5" aria-hidden />
+          </div>
+          <p className="text-xs uppercase tracking-[0.24em] text-gold-bright">
+            Project files
+          </p>
+          <h2 className="mt-3 text-2xl font-semibold text-white">
+            Store files for future AI analysis.
+          </h2>
+          <p className="mt-3 leading-6 text-muted">
+            Upload PDFs, DOCX documents, TXT notes, CSV data, and common image
+            formats to {project?.name ?? "your project"}. Analysis is not
+            enabled yet.
+          </p>
+
+          {params?.fileMessage ? (
+            <div className="mt-5 rounded-2xl border border-gold/20 bg-gold/10 px-4 py-3 text-sm text-gold-bright">
+              {params.fileMessage}
+            </div>
+          ) : null}
+
+          <form action={uploadProjectFile} className="mt-6 space-y-4">
+            <input type="hidden" name="projectId" value={project?.id ?? ""} />
+            <label className="block rounded-2xl border border-dashed border-white/15 bg-panel-soft p-4">
+              <span className="text-sm font-medium text-white">
+                Choose a supported file
+              </span>
+              <span className="mt-1 block text-xs text-muted">
+                PDF, DOCX, TXT, CSV, JPG, PNG, GIF, or WEBP up to 50 MB.
+              </span>
+              <input
+                required
+                type="file"
+                name="file"
+                accept=".pdf,.docx,.txt,.csv,image/jpeg,image/png,image/gif,image/webp"
+                className="mt-4 block w-full cursor-pointer rounded-xl border border-white/10 bg-black/50 p-3 text-sm text-muted file:mr-4 file:rounded-full file:border-0 file:bg-gold file:px-4 file:py-2 file:text-sm file:font-semibold file:text-black"
+              />
+            </label>
+            <button
+              type="submit"
+              className="gold-gradient flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-black"
+            >
+              <Upload className="size-4" aria-hidden />
+              Upload file
+            </button>
+          </form>
+        </div>
+
+        <div className="rounded-3xl border border-white/10 bg-black/40 p-4 sm:p-6">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-[0.24em] text-muted">
+                File listing
+              </p>
+              <h3 className="mt-2 text-xl font-semibold text-white">
+                {filesWithUrls.length} stored{" "}
+                {filesWithUrls.length === 1 ? "file" : "files"}
+              </h3>
+            </div>
+            <span className="rounded-full border border-white/10 px-3 py-1 text-xs text-muted">
+              Private bucket
+            </span>
+          </div>
+
+          {filesWithUrls.length > 0 ? (
+            <div className="mt-5 space-y-3">
+              {filesWithUrls.map((file) => (
+                <article
+                  key={file.id}
+                  className="rounded-2xl border border-white/10 bg-panel-soft p-4"
+                >
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-3">
+                        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-gold/20 bg-gold/10 text-gold">
+                          <FileText className="size-4" aria-hidden />
+                        </div>
+                        <div className="min-w-0">
+                          <h4 className="truncate font-medium text-white">
+                            {file.name}
+                          </h4>
+                          <p className="mt-1 text-xs text-muted">
+                            {file.file_type} &bull;{" "}
+                            {formatFileSize(file.size_bytes)} &bull;{" "}
+                            {formatDate(file.created_at)}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex shrink-0 items-center gap-2">
+                      {file.signedUrl ? (
+                        <a
+                          href={file.signedUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="rounded-full border border-white/10 px-3 py-2 text-xs font-medium text-white transition hover:border-gold/40 hover:text-gold-bright"
+                        >
+                          View
+                        </a>
+                      ) : (
+                        <span className="rounded-full border border-white/10 px-3 py-2 text-xs text-muted">
+                          View unavailable
+                        </span>
+                      )}
+                      <form action={deleteProjectFile}>
+                        <input type="hidden" name="fileId" value={file.id} />
+                        <button
+                          type="submit"
+                          className="flex items-center gap-2 rounded-full border border-red-400/20 px-3 py-2 text-xs font-medium text-red-200 transition hover:border-red-300/50 hover:bg-red-400/10"
+                        >
+                          <Trash2 className="size-3.5" aria-hidden />
+                          Delete
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="mt-5 rounded-2xl border border-dashed border-white/10 bg-panel-soft p-8 text-center">
+              <FileText className="mx-auto mb-4 size-8 text-gold" aria-hidden />
+              <h4 className="font-semibold text-white">No files yet</h4>
+              <p className="mt-2 text-sm leading-6 text-muted">
+                Upload files here so each project can retain source material for
+                future analysis.
+              </p>
+            </div>
+          )}
+        </div>
+      </section>
+
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {studios.map((studio) => (
           <article
@@ -211,7 +418,7 @@ export default async function DashboardPage() {
           },
           {
             title: "Database",
-            body: "Profiles and workspaces are prepared with RLS-enabled SQL.",
+            body: "Profiles, projects, workspaces, and file metadata are prepared with RLS-enabled SQL.",
           },
           {
             title: "Deployment",
