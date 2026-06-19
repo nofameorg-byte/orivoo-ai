@@ -17,6 +17,7 @@ import {
   Users,
 } from "lucide-react";
 import { AssistantPrompt } from "@/app/dashboard/assistant-prompt";
+import type { AssistantMessage } from "@/lib/assistant/types";
 import { createClient } from "@/lib/supabase/server";
 
 const studios = [
@@ -117,6 +118,30 @@ export default async function DashboardPage() {
     (typeof user?.user_metadata.display_name === "string"
       ? user.user_metadata.display_name
       : user?.email?.split("@")[0] ?? "Operator");
+  let initialConversationId: string | null = null;
+  let initialMessages: AssistantMessage[] = [];
+
+  if (user) {
+    const { data: conversation } = await supabase
+      .from("conversations")
+      .select("id")
+      .eq("user_id", user.id)
+      .order("updated_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    initialConversationId = conversation?.id ?? null;
+
+    if (initialConversationId) {
+      const { data: messages } = await supabase
+        .from("messages")
+        .select("id, role, content, created_at")
+        .eq("conversation_id", initialConversationId)
+        .order("created_at", { ascending: true });
+
+      initialMessages = messages ?? [];
+    }
+  }
 
   return (
     <div className="space-y-8">
@@ -157,7 +182,10 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        <AssistantPrompt />
+        <AssistantPrompt
+          initialConversationId={initialConversationId}
+          initialMessages={initialMessages}
+        />
       </section>
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
