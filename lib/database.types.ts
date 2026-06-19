@@ -118,7 +118,9 @@ export type Database = {
           display_name: string | null;
           id: string;
           selected_model: string;
-          subscription_tier: "free" | "pro" | "enterprise";
+          square_customer_id: string | null;
+          subscription_status: string;
+          subscription_tier: "free" | "pro" | "business" | "enterprise";
           updated_at: string;
         };
         Insert: {
@@ -127,7 +129,9 @@ export type Database = {
           display_name?: string | null;
           id: string;
           selected_model?: string;
-          subscription_tier?: "free" | "pro" | "enterprise";
+          square_customer_id?: string | null;
+          subscription_status?: string;
+          subscription_tier?: "free" | "pro" | "business" | "enterprise";
           updated_at?: string;
         };
         Update: {
@@ -136,8 +140,40 @@ export type Database = {
           display_name?: string | null;
           id?: string;
           selected_model?: string;
-          subscription_tier?: "free" | "pro" | "enterprise";
+          square_customer_id?: string | null;
+          subscription_status?: string;
+          subscription_tier?: "free" | "pro" | "business" | "enterprise";
           updated_at?: string;
+        };
+        Relationships: [];
+      };
+      subscriptions: {
+        Row: {
+          created_at: string;
+          id: string;
+          plan_name: string;
+          square_customer_id: string | null;
+          status: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          plan_name: string;
+          square_customer_id?: string | null;
+          status: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          plan_name?: string;
+          square_customer_id?: string | null;
+          status?: string;
+          updated_at?: string;
+          user_id?: string;
         };
         Relationships: [];
       };

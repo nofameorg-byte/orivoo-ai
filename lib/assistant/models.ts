@@ -1,4 +1,4 @@
-export type SubscriptionTier = "free" | "pro" | "enterprise";
+export type SubscriptionTier = "free" | "pro" | "business" | "enterprise";
 
 export type AssistantModelId =
   | "groq-llama-3.3-70b"
@@ -55,7 +55,7 @@ export function getAssistantModel(modelId: string | null | undefined) {
 export function normalizeSubscriptionTier(
   tier: string | null | undefined,
 ): SubscriptionTier {
-  if (tier === "pro" || tier === "enterprise") {
+  if (tier === "pro" || tier === "business" || tier === "enterprise") {
     return tier;
   }
 
@@ -85,7 +85,7 @@ export function canUseAssistantModel({
     return true;
   }
 
-  if (subscriptionTier === "pro") {
+  if (subscriptionTier === "pro" || subscriptionTier === "business") {
     return model.minimumTier === "free" || model.minimumTier === "pro";
   }
 
@@ -111,4 +111,14 @@ export function resolveAssistantModelForTier({
   }
 
   return assistantModels[0];
+}
+
+export function canUseTeamWorkspaces(subscriptionTier: SubscriptionTier) {
+  return subscriptionTier === "business" || subscriptionTier === "enterprise";
+}
+
+export function canUseFutureEnterpriseModels(
+  subscriptionTier: SubscriptionTier,
+) {
+  return subscriptionTier === "enterprise";
 }
