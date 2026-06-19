@@ -130,6 +130,7 @@ export async function submitAssistantPrompt(input: {
   return {
     ok: true,
     conversationId,
+    assistantResponse,
     messages: await loadMessages(supabase, conversationId),
   };
 }

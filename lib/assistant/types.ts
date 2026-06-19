@@ -11,6 +11,7 @@ export type SubmitPromptResult =
   | {
       ok: true;
       conversationId: string;
+      assistantResponse: string;
       messages: AssistantMessage[];
     }
   | {
