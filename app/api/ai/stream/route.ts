@@ -130,6 +130,7 @@ export async function POST(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  let streamBody: StreamRequest | null = null;
 
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -137,6 +138,11 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = (await request.json()) as StreamRequest;
+    streamBody = body;
+    console.log("STREAM BODY", body);
+    console.log("conversationId", body.conversationId);
+    console.log("workspaceId", body.workspaceId);
+    console.log("messages", body.messages?.length);
     const messages = normalizeMessages(body);
     const memoryContext = await loadMemoryContext(supabase, {
       userId: user.id,
@@ -277,6 +283,11 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
+    console.log("400 HIT", {
+      reason:
+        error instanceof Error ? error.message : "Unable to route AI request.",
+      body: streamBody,
+    });
     return NextResponse.json(
       {
         error:
