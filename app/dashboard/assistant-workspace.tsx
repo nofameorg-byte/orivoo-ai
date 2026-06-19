@@ -1,36 +1,53 @@
 "use client";
 
 import { useState } from "react";
-import { loadAssistantConversation } from "@/app/actions/assistant";
+import {
+  loadAssistantConversation,
+  loadAssistantProject,
+} from "@/app/actions/assistant";
 import { AssistantPrompt } from "@/app/dashboard/assistant-prompt";
+import { ProjectSelector } from "@/app/dashboard/project-selector";
 import type {
   AssistantModelId,
   SubscriptionTier,
 } from "@/lib/assistant/models";
+import {
+  defaultAssistantStudioId,
+  normalizeAssistantStudioId,
+  type AssistantStudioId,
+} from "@/lib/assistant/studios";
 import type {
   AssistantConversation,
   AssistantMessage,
+  AssistantProject,
 } from "@/lib/assistant/types";
 
 export function AssistantWorkspace({
   initialConversationId,
   initialConversations,
   initialMessages,
+  initialProjects,
   initialSelectedModel,
   subscriptionTier,
 }: {
   initialConversationId: string | null;
   initialConversations: AssistantConversation[];
   initialMessages: AssistantMessage[];
+  initialProjects: AssistantProject[];
   initialSelectedModel: AssistantModelId;
   subscriptionTier: SubscriptionTier;
 }) {
   const [activeConversationId, setActiveConversationId] = useState(
     initialConversationId,
   );
+  const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
   const [conversations, setConversations] = useState(initialConversations);
   const [messages, setMessages] = useState(initialMessages);
+  const [projects, setProjects] = useState(initialProjects);
   const [selectedModel, setSelectedModel] = useState(initialSelectedModel);
+  const [selectedStudio, setSelectedStudio] =
+    useState<AssistantStudioId>(defaultAssistantStudioId);
+  const [isLoadingProject, setIsLoadingProject] = useState(false);
   const [isLoadingConversation, setIsLoadingConversation] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -45,6 +62,46 @@ export function AssistantWorkspace({
           new Date(first.updated_at).getTime(),
       ),
     );
+  }
+
+  function handleProjectCreated(project: AssistantProject) {
+    setProjects((currentProjects) => [
+      project,
+      ...currentProjects.filter((item) => item.id !== project.id),
+    ]);
+    setActiveProjectId(project.id);
+    setActiveConversationId(null);
+    setConversations([]);
+    setMessages([]);
+    setSelectedStudio(normalizeAssistantStudioId(project.studio));
+  }
+
+  async function handleSelectProject(project: AssistantProject) {
+    if (project.id === activeProjectId || isLoadingProject) {
+      return;
+    }
+
+    setLoadError(null);
+    setIsLoadingProject(true);
+
+    try {
+      const result = await loadAssistantProject(project.id);
+
+      if (!result.ok) {
+        setLoadError(result.error);
+        return;
+      }
+
+      setActiveProjectId(result.projectId);
+      setActiveConversationId(result.activeConversationId);
+      setConversations(result.conversations);
+      setMessages(result.messages);
+      setSelectedStudio(normalizeAssistantStudioId(project.studio));
+    } catch {
+      setLoadError("Could not load that project. Please try again.");
+    } finally {
+      setIsLoadingProject(false);
+    }
   }
 
   async function handleSelectConversation(conversationId: string) {
@@ -77,6 +134,15 @@ export function AssistantWorkspace({
 
   return (
     <>
+      <ProjectSelector
+        activeProjectId={activeProjectId}
+        isLoading={isLoadingProject}
+        onCreateProject={handleProjectCreated}
+        onSelectProject={handleSelectProject}
+        projects={projects}
+        selectedStudio={selectedStudio}
+      />
+
       <AssistantPrompt
         conversationId={activeConversationId}
         messages={messages}
@@ -84,7 +150,10 @@ export function AssistantWorkspace({
         onConversationSaved={handleConversationSaved}
         onMessagesChange={setMessages}
         onSelectedModelChange={setSelectedModel}
+        onSelectedStudioChange={setSelectedStudio}
+        projectId={activeProjectId}
         selectedModel={selectedModel}
+        selectedStudio={selectedStudio}
         subscriptionTier={subscriptionTier}
       />
 

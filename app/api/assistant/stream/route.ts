@@ -12,6 +12,7 @@ import {
   type AssistantPromptMessage,
 } from "@/lib/assistant/prompt-builder";
 import {
+  type AssistantSupabaseClient,
   getOrCreateAssistantConversation,
   loadAssistantConversationSummary,
   loadAssistantMessages,
@@ -47,6 +48,7 @@ export async function POST(request: NextRequest) {
           prompt?: unknown;
           conversationId?: unknown;
           modelId?: unknown;
+          projectId?: unknown;
           studioId?: unknown;
         } | null;
         const prompt =
@@ -55,6 +57,8 @@ export async function POST(request: NextRequest) {
           typeof body?.conversationId === "string"
             ? body.conversationId
             : null;
+        const requestedProjectId =
+          typeof body?.projectId === "string" ? body.projectId : null;
 
         if (!prompt) {
           send({ type: "error", error: "Enter a prompt before sending." });
@@ -181,6 +185,22 @@ export async function POST(request: NextRequest) {
           supabase,
           conversationId,
         );
+        const projectLinkResult = await linkConversationToProject({
+          supabase,
+          userId: user.id,
+          projectId: requestedProjectId,
+          conversationId,
+        });
+
+        if (!projectLinkResult.ok) {
+          send({
+            type: "error",
+            conversationId,
+            error: projectLinkResult.error,
+          });
+          return;
+        }
+
         send({ type: "conversation", conversationId, conversation });
 
         const { data: userMessage, error: userMessageError } = await supabase
@@ -401,4 +421,71 @@ async function getGroqErrorMessage(response: Response) {
   } catch {
     return body;
   }
+}
+
+async function linkConversationToProject({
+  supabase,
+  userId,
+  projectId,
+  conversationId,
+}: {
+  supabase: AssistantSupabaseClient;
+  userId: string;
+  projectId: string | null;
+  conversationId: string;
+}): Promise<
+  | {
+      ok: true;
+    }
+  | {
+      ok: false;
+      error: string;
+    }
+> {
+  if (!projectId) {
+    return { ok: true };
+  }
+
+  const { data: project, error: projectError } = await supabase
+    .from("projects")
+    .select("id")
+    .eq("id", projectId)
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (projectError) {
+    return { ok: false, error: "Could not load the selected project." };
+  }
+
+  if (!project) {
+    return { ok: false, error: "Selected project not found." };
+  }
+
+  const { error: linkError } = await supabase
+    .from("project_conversations")
+    .upsert(
+      {
+        project_id: project.id,
+        conversation_id: conversationId,
+      },
+      {
+        ignoreDuplicates: true,
+        onConflict: "project_id,conversation_id",
+      },
+    );
+
+  if (linkError) {
+    return {
+      ok: false,
+      error: "Could not link the conversation to this project.",
+    };
+  }
+
+  await supabase
+    .from("projects")
+    .update({ updated_at: new Date().toISOString() })
+    .eq("id", project.id)
+    .eq("user_id", userId);
+
+  return { ok: true };
 }

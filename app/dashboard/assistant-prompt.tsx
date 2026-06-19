@@ -10,10 +10,12 @@ import {
 } from "react";
 import { ArrowUp } from "lucide-react";
 import { AssistantModelSelector } from "@/app/dashboard/assistant-model-selector";
+import { AssistantStudioSelector } from "@/app/dashboard/assistant-studio-selector";
 import type {
   AssistantModelId,
   SubscriptionTier,
 } from "@/lib/assistant/models";
+import type { AssistantStudioId } from "@/lib/assistant/studios";
 import type {
   AssistantConversation,
   AssistantMessage,
@@ -31,7 +33,10 @@ export function AssistantPrompt({
   onConversationSaved,
   onMessagesChange,
   onSelectedModelChange,
+  onSelectedStudioChange,
+  projectId,
   selectedModel,
+  selectedStudio,
   subscriptionTier,
 }: {
   conversationId: string | null;
@@ -40,7 +45,10 @@ export function AssistantPrompt({
   onConversationSaved: (conversation: AssistantConversation) => void;
   onMessagesChange: (messages: AssistantMessage[]) => void;
   onSelectedModelChange: (modelId: AssistantModelId) => void;
+  onSelectedStudioChange: (studioId: AssistantStudioId) => void;
+  projectId: string | null;
   selectedModel: AssistantModelId;
+  selectedStudio: AssistantStudioId;
   subscriptionTier: SubscriptionTier;
 }) {
   const [prompt, setPrompt] = useState("");
@@ -123,6 +131,8 @@ export function AssistantPrompt({
           prompt: nextPrompt,
           conversationId,
           modelId: selectedModel,
+          projectId,
+          studioId: selectedStudio,
         }),
       });
 
@@ -291,6 +301,10 @@ export function AssistantPrompt({
           </p>
         ) : null}
       </div>
+      <AssistantStudioSelector
+        selectedStudio={selectedStudio}
+        onSelectedStudioChange={onSelectedStudioChange}
+      />
       <AssistantModelSelector
         selectedModel={selectedModel}
         subscriptionTier={subscriptionTier}

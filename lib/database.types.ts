@@ -60,6 +60,57 @@ export type Database = {
         };
         Relationships: [];
       };
+      project_conversations: {
+        Row: {
+          conversation_id: string;
+          created_at: string;
+          id: string;
+          project_id: string;
+        };
+        Insert: {
+          conversation_id: string;
+          created_at?: string;
+          id?: string;
+          project_id: string;
+        };
+        Update: {
+          conversation_id?: string;
+          created_at?: string;
+          id?: string;
+          project_id?: string;
+        };
+        Relationships: [];
+      };
+      projects: {
+        Row: {
+          created_at: string;
+          description: string | null;
+          id: string;
+          name: string;
+          studio: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          name: string;
+          studio?: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          name?: string;
+          studio?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       profiles: {
         Row: {
           avatar_url: string | null;

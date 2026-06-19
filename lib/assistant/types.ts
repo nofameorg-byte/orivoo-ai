@@ -14,6 +14,15 @@ export type AssistantConversation = {
   updated_at: string;
 };
 
+export type AssistantProject = {
+  id: string;
+  name: string;
+  description: string | null;
+  studio: string;
+  created_at: string;
+  updated_at: string;
+};
+
 export type AssistantStreamEvent =
   | {
       type: "conversation";
@@ -56,6 +65,29 @@ export type SelectAssistantModelResult =
   | {
       ok: true;
       selectedModel: string;
+    }
+  | {
+      ok: false;
+      error: string;
+    };
+
+export type CreateProjectResult =
+  | {
+      ok: true;
+      project: AssistantProject;
+    }
+  | {
+      ok: false;
+      error: string;
+    };
+
+export type LoadProjectResult =
+  | {
+      ok: true;
+      projectId: string;
+      conversations: AssistantConversation[];
+      activeConversationId: string | null;
+      messages: AssistantMessage[];
     }
   | {
       ok: false;

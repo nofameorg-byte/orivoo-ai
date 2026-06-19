@@ -7,6 +7,7 @@ import {
 import type {
   AssistantConversation,
   AssistantMessage,
+  AssistantProject,
 } from "@/lib/assistant/types";
 import { createClient } from "@/lib/supabase/server";
 
@@ -44,8 +45,17 @@ export default async function DashboardPage() {
   let initialConversationId: string | null = null;
   let initialConversations: AssistantConversation[] = [];
   let initialMessages: AssistantMessage[] = [];
+  let initialProjects: AssistantProject[] = [];
 
   if (user) {
+    const { data: projects } = await supabase
+      .from("projects")
+      .select("id, name, description, studio, created_at, updated_at")
+      .eq("user_id", user.id)
+      .order("updated_at", { ascending: false });
+
+    initialProjects = projects ?? [];
+
     const { data: conversations } = await supabase
       .from("conversations")
       .select("id, title, created_at, updated_at")
@@ -109,6 +119,7 @@ export default async function DashboardPage() {
           initialConversations={initialConversations}
           initialConversationId={initialConversationId}
           initialMessages={initialMessages}
+          initialProjects={initialProjects}
           initialSelectedModel={initialSelectedModel}
           subscriptionTier={subscriptionTier}
         />
