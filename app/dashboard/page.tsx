@@ -1,97 +1,7 @@
-import {
-  Bot,
-  Braces,
-  Building2,
-  FileText,
-  FlaskConical,
-  Globe2,
-  Landmark,
-  Layers3,
-  Leaf,
-  Palette,
-  Scale,
-  Search,
-  ShieldCheck,
-  Sparkles,
-  Trees,
-  Users,
-} from "lucide-react";
+import { ShieldCheck, Sparkles } from "lucide-react";
 import { AssistantPrompt } from "@/app/dashboard/assistant-prompt";
 import type { AssistantMessage } from "@/lib/assistant/types";
 import { createClient } from "@/lib/supabase/server";
-
-const studios = [
-  {
-    name: "Assistant",
-    description: "Ask, plan, summarize, and coordinate across every studio.",
-    icon: Bot,
-  },
-  {
-    name: "Document Studio",
-    description: "Draft, edit, and transform high-quality written assets.",
-    icon: FileText,
-  },
-  {
-    name: "Research Studio",
-    description: "Explore topics, collect evidence, and turn findings into maps.",
-    icon: Search,
-  },
-  {
-    name: "Website Builder",
-    description: "Shape landing pages, content blocks, and deployment plans.",
-    icon: Globe2,
-  },
-  {
-    name: "Code Studio",
-    description: "Create implementation plans, code, tests, and technical notes.",
-    icon: Braces,
-  },
-  {
-    name: "Business Builder",
-    description: "Model offers, operations, positioning, and growth systems.",
-    icon: Building2,
-  },
-  {
-    name: "Design Studio",
-    description: "Develop brand systems, UI direction, and visual concepts.",
-    icon: Palette,
-  },
-  {
-    name: "Land Studio",
-    description: "Organize property, planning, and land-use intelligence.",
-    icon: Trees,
-  },
-  {
-    name: "Concept Studio",
-    description: "Turn raw ideas into structured concepts and next actions.",
-    icon: Layers3,
-  },
-  {
-    name: "Legal Studio",
-    description: "Summarize legal context and prepare review-ready drafts.",
-    icon: Scale,
-  },
-  {
-    name: "Civic Studio",
-    description: "Navigate public programs, policy, and civic research.",
-    icon: Landmark,
-  },
-  {
-    name: "Botanical Studio",
-    description: "Study plants, cultivation workflows, and botanical data.",
-    icon: Leaf,
-  },
-  {
-    name: "Genealogy Studio",
-    description: "Trace family history, records, and ancestry narratives.",
-    icon: Users,
-  },
-  {
-    name: "Science Studio",
-    description: "Frame hypotheses, lab notes, and research explainers.",
-    icon: FlaskConical,
-  },
-];
 
 const metrics = [
   { label: "Active studios", value: "14" },
@@ -186,26 +96,6 @@ export default async function DashboardPage() {
           initialConversationId={initialConversationId}
           initialMessages={initialMessages}
         />
-      </section>
-
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {studios.map((studio) => (
-          <article
-            key={studio.name}
-            className="group rounded-3xl border border-white/10 bg-white/[0.03] p-6 transition hover:-translate-y-1 hover:border-gold/40 hover:bg-gold/10"
-          >
-            <div className="mb-6 flex items-center justify-between">
-              <div className="flex size-12 items-center justify-center rounded-2xl border border-gold/25 bg-gold/10 text-gold">
-                <studio.icon className="size-5" aria-hidden />
-              </div>
-              <span className="rounded-full border border-white/10 px-3 py-1 text-xs text-muted">
-                Ready
-              </span>
-            </div>
-            <h2 className="text-xl font-semibold text-white">{studio.name}</h2>
-            <p className="mt-3 leading-6 text-muted">{studio.description}</p>
-          </article>
-        ))}
       </section>
 
       <section

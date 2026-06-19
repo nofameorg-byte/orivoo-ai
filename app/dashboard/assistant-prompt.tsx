@@ -127,7 +127,7 @@ export function AssistantPrompt({
     >
       <div className="min-h-32 rounded-2xl bg-panel-soft p-5">
         <p className="text-sm text-muted">Assistant prompt</p>
-        <div className="mt-4 max-h-80 space-y-3 overflow-y-auto pr-1">
+        <div className="mt-4 max-h-[60vh] space-y-3 overflow-y-auto pr-1">
           {messages.length > 0 ? (
             messages.map((message) => (
               <article
