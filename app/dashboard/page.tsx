@@ -1,5 +1,4 @@
 import {
-  ArrowUp,
   Bot,
   Braces,
   Building2,
@@ -17,6 +16,7 @@ import {
   Trees,
   Users,
 } from "lucide-react";
+import { AssistantPrompt } from "@/app/dashboard/assistant-prompt";
 import { createClient } from "@/lib/supabase/server";
 
 const studios = [
@@ -157,27 +157,7 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        <div className="relative mt-8 rounded-[1.5rem] border border-white/10 bg-black/60 p-3">
-          <div className="min-h-32 rounded-2xl bg-panel-soft p-5">
-            <p className="text-sm text-muted">Assistant prompt</p>
-            <p className="mt-3 text-lg text-white">
-              Build a launch-ready brief, create a research map, and draft the
-              first landing page section for ORIVOO AI.
-            </p>
-          </div>
-          <div className="mt-3 flex items-center gap-3 rounded-full border border-white/10 bg-black/60 p-2 pl-5">
-            <span className="flex-1 text-sm text-muted">
-              Ask ORIVOO AI to plan, write, design, research, or build...
-            </span>
-            <button
-              type="button"
-              className="gold-gradient flex size-10 items-center justify-center rounded-full text-black"
-            >
-              <ArrowUp className="size-4" aria-hidden />
-              <span className="sr-only">Send prompt</span>
-            </button>
-          </div>
-        </div>
+        <AssistantPrompt />
       </section>
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
