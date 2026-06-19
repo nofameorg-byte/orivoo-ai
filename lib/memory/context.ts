@@ -10,7 +10,6 @@ type Supabase = SupabaseClient<Database>;
 export type MemoryScope = {
   userId: string;
   workspaceId?: string | null;
-  projectId?: string | null;
   conversationId?: string | null;
 };
 
@@ -23,43 +22,22 @@ function formatSection(title: string, items: string[]) {
 }
 
 export async function loadMemoryContext(supabase: Supabase, scope: MemoryScope) {
-  let workspaceId = scope.workspaceId ?? null;
-
-  if (!workspaceId && scope.projectId) {
-    const { data: project } = await supabase
-      .from("projects")
-      .select("workspace_id")
-      .eq("id", scope.projectId)
-      .maybeSingle();
-
-    workspaceId = project?.workspace_id ?? null;
-  }
-
-  const [userMemoriesResult, workspaceKnowledgeResult, projectMemoriesResult] =
-    await Promise.all([
-      supabase
-        .from("user_memories")
-        .select("memory_type, content, importance")
-        .eq("user_id", scope.userId)
-        .order("importance", { ascending: false })
-        .limit(12),
-      workspaceId
-        ? supabase
-            .from("workspace_knowledge")
-            .select("title, content")
-            .eq("workspace_id", workspaceId)
-            .order("updated_at", { ascending: false })
-            .limit(8)
-        : Promise.resolve({ data: [] }),
-      scope.projectId
-        ? supabase
-            .from("project_memories")
-            .select("title, summary, importance")
-            .eq("project_id", scope.projectId)
-            .order("importance", { ascending: false })
-            .limit(8)
-        : Promise.resolve({ data: [] }),
-    ]);
+  const [userMemoriesResult, workspaceKnowledgeResult] = await Promise.all([
+    supabase
+      .from("user_memories")
+      .select("memory_type, content, importance")
+      .eq("user_id", scope.userId)
+      .order("importance", { ascending: false })
+      .limit(12),
+    scope.workspaceId
+      ? supabase
+          .from("workspace_knowledge")
+          .select("title, content")
+          .eq("workspace_id", scope.workspaceId)
+          .order("updated_at", { ascending: false })
+          .limit(8)
+      : Promise.resolve({ data: [] }),
+  ]);
   const summariesQuery = supabase
     .from("conversation_summaries")
     .select("summary, message_count, created_at")
@@ -69,8 +47,8 @@ export async function loadMemoryContext(supabase: Supabase, scope: MemoryScope) 
 
   if (scope.conversationId) {
     summariesQuery.eq("conversation_id", scope.conversationId);
-  } else if (scope.projectId) {
-    summariesQuery.eq("project_id", scope.projectId);
+  } else if (scope.workspaceId) {
+    summariesQuery.eq("workspace_id", scope.workspaceId);
   }
 
   const { data: summaries } = await summariesQuery;
@@ -81,14 +59,6 @@ export async function loadMemoryContext(supabase: Supabase, scope: MemoryScope) 
       (userMemoriesResult.data ?? []).map(
         (memory) =>
           `- (${memory.memory_type}, importance ${memory.importance}) ${memory.content}`,
-      ),
-    ),
-    "",
-    formatSection(
-      "PROJECT MEMORIES:",
-      (projectMemoriesResult.data ?? []).map(
-        (memory) =>
-          `- ${memory.title} (importance ${memory.importance}): ${memory.summary}`,
       ),
     ),
     "",
@@ -142,7 +112,7 @@ export async function ensureConversation(
   if (scope.conversationId) {
     const { data } = await supabase
       .from("conversations")
-      .select("id, workspace_id, project_id")
+      .select("id, workspace_id")
       .eq("id", scope.conversationId)
       .maybeSingle();
 
@@ -152,16 +122,6 @@ export async function ensureConversation(
   }
 
   let workspaceId = scope.workspaceId ?? null;
-
-  if (!workspaceId && scope.projectId) {
-    const { data: project } = await supabase
-      .from("projects")
-      .select("workspace_id")
-      .eq("id", scope.projectId)
-      .maybeSingle();
-
-    workspaceId = project?.workspace_id ?? null;
-  }
 
   if (!workspaceId) {
     const { data: workspace } = await supabase
@@ -180,10 +140,9 @@ export async function ensureConversation(
     .insert({
       user_id: scope.userId,
       workspace_id: workspaceId,
-      project_id: scope.projectId ?? null,
       title: scope.title || "ORIVOO Conversation",
     })
-    .select("id, workspace_id, project_id")
+    .select("id, workspace_id")
     .single();
 
   if (error) {
@@ -198,7 +157,6 @@ export async function processMemoryAfterResponse(
   input: {
     userId: string;
     workspaceId?: string | null;
-    projectId?: string | null;
     conversationId?: string | null;
     title?: string;
     userMessage: string;
@@ -209,7 +167,6 @@ export async function processMemoryAfterResponse(
   const conversation = await ensureConversation(supabase, {
     userId: input.userId,
     workspaceId: input.workspaceId,
-    projectId: input.projectId,
     conversationId: input.conversationId,
     title: input.title,
   });
@@ -272,7 +229,6 @@ export async function processMemoryAfterResponse(
         conversation_id: conversation.id,
         user_id: input.userId,
         workspace_id: conversation.workspace_id,
-        project_id: conversation.project_id,
         summary,
         message_count: count,
       });

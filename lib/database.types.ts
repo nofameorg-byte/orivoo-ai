@@ -184,7 +184,6 @@ export type Database = {
           created_at: string;
           id: string;
           message_count: number;
-          project_id: string | null;
           summary: string;
           updated_at: string;
           user_id: string;
@@ -195,7 +194,6 @@ export type Database = {
           created_at?: string;
           id?: string;
           message_count?: number;
-          project_id?: string | null;
           summary: string;
           updated_at?: string;
           user_id: string;
@@ -206,7 +204,6 @@ export type Database = {
           created_at?: string;
           id?: string;
           message_count?: number;
-          project_id?: string | null;
           summary?: string;
           updated_at?: string;
           user_id?: string;
@@ -218,13 +215,6 @@ export type Database = {
             columns: ["conversation_id"];
             isOneToOne: false;
             referencedRelation: "conversations";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "conversation_summaries_project_id_fkey";
-            columns: ["project_id"];
-            isOneToOne: false;
-            referencedRelation: "projects";
             referencedColumns: ["id"];
           },
           {
@@ -240,7 +230,6 @@ export type Database = {
         Row: {
           created_at: string;
           id: string;
-          project_id: string | null;
           title: string;
           updated_at: string;
           user_id: string;
@@ -249,7 +238,6 @@ export type Database = {
         Insert: {
           created_at?: string;
           id?: string;
-          project_id?: string | null;
           title?: string;
           updated_at?: string;
           user_id: string;
@@ -258,20 +246,12 @@ export type Database = {
         Update: {
           created_at?: string;
           id?: string;
-          project_id?: string | null;
           title?: string;
           updated_at?: string;
           user_id?: string;
           workspace_id?: string | null;
         };
         Relationships: [
-          {
-            foreignKeyName: "conversations_project_id_fkey";
-            columns: ["project_id"];
-            isOneToOne: false;
-            referencedRelation: "projects";
-            referencedColumns: ["id"];
-          },
           {
             foreignKeyName: "conversations_workspace_id_fkey";
             columns: ["workspace_id"];
@@ -613,47 +593,6 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "project_memory_project_id_fkey";
-            columns: ["project_id"];
-            isOneToOne: false;
-            referencedRelation: "projects";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-      project_memories: {
-        Row: {
-          created_at: string;
-          id: string;
-          importance: number;
-          project_id: string;
-          summary: string;
-          title: string;
-          updated_at: string;
-          user_id: string;
-        };
-        Insert: {
-          created_at?: string;
-          id?: string;
-          importance?: number;
-          project_id: string;
-          summary: string;
-          title: string;
-          updated_at?: string;
-          user_id: string;
-        };
-        Update: {
-          created_at?: string;
-          id?: string;
-          importance?: number;
-          project_id?: string;
-          summary?: string;
-          title?: string;
-          updated_at?: string;
-          user_id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "project_memories_project_id_fkey";
             columns: ["project_id"];
             isOneToOne: false;
             referencedRelation: "projects";

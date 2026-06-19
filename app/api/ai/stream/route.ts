@@ -20,7 +20,6 @@ type StreamRequest = {
   conversationId?: string;
   model?: string;
   messages?: ChatMessage[];
-  projectId?: string;
   prompt?: string;
   title?: string;
   workspaceId?: string;
@@ -142,7 +141,6 @@ export async function POST(request: NextRequest) {
     const memoryContext = await loadMemoryContext(supabase, {
       userId: user.id,
       workspaceId: body.workspaceId ?? null,
-      projectId: body.projectId ?? null,
       conversationId: body.conversationId ?? null,
     });
     const routedMessages = injectMemoryContext(messages, memoryContext);
@@ -231,7 +229,6 @@ export async function POST(request: NextRequest) {
           const conversationId = await processMemoryAfterResponse(supabase, {
             userId: user.id,
             workspaceId: body.workspaceId ?? null,
-            projectId: body.projectId ?? null,
             conversationId: body.conversationId ?? null,
             title: body.title ?? getLatestUserMessage(messages).slice(0, 80),
             userMessage: getLatestUserMessage(messages),

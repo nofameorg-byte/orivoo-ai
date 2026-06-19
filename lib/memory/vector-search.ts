@@ -7,7 +7,6 @@ export type VectorSearchInput = {
   userId: string;
   query: string;
   workspaceId?: string | null;
-  projectId?: string | null;
   limit?: number;
 };
 
