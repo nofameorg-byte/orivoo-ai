@@ -7,6 +7,7 @@ import {
   FileText,
   FolderKanban,
   Globe2,
+  GraduationCap,
   Search,
   Sparkles,
 } from "lucide-react";
@@ -45,6 +46,7 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
     { data: reports },
     { data: websites },
     { data: codeProjects },
+    { data: academyCourses },
   ] = await Promise.all([
       supabase
         .from("projects")
@@ -68,6 +70,10 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
         .from("code_projects")
         .select("id,project_id")
         .eq("user_id", user.id),
+      supabase
+        .from("academy_courses")
+        .select("id,project_id")
+        .eq("user_id", user.id),
     ]);
 
   const chatCounts = new Map<string, number>();
@@ -75,6 +81,7 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
   const reportCounts = new Map<string, number>();
   const websiteCounts = new Map<string, number>();
   const codeCounts = new Map<string, number>();
+  const academyCounts = new Map<string, number>();
 
   for (const conversation of conversations ?? []) {
     if (conversation.project_id) {
@@ -117,6 +124,15 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
       codeCounts.set(
         codeProject.project_id,
         (codeCounts.get(codeProject.project_id) ?? 0) + 1,
+      );
+    }
+  }
+
+  for (const course of academyCourses ?? []) {
+    if (course.project_id) {
+      academyCounts.set(
+        course.project_id,
+        (academyCounts.get(course.project_id) ?? 0) + 1,
       );
     }
   }
@@ -202,6 +218,12 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
                   <Braces className="mb-3 size-4 text-gold" aria-hidden />
                   <p className="text-sm text-white">
                     {codeCounts.get(project.id) ?? 0} code
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-black/35 p-3">
+                  <GraduationCap className="mb-3 size-4 text-gold" aria-hidden />
+                  <p className="text-sm text-white">
+                    {academyCounts.get(project.id) ?? 0} courses
                   </p>
                 </div>
               </div>

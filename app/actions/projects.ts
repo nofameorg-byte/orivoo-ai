@@ -9,7 +9,8 @@ type AssetType =
   | "document"
   | "research_report"
   | "website_project"
-  | "code_project";
+  | "code_project"
+  | "academy_course";
 
 function formString(formData: FormData, key: string) {
   const value = formData.get(key);
@@ -136,7 +137,13 @@ export async function assignAssetToProject(formData: FormData) {
   }
 
   const { error } =
-    assetType === "code_project"
+    assetType === "academy_course"
+      ? await supabase
+          .from("academy_courses")
+          .update({ project_id: projectId })
+          .eq("id", assetId)
+          .eq("user_id", userId)
+      : assetType === "code_project"
       ? await supabase
           .from("code_projects")
           .update({ project_id: projectId })
@@ -185,7 +192,14 @@ export async function removeAssetFromProject(formData: FormData) {
 
   const { supabase, userId } = await getUserId();
   const { error } =
-    assetType === "code_project"
+    assetType === "academy_course"
+      ? await supabase
+          .from("academy_courses")
+          .update({ project_id: null })
+          .eq("id", assetId)
+          .eq("project_id", projectId)
+          .eq("user_id", userId)
+      : assetType === "code_project"
       ? await supabase
           .from("code_projects")
           .update({ project_id: null })

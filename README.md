@@ -29,6 +29,8 @@ white, and gold interface inspired by modern AI workspaces.
 - `/dashboard/websites/[websiteId]` - Website project editor, preview, and exports
 - `/dashboard/code` - Code Studio dashboard
 - `/dashboard/code/[codeProjectId]` - Code project viewer, editor, actions, and exports
+- `/dashboard/academy` - Academy dashboard
+- `/dashboard/academy/[courseId]` - Academy course viewer, actions, progress, and exports
 
 ## Dashboard studios
 
@@ -108,6 +110,11 @@ The included migrations create:
 - `website_pages`
 - `code_projects`
 - `code_files`
+- `academy_courses`
+- `academy_lessons`
+- `academy_quizzes`
+- `academy_flashcards`
+- `academy_progress`
 - Private `orivoo-documents` Supabase Storage bucket
 - Row Level Security policies
 - `updated_at` triggers
@@ -118,6 +125,7 @@ The included migrations create:
 - Project links through `research_reports.project_id`
 - Project links through `website_projects.project_id`
 - Project links through `code_projects.project_id`
+- Project links through `academy_courses.project_id`
 
 ## ORIVOO Projects
 
@@ -142,6 +150,9 @@ detail pages alongside chats, documents, and research reports.
 
 Code projects include nullable `project_id` references and appear in project
 detail pages alongside chats, documents, research reports, and websites.
+
+Academy courses include nullable `project_id` references and appear in project
+detail pages alongside every other studio asset.
 
 ## ORIVOO Assistant
 
@@ -243,6 +254,25 @@ software projects. It supports:
 
 Code projects are saved to `code_projects`, files are saved to `code_files`, and
 Supabase RLS restricts access to the project owner.
+
+## ORIVOO Academy
+
+`/dashboard/academy` is the education and learning platform for students,
+parents, teachers, nonprofits, and workforce development programs. It supports:
+
+- Subject, grade level, and topic inputs
+- Project assignment during generation
+- Memory-aware and language-aware course generation
+- Courses, lessons, study guides, quizzes, flashcards, and practice tests
+- AI actions for lessons, quizzes, flashcards, study guides, homework, parent
+  summaries, and teacher guides
+- Progress tracking
+- PDF export
+- DOCX export
+
+Academy courses are saved to `academy_courses`, lessons to `academy_lessons`,
+quizzes to `academy_quizzes`, flashcards to `academy_flashcards`, and progress
+to `academy_progress`.
 
 ## Scripts
 

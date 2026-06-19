@@ -9,6 +9,144 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      academy_courses: {
+        Row: {
+          created_at: string;
+          description: string;
+          grade_level: string;
+          id: string;
+          project_id: string | null;
+          subject: string;
+          title: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          description: string;
+          grade_level: string;
+          id?: string;
+          project_id?: string | null;
+          subject: string;
+          title: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          description?: string;
+          grade_level?: string;
+          id?: string;
+          project_id?: string | null;
+          subject?: string;
+          title?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      academy_flashcards: {
+        Row: {
+          back_text: string;
+          created_at: string;
+          front_text: string;
+          id: string;
+          lesson_id: string;
+        };
+        Insert: {
+          back_text: string;
+          created_at?: string;
+          front_text: string;
+          id?: string;
+          lesson_id: string;
+        };
+        Update: {
+          back_text?: string;
+          created_at?: string;
+          front_text?: string;
+          id?: string;
+          lesson_id?: string;
+        };
+        Relationships: [];
+      };
+      academy_lessons: {
+        Row: {
+          content: string;
+          course_id: string;
+          created_at: string;
+          id: string;
+          title: string;
+          updated_at: string;
+        };
+        Insert: {
+          content: string;
+          course_id: string;
+          created_at?: string;
+          id?: string;
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          content?: string;
+          course_id?: string;
+          created_at?: string;
+          id?: string;
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      academy_progress: {
+        Row: {
+          completion_percent: number;
+          course_id: string;
+          created_at: string;
+          id: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          completion_percent?: number;
+          course_id: string;
+          created_at?: string;
+          id?: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          completion_percent?: number;
+          course_id?: string;
+          created_at?: string;
+          id?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      academy_quizzes: {
+        Row: {
+          created_at: string;
+          id: string;
+          lesson_id: string;
+          questions_json: Json;
+          title: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          lesson_id: string;
+          questions_json?: Json;
+          title: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          lesson_id?: string;
+          questions_json?: Json;
+          title?: string;
+        };
+        Relationships: [];
+      };
       code_files: {
         Row: {
           code_project_id: string;

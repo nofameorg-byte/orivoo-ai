@@ -32,6 +32,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
     reports,
     websites,
     codeProjects,
+    academyCourses,
     messages,
   ] = await Promise.all([
     supabase.from("profiles").select("id,display_name,language,is_super_admin,created_at"),
@@ -41,6 +42,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
     supabase.from("research_reports").select("id,title,topic,created_at"),
     supabase.from("website_projects").select("id,title,status,created_at"),
     supabase.from("code_projects").select("id,title,framework,language,created_at"),
+    supabase.from("academy_courses").select("id,title,subject,grade_level,created_at"),
     supabase.from("messages").select("id,role,created_at"),
   ]);
 
@@ -56,6 +58,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
     ["Reports", reports.data?.length ?? 0],
     ["Websites", websites.data?.length ?? 0],
     ["Code projects", codeProjects.data?.length ?? 0],
+    ["Academy courses", academyCourses.data?.length ?? 0],
     ["AI messages", messages.data?.length ?? 0],
   ];
 
@@ -182,6 +185,14 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                 id: project.id,
                 label: project.title,
                 meta: `${project.language} · ${project.framework}`,
+              }))}
+            />
+            <AdminList
+              title="Academy"
+              items={(academyCourses.data ?? []).map((course) => ({
+                id: course.id,
+                label: course.title,
+                meta: `${course.subject} · ${course.grade_level}`,
               }))}
             />
           </div>

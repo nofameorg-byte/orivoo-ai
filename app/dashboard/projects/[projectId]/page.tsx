@@ -6,6 +6,7 @@ import {
   Braces,
   FileText,
   FolderKanban,
+  GraduationCap,
   Globe2,
   Link2,
   Search,
@@ -57,11 +58,13 @@ export default async function ProjectDetailPage({
     { data: projectReports },
     { data: projectWebsites },
     { data: projectCodeProjects },
+    { data: projectAcademyCourses },
     { data: availableConversations },
     { data: availableDocuments },
     { data: availableReports },
     { data: availableWebsites },
     { data: availableCodeProjects },
+    { data: availableAcademyCourses },
   ] = await Promise.all([
     supabase
       .from("projects")
@@ -100,6 +103,12 @@ export default async function ProjectDetailPage({
       .eq("user_id", user.id)
       .order("updated_at", { ascending: false }),
     supabase
+      .from("academy_courses")
+      .select("id,title,subject,grade_level,updated_at")
+      .eq("project_id", projectId)
+      .eq("user_id", user.id)
+      .order("updated_at", { ascending: false }),
+    supabase
       .from("conversations")
       .select("id,title,updated_at")
       .is("project_id", null)
@@ -126,6 +135,12 @@ export default async function ProjectDetailPage({
     supabase
       .from("code_projects")
       .select("id,title,description,framework,language,updated_at")
+      .is("project_id", null)
+      .eq("user_id", user.id)
+      .order("updated_at", { ascending: false }),
+    supabase
+      .from("academy_courses")
+      .select("id,title,subject,grade_level,updated_at")
       .is("project_id", null)
       .eq("user_id", user.id)
       .order("updated_at", { ascending: false }),
@@ -234,12 +249,12 @@ export default async function ProjectDetailPage({
         <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6">
           <h2 className="text-2xl font-semibold text-white">Assign assets</h2>
           <p className="mt-2 text-sm leading-6 text-muted">
-            Add unassigned chats, documents, reports, websites, and code
-            projects to make this project the shared workspace for every future
-            studio.
+            Add unassigned chats, documents, reports, websites, code projects,
+            and Academy courses to make this project the shared workspace for
+            every future studio.
           </p>
 
-          <div className="mt-6 grid gap-4 lg:grid-cols-5">
+          <div className="mt-6 grid gap-4 lg:grid-cols-6">
             <form action={assignAssetToProject} className="rounded-3xl border border-white/10 bg-black/35 p-4">
               <input type="hidden" name="projectId" value={project.id} />
               <input type="hidden" name="assetType" value="conversation" />
@@ -374,11 +389,38 @@ export default async function ProjectDetailPage({
                 Assign code
               </button>
             </form>
+
+            <form action={assignAssetToProject} className="rounded-3xl border border-white/10 bg-black/35 p-4">
+              <input type="hidden" name="projectId" value={project.id} />
+              <input type="hidden" name="assetType" value="academy_course" />
+              <GraduationCap className="mb-4 size-5 text-gold" aria-hidden />
+              <label className="block text-sm font-medium text-white">
+                Add course
+                <select
+                  name="assetId"
+                  required
+                  className="mt-2 w-full rounded-2xl border border-white/10 bg-black/60 px-4 py-3 text-sm text-white outline-none focus:border-gold/50"
+                >
+                  <option value="">Choose course</option>
+                  {(availableAcademyCourses ?? []).map((course) => (
+                    <option key={course.id} value={course.id}>
+                      {course.title}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <button
+                type="submit"
+                className="mt-4 w-full rounded-full border border-gold/35 bg-gold/10 px-4 py-2.5 text-sm font-semibold text-gold-bright transition hover:bg-gold/15"
+              >
+                Assign course
+              </button>
+            </form>
           </div>
         </section>
       </div>
 
-      <section className="grid gap-6 xl:grid-cols-5">
+      <section className="grid gap-6 xl:grid-cols-6">
         <AssetList
           title="Project chats"
           empty="No chats are assigned to this project yet."
@@ -444,6 +486,19 @@ export default async function ProjectDetailPage({
             title: codeProject.title,
           }))}
         />
+        <AssetList
+          title="Academy"
+          empty="No Academy courses are assigned to this project yet."
+          icon="academy"
+          projectId={project.id}
+          assetType="academy_course"
+          assets={(projectAcademyCourses ?? []).map((course) => ({
+            href: `/dashboard/academy/${course.id}`,
+            id: course.id,
+            subtitle: `${course.subject} · ${course.grade_level}`,
+            title: course.title,
+          }))}
+        />
       </section>
     </div>
   );
@@ -468,15 +523,18 @@ function AssetList({
     | "document"
     | "research_report"
     | "website_project"
-    | "code_project";
+    | "code_project"
+    | "academy_course";
   empty: string;
-  icon: "chat" | "document" | "report" | "website" | "code";
+  icon: "chat" | "document" | "report" | "website" | "code" | "academy";
   projectId: string;
   title: string;
 }) {
   const Icon =
     icon === "chat"
       ? Bot
+      : icon === "academy"
+        ? GraduationCap
       : icon === "code"
         ? Braces
       : icon === "report"

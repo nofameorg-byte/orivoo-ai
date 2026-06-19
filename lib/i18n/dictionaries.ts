@@ -14,6 +14,7 @@ const en: TranslationDictionary = {
   "common.project": "Project",
   "common.settings": "Settings",
   "language.label": "Language",
+  "nav.academy": "Academy",
   "nav.admin": "Admin",
   "nav.assistant": "Assistant",
   "nav.botanical": "Botanical Studio",
@@ -41,6 +42,7 @@ const languageOverrides: Record<Locale, Partial<TranslationDictionary>> = {
   ar: {
     "common.save": "حفظ",
     "language.label": "اللغة",
+    "nav.academy": "الأكاديمية",
     "nav.admin": "المشرف",
     "nav.assistant": "المساعد",
     "nav.code": "استوديو الكود",
@@ -54,6 +56,7 @@ const languageOverrides: Record<Locale, Partial<TranslationDictionary>> = {
   de: {
     "common.save": "Speichern",
     "language.label": "Sprache",
+    "nav.academy": "Akademie",
     "nav.admin": "Admin",
     "nav.assistant": "Assistent",
     "nav.code": "Code Studio",
@@ -68,6 +71,7 @@ const languageOverrides: Record<Locale, Partial<TranslationDictionary>> = {
   es: {
     "common.save": "Guardar",
     "language.label": "Idioma",
+    "nav.academy": "Academia",
     "nav.admin": "Administrador",
     "nav.assistant": "Asistente",
     "nav.code": "Estudio de Código",
@@ -81,6 +85,7 @@ const languageOverrides: Record<Locale, Partial<TranslationDictionary>> = {
   fr: {
     "common.save": "Enregistrer",
     "language.label": "Langue",
+    "nav.academy": "Académie",
     "nav.admin": "Admin",
     "nav.assistant": "Assistant",
     "nav.code": "Studio Code",
@@ -94,6 +99,7 @@ const languageOverrides: Record<Locale, Partial<TranslationDictionary>> = {
   hi: {
     "common.save": "सहेजें",
     "language.label": "भाषा",
+    "nav.academy": "अकादमी",
     "nav.admin": "एडमिन",
     "nav.assistant": "सहायक",
     "nav.code": "कोड स्टूडियो",
@@ -107,6 +113,7 @@ const languageOverrides: Record<Locale, Partial<TranslationDictionary>> = {
   it: {
     "common.save": "Salva",
     "language.label": "Lingua",
+    "nav.academy": "Accademia",
     "nav.admin": "Admin",
     "nav.assistant": "Assistente",
     "nav.code": "Studio Codice",
@@ -120,6 +127,7 @@ const languageOverrides: Record<Locale, Partial<TranslationDictionary>> = {
   ja: {
     "common.save": "保存",
     "language.label": "言語",
+    "nav.academy": "アカデミー",
     "nav.admin": "管理者",
     "nav.assistant": "アシスタント",
     "nav.code": "コードスタジオ",
@@ -133,6 +141,7 @@ const languageOverrides: Record<Locale, Partial<TranslationDictionary>> = {
   pt: {
     "common.save": "Salvar",
     "language.label": "Idioma",
+    "nav.academy": "Academia",
     "nav.admin": "Admin",
     "nav.assistant": "Assistente",
     "nav.code": "Estúdio de Código",
@@ -146,6 +155,7 @@ const languageOverrides: Record<Locale, Partial<TranslationDictionary>> = {
   zh: {
     "common.save": "保存",
     "language.label": "语言",
+    "nav.academy": "学院",
     "nav.admin": "管理员",
     "nav.assistant": "助手",
     "nav.code": "代码工作室",
