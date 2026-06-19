@@ -175,6 +175,7 @@ create policy "Owners and admins can invite project members"
     or (
       public.current_user_has_team_plan()
       and public.current_user_can_manage_project(project_id)
+      and role in ('admin', 'editor', 'viewer')
     )
   );
 
@@ -183,10 +184,12 @@ create policy "Owners and admins can update project members"
   using (
     public.current_user_has_team_plan()
     and public.current_user_can_manage_project(project_id)
+    and role <> 'owner'
   )
   with check (
     public.current_user_has_team_plan()
     and public.current_user_can_manage_project(project_id)
+    and role <> 'owner'
   );
 
 create policy "Owners and admins can remove project members"
@@ -194,6 +197,7 @@ create policy "Owners and admins can remove project members"
   using (
     public.current_user_has_team_plan()
     and public.current_user_can_manage_project(project_id)
+    and role <> 'owner'
   );
 
 drop policy if exists "Users can read their own projects" on public.projects;
@@ -256,8 +260,7 @@ create policy "Editors can update artifact folders"
   on public.artifact_folders for update
   using (public.current_user_can_edit_project_content(project_id))
   with check (
-    auth.uid() = user_id
-    and public.current_user_can_edit_project_content(project_id)
+    public.current_user_can_edit_project_content(project_id)
   );
 
 create policy "Editors can delete artifact folders"
