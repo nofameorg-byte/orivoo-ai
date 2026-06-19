@@ -1,6 +1,9 @@
 import { ShieldCheck, Sparkles } from "lucide-react";
-import { AssistantPrompt } from "@/app/dashboard/assistant-prompt";
-import type { AssistantMessage } from "@/lib/assistant/types";
+import { AssistantWorkspace } from "@/app/dashboard/assistant-workspace";
+import type {
+  AssistantConversation,
+  AssistantMessage,
+} from "@/lib/assistant/types";
 import { createClient } from "@/lib/supabase/server";
 
 const metrics = [
@@ -29,18 +32,18 @@ export default async function DashboardPage() {
       ? user.user_metadata.display_name
       : user?.email?.split("@")[0] ?? "Operator");
   let initialConversationId: string | null = null;
+  let initialConversations: AssistantConversation[] = [];
   let initialMessages: AssistantMessage[] = [];
 
   if (user) {
-    const { data: conversation } = await supabase
+    const { data: conversations } = await supabase
       .from("conversations")
-      .select("id")
+      .select("id, title, created_at, updated_at")
       .eq("user_id", user.id)
-      .order("updated_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+      .order("updated_at", { ascending: false });
 
-    initialConversationId = conversation?.id ?? null;
+    initialConversations = conversations ?? [];
+    initialConversationId = initialConversations[0]?.id ?? null;
 
     if (initialConversationId) {
       const { data: messages } = await supabase
@@ -92,7 +95,8 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        <AssistantPrompt
+        <AssistantWorkspace
+          initialConversations={initialConversations}
           initialConversationId={initialConversationId}
           initialMessages={initialMessages}
         />

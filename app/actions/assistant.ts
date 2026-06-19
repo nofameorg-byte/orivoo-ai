@@ -3,8 +3,10 @@
 import { createClient } from "@/lib/supabase/server";
 import { getRequiredEnv } from "@/lib/env";
 import type {
+  AssistantConversation,
   AssistantMessage,
   AssistantRole,
+  LoadConversationResult,
   SubmitPromptResult,
 } from "@/lib/assistant/types";
 
@@ -28,6 +30,41 @@ type GroqResponse = {
 
 const groqChatCompletionsUrl = "https://api.groq.com/openai/v1/chat/completions";
 const groqModel = process.env.GROQ_MODEL ?? "llama-3.3-70b-versatile";
+
+export async function loadAssistantConversation(
+  conversationId: string,
+): Promise<LoadConversationResult> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return { ok: false, error: "You must be signed in to load conversations." };
+  }
+
+  const { data: conversation, error: conversationError } = await supabase
+    .from("conversations")
+    .select("id")
+    .eq("id", conversationId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (conversationError) {
+    return { ok: false, error: "Could not load the conversation." };
+  }
+
+  if (!conversation) {
+    return { ok: false, error: "Conversation not found." };
+  }
+
+  return {
+    ok: true,
+    conversationId: conversation.id,
+    messages: await loadMessages(supabase, conversation.id),
+  };
+}
 
 export async function submitAssistantPrompt(input: {
   prompt: string;
@@ -127,9 +164,12 @@ export async function submitAssistantPrompt(input: {
     .eq("id", conversationId)
     .eq("user_id", user.id);
 
+  const conversation = await loadConversationSummary(supabase, conversationId);
+
   return {
     ok: true,
     conversationId,
+    conversation,
     assistantResponse,
     messages: await loadMessages(supabase, conversationId),
   };
@@ -238,6 +278,23 @@ async function loadMessages(
   }
 
   return data ?? [];
+}
+
+async function loadConversationSummary(
+  supabase: SupabaseServerClient,
+  conversationId: string,
+): Promise<AssistantConversation> {
+  const { data, error } = await supabase
+    .from("conversations")
+    .select("id, title, created_at, updated_at")
+    .eq("id", conversationId)
+    .single();
+
+  if (error || !data) {
+    throw new Error("Could not load the conversation summary.");
+  }
+
+  return data;
 }
 
 async function callGroq(messages: GroqMessage[]) {

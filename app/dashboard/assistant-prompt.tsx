@@ -10,22 +10,29 @@ import {
 } from "react";
 import { ArrowUp } from "lucide-react";
 import { submitAssistantPrompt } from "@/app/actions/assistant";
-import type { AssistantMessage } from "@/lib/assistant/types";
+import type {
+  AssistantConversation,
+  AssistantMessage,
+} from "@/lib/assistant/types";
 
 const placeholder = "Ask ORIVOO AI to plan, write, design, research, or build...";
 const emptyPrompt =
   "Build a launch-ready brief, create a research map, and draft the first landing page section for ORIVOO AI.";
 
 export function AssistantPrompt({
-  initialConversationId,
-  initialMessages,
+  conversationId,
+  messages,
+  onConversationIdChange,
+  onConversationSaved,
+  onMessagesChange,
 }: {
-  initialConversationId: string | null;
-  initialMessages: AssistantMessage[];
+  conversationId: string | null;
+  messages: AssistantMessage[];
+  onConversationIdChange: (conversationId: string) => void;
+  onConversationSaved: (conversation: AssistantConversation) => void;
+  onMessagesChange: (messages: AssistantMessage[]) => void;
 }) {
   const [prompt, setPrompt] = useState("");
-  const [conversationId, setConversationId] = useState(initialConversationId);
-  const [messages, setMessages] = useState(initialMessages);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -73,10 +80,7 @@ export function AssistantPrompt({
 
     setError(null);
     setIsSubmitting(true);
-    setMessages((currentMessages) => [
-      ...currentMessages,
-      optimisticUserMessage,
-    ]);
+    onMessagesChange([...messages, optimisticUserMessage]);
     setPrompt("");
 
     requestAnimationFrame(() => {
@@ -94,18 +98,19 @@ export function AssistantPrompt({
         setError(result.error);
 
         if (result.conversationId) {
-          setConversationId(result.conversationId);
+          onConversationIdChange(result.conversationId);
         }
 
         if (result.messages) {
-          setMessages(result.messages);
+          onMessagesChange(result.messages);
         }
 
         return;
       }
 
-      setConversationId(result.conversationId);
-      setMessages(result.messages);
+      onConversationIdChange(result.conversationId);
+      onConversationSaved(result.conversation);
+      onMessagesChange(result.messages);
     } catch {
       setError("The assistant request failed. Please try again.");
     } finally {
