@@ -35,6 +35,7 @@ type GroqStreamChunk = {
 };
 
 const groqChatCompletionsUrl = "https://api.groq.com/openai/v1/chat/completions";
+const expectedDebugUserId = "77731924-62eb-47fc-9016-7f32a7e8ea7f";
 
 export async function POST(request: NextRequest) {
   const stream = new ReadableStream<Uint8Array>({
@@ -64,12 +65,27 @@ export async function POST(request: NextRequest) {
         }
 
         const supabase = await createClient();
+        console.log(
+          "SUPABASE CLIENT",
+          "authenticated server client from @/lib/supabase/server",
+        );
         const {
           data: { user },
           error: userError,
         } = await supabase.auth.getUser();
+        const {
+          data: { session },
+          error: sessionError,
+        } = await supabase.auth.getSession();
+
+        console.log("AUTH USER", user);
+        console.log("USER ID", user?.id);
+        console.log("USER ID MATCH", user?.id === expectedDebugUserId);
+        console.log("SESSION", session);
+        console.log("SESSION ERROR", sessionError);
 
         if (userError || !user) {
+          console.log("AUTH USER ERROR", userError);
           send({
             type: "error",
             error: "You must be signed in to send a prompt.",
@@ -77,13 +93,21 @@ export async function POST(request: NextRequest) {
           return;
         }
 
+        console.log("PROFILE LOOKUP USER ID", user.id);
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
           .select("subscription_tier, selected_model")
           .eq("id", user.id)
           .maybeSingle();
 
+        console.log("PROFILE RESULT", profile);
+        console.log("PROFILE ERROR", profileError);
+
         if (profileError) {
+          console.log("PROFILE ERROR CODE", profileError.code);
+          console.log("PROFILE ERROR MESSAGE", profileError.message);
+          console.log("PROFILE ERROR DETAILS", profileError.details);
+          console.log("PROFILE ERROR HINT", profileError.hint);
           send({
             type: "error",
             error: "Could not load your model permissions.",
