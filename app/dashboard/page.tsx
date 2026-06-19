@@ -30,6 +30,10 @@ import {
   XCircle,
 } from "lucide-react";
 import {
+  runOrivooAgents,
+  saveProjectMemory,
+} from "@/app/actions/agents";
+import {
   createArtifact,
   createArtifactFolder,
   deleteArtifact,
@@ -47,6 +51,7 @@ import {
   transferProjectOwnership,
   updateProjectMemberRole,
 } from "@/app/actions/team";
+import { futureAgentProviders } from "@/lib/agents";
 import { artifactTypes, getArtifactTypeLabel } from "@/lib/artifacts";
 import { ensureDefaultProject } from "@/lib/projects";
 import {
@@ -147,6 +152,8 @@ type DashboardPageProps = {
   searchParams?: Promise<{
     artifactId?: string;
     artifactMessage?: string;
+    agentMessage?: string;
+    agentRunId?: string;
     fileMessage?: string;
     projectId?: string;
     researchJobId?: string;
@@ -330,6 +337,33 @@ export default async function DashboardPage({
         .eq("project_id", project.id)
         .order("updated_at", { ascending: false })
     : { data: [] };
+  const { data: agents } = await supabase
+    .from("agents")
+    .select("id, name, description, system_prompt, created_at")
+    .order("name", { ascending: true });
+  const { data: projectMemory } = project
+    ? await supabase
+        .from("project_memory")
+        .select("id, content, created_at, updated_at")
+        .eq("project_id", project.id)
+        .maybeSingle()
+    : { data: null };
+  const { data: agentRuns } = project
+    ? await supabase
+        .from("agent_runs")
+        .select(
+          "id, title, status, user_message, conversation_history, selected_agent_ids, merged_output, result_artifact_id, created_at, updated_at",
+        )
+        .eq("project_id", project.id)
+        .order("updated_at", { ascending: false })
+    : { data: [] };
+  const { data: agentRunResults } = project
+    ? await supabase
+        .from("agent_run_results")
+        .select("id, agent_run_id, agent_id, reasoning, output, created_at")
+        .eq("project_id", project.id)
+        .order("created_at", { ascending: true })
+    : { data: [] };
 
   const filesWithUrls = await Promise.all(
     (projectFiles ?? []).map(async (file) => {
@@ -346,6 +380,9 @@ export default async function DashboardPage({
   const artifactList = artifacts ?? [];
   const folders = artifactFolders ?? [];
   const researchJobList = researchJobs ?? [];
+  const agentList = agents ?? [];
+  const agentRunList = agentRuns ?? [];
+  const agentResultList = agentRunResults ?? [];
   const projects = accessibleProjects ?? [];
   const teamMembers = projectMembers ?? [];
   const currentPlan = profile?.plan ?? "free";
@@ -372,6 +409,24 @@ export default async function DashboardPage({
   const researchSources = selectedResearchArtifact
     ? getCitationSources(selectedResearchArtifact.metadata)
     : [];
+  const selectedAgentRun =
+    agentRunList.find((run) => run.id === params?.agentRunId) ??
+    agentRunList[0] ??
+    null;
+  const selectedAgentResults = selectedAgentRun
+    ? agentResultList.filter(
+        (result) => result.agent_run_id === selectedAgentRun.id,
+      )
+    : [];
+  const selectedAgentArtifact = selectedAgentRun?.result_artifact_id
+    ? artifactList.find(
+        (artifact) => artifact.id === selectedAgentRun.result_artifact_id,
+      ) ?? null
+    : null;
+  const canEditWorkspace =
+    currentRole === "owner" || currentRole === "admin" || currentRole === "editor";
+  const getAgentName = (agentId: string) =>
+    agentList.find((agent) => agent.id === agentId)?.name ?? "Agent";
   const getArtifactFolderName = (folderId: string | null) =>
     folderId
       ? folders.find((folder) => folder.id === folderId)?.name ??
@@ -384,6 +439,7 @@ export default async function DashboardPage({
     { label: "Artifacts", value: artifactList.length.toString() },
     { label: "Research jobs", value: researchJobList.length.toString() },
     { label: "Team members", value: teamMembers.length.toString() },
+    { label: "Agent runs", value: agentRunList.length.toString() },
   ];
 
   return (
@@ -909,6 +965,313 @@ export default async function DashboardPage({
                   </p>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="agents"
+        className="space-y-5 rounded-[2rem] border border-white/10 bg-white/[0.03] p-6"
+      >
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-gold/25 bg-gold/10 px-4 py-2 text-sm text-gold-bright">
+              <Bot className="size-4" aria-hidden />
+              ORIVOO Agent Framework
+            </div>
+            <h2 className="text-3xl font-semibold text-white">
+              Assign specialized agents to complex tasks.
+            </h2>
+            <p className="mt-3 max-w-3xl leading-6 text-muted">
+              Select one or more agents, let them work independently, review
+              their reasoning separately, merge the results, and save the final
+              response as a project artifact.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {futureAgentProviders.map((provider) => (
+              <span
+                key={provider}
+                className="rounded-full border border-white/10 px-3 py-1 text-xs text-muted"
+              >
+                Future: {provider}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {params?.agentMessage ? (
+          <div className="rounded-2xl border border-gold/20 bg-gold/10 px-4 py-3 text-sm text-gold-bright">
+            {params.agentMessage}
+          </div>
+        ) : null}
+
+        <div className="grid gap-5 xl:grid-cols-[0.82fr_1.18fr]">
+          <div className="space-y-5">
+            <form
+              action={saveProjectMemory}
+              className="rounded-3xl border border-white/10 bg-black/40 p-5"
+            >
+              <input type="hidden" name="projectId" value={project?.id ?? ""} />
+              <div className="mb-4">
+                <p className="text-xs uppercase tracking-[0.24em] text-muted">
+                  Shared project memory
+                </p>
+                <h3 className="mt-2 text-xl font-semibold text-white">
+                  Memory used by every selected agent
+                </h3>
+                <p className="mt-2 text-sm leading-6 text-muted">
+                  This memory is shared by project members and included in the
+                  prompt stack for future agent runs.
+                </p>
+              </div>
+              <textarea
+                name="content"
+                rows={5}
+                disabled={!canEditWorkspace}
+                defaultValue={projectMemory?.content ?? ""}
+                placeholder="Add persistent context, goals, constraints, brand notes, or project facts..."
+                className="w-full rounded-2xl border border-white/10 bg-panel-soft px-4 py-3 text-sm leading-6 text-white outline-none placeholder:text-muted disabled:cursor-not-allowed disabled:opacity-50"
+              />
+              <button
+                type="submit"
+                disabled={!canEditWorkspace}
+                className="mt-3 flex w-full items-center justify-center gap-2 rounded-full border border-gold/30 px-5 py-3 text-sm font-semibold text-gold-bright transition hover:bg-gold/10 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <Sparkles className="size-4" aria-hidden />
+                Save project memory
+              </button>
+            </form>
+
+            <form
+              action={runOrivooAgents}
+              className="rounded-3xl border border-gold/20 bg-black/40 p-5"
+            >
+              <input type="hidden" name="projectId" value={project?.id ?? ""} />
+              <div className="mb-5">
+                <p className="text-xs uppercase tracking-[0.24em] text-gold-bright">
+                  Agent run
+                </p>
+                <h3 className="mt-2 text-xl font-semibold text-white">
+                  Compose the ORIVOO prompt stack
+                </h3>
+                <p className="mt-2 text-sm leading-6 text-muted">
+                  Architecture: Master Prompt + Studio Prompt + Agent Prompt +
+                  Project Memory + Conversation History + User Message.
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <input
+                  required
+                  disabled={!canEditWorkspace}
+                  name="title"
+                  placeholder="Artifact title for merged output"
+                  className="w-full rounded-2xl border border-white/10 bg-panel-soft px-4 py-3 text-sm text-white outline-none placeholder:text-muted disabled:cursor-not-allowed disabled:opacity-50"
+                />
+                <textarea
+                  name="conversationHistory"
+                  rows={4}
+                  disabled={!canEditWorkspace}
+                  placeholder="Optional conversation history..."
+                  className="w-full rounded-2xl border border-white/10 bg-panel-soft px-4 py-3 text-sm leading-6 text-white outline-none placeholder:text-muted disabled:cursor-not-allowed disabled:opacity-50"
+                />
+                <textarea
+                  required
+                  name="userMessage"
+                  rows={5}
+                  disabled={!canEditWorkspace}
+                  placeholder="What should the agents solve collaboratively?"
+                  className="w-full rounded-2xl border border-white/10 bg-panel-soft px-4 py-3 text-sm leading-6 text-white outline-none placeholder:text-muted disabled:cursor-not-allowed disabled:opacity-50"
+                />
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {agentList.map((agent, index) => (
+                    <label
+                      key={agent.id}
+                      className="rounded-2xl border border-white/10 bg-panel-soft p-4"
+                    >
+                      <div className="flex items-start gap-3">
+                        <input
+                          type="checkbox"
+                          name="agentIds"
+                          value={agent.id}
+                          defaultChecked={index < 2}
+                          disabled={!canEditWorkspace}
+                          className="mt-1 size-4 accent-gold disabled:cursor-not-allowed"
+                        />
+                        <span>
+                          <span className="block text-sm font-semibold text-white">
+                            {agent.name}
+                          </span>
+                          <span className="mt-1 block text-xs leading-5 text-muted">
+                            {agent.description}
+                          </span>
+                        </span>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={!canEditWorkspace || agentList.length === 0}
+                  className="gold-gradient flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <Bot className="size-4" aria-hidden />
+                  Run selected agents
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <div className="space-y-5">
+            <div className="rounded-3xl border border-white/10 bg-black/40 p-5">
+              <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.24em] text-muted">
+                    Agent run history
+                  </p>
+                  <h3 className="mt-2 text-xl font-semibold text-white">
+                    {selectedAgentRun?.title ?? "No agent runs yet"}
+                  </h3>
+                </div>
+                {selectedAgentRun ? (
+                  <span className="rounded-full border border-white/10 px-3 py-1 text-xs uppercase tracking-[0.18em] text-muted">
+                    {selectedAgentRun.status}
+                  </span>
+                ) : null}
+              </div>
+
+              {agentRunList.length > 0 ? (
+                <div className="space-y-3">
+                  {agentRunList.map((run) => (
+                    <a
+                      key={run.id}
+                      href={`/dashboard?projectId=${project?.id ?? ""}&agentRunId=${run.id}#agents`}
+                      className={`block rounded-2xl border p-4 transition hover:border-gold/40 ${
+                        run.id === selectedAgentRun?.id
+                          ? "border-gold/30 bg-gold/10"
+                          : "border-white/10 bg-panel-soft"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="min-w-0">
+                          <h4 className="truncate text-sm font-medium text-white">
+                            {run.title}
+                          </h4>
+                          <p className="mt-1 text-xs text-muted">
+                            {run.selected_agent_ids.length} agent
+                            {run.selected_agent_ids.length === 1 ? "" : "s"}{" "}
+                            &bull; Updated {formatDate(run.updated_at)}
+                          </p>
+                        </div>
+                        <Bot className="size-4 shrink-0 text-gold" aria-hidden />
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-dashed border-white/10 bg-panel-soft p-8 text-center">
+                  <Bot className="mx-auto mb-4 size-8 text-gold" aria-hidden />
+                  <h4 className="font-semibold text-white">No agent runs yet</h4>
+                  <p className="mt-2 text-sm leading-6 text-muted">
+                    Select agents and run a task to create merged artifacts.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {selectedAgentRun ? (
+              <div className="rounded-3xl border border-white/10 bg-black/40 p-5">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.24em] text-muted">
+                      Merged result
+                    </p>
+                    <h3 className="mt-2 text-xl font-semibold text-white">
+                      {selectedAgentRun.title}
+                    </h3>
+                    <p className="mt-2 text-sm leading-6 text-muted">
+                      Results from independent agents were merged and saved as a
+                      project artifact.
+                    </p>
+                  </div>
+                  {selectedAgentArtifact ? (
+                    <div className="flex flex-wrap gap-2">
+                      <a
+                        href={`/dashboard?projectId=${project?.id ?? ""}&artifactId=${selectedAgentArtifact.id}#artifacts`}
+                        className="inline-flex items-center gap-2 rounded-full border border-gold/30 px-4 py-2 text-sm font-medium text-gold-bright transition hover:bg-gold/10"
+                      >
+                        <FileText className="size-4" aria-hidden />
+                        Open artifact
+                      </a>
+                      <a
+                        href={`/dashboard/artifacts/${selectedAgentArtifact.id}/download`}
+                        className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm font-medium text-white transition hover:border-gold/40 hover:text-gold-bright"
+                      >
+                        <Download className="size-4" aria-hidden />
+                        Download
+                      </a>
+                    </div>
+                  ) : null}
+                </div>
+                <pre className="mt-5 max-h-80 overflow-auto whitespace-pre-wrap rounded-2xl border border-white/10 bg-panel-soft p-4 text-xs leading-6 text-muted">
+                  {selectedAgentRun.merged_output ?? "Merged output pending."}
+                </pre>
+              </div>
+            ) : null}
+
+            <div className="rounded-3xl border border-white/10 bg-black/40 p-5">
+              <div className="mb-5 flex items-center justify-between">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.24em] text-muted">
+                    Separate agent reasoning
+                  </p>
+                  <h3 className="mt-2 text-xl font-semibold text-white">
+                    {selectedAgentResults.length} agent result
+                    {selectedAgentResults.length === 1 ? "" : "s"}
+                  </h3>
+                </div>
+              </div>
+
+              {selectedAgentResults.length > 0 ? (
+                <div className="space-y-3">
+                  {selectedAgentResults.map((result) => (
+                    <article
+                      key={result.id}
+                      className="rounded-2xl border border-white/10 bg-panel-soft p-4"
+                    >
+                      <p className="text-xs uppercase tracking-[0.18em] text-gold-bright">
+                        {getAgentName(result.agent_id)}
+                      </p>
+                      <h4 className="mt-3 text-sm font-semibold text-white">
+                        Reasoning summary
+                      </h4>
+                      <p className="mt-2 text-sm leading-6 text-muted">
+                        {result.reasoning}
+                      </p>
+                      <h4 className="mt-4 text-sm font-semibold text-white">
+                        Agent output
+                      </h4>
+                      <pre className="mt-2 max-h-60 overflow-auto whitespace-pre-wrap rounded-xl border border-white/10 bg-black/40 p-3 text-xs leading-6 text-muted">
+                        {result.output}
+                      </pre>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-dashed border-white/10 bg-panel-soft p-8 text-center">
+                  <Eye className="mx-auto mb-4 size-8 text-gold" aria-hidden />
+                  <h4 className="font-semibold text-white">
+                    No reasoning to display
+                  </h4>
+                  <p className="mt-2 text-sm leading-6 text-muted">
+                    Run agents to see separate reasoning summaries and outputs.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -1621,7 +1984,7 @@ export default async function DashboardPage({
           },
           {
             title: "Database",
-            body: "Profiles, projects, files, artifact folders, artifacts, and research jobs are prepared with RLS-enabled SQL.",
+            body: "Profiles, projects, files, artifacts, research jobs, agents, project memory, and team roles are prepared with RLS-enabled SQL.",
           },
           {
             title: "Deployment",

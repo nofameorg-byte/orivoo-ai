@@ -9,6 +9,145 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      agent_run_results: {
+        Row: {
+          agent_id: string;
+          agent_run_id: string;
+          created_at: string;
+          id: string;
+          output: string;
+          project_id: string;
+          reasoning: string;
+          user_id: string;
+        };
+        Insert: {
+          agent_id: string;
+          agent_run_id: string;
+          created_at?: string;
+          id?: string;
+          output: string;
+          project_id: string;
+          reasoning: string;
+          user_id: string;
+        };
+        Update: {
+          agent_id?: string;
+          agent_run_id?: string;
+          created_at?: string;
+          id?: string;
+          output?: string;
+          project_id?: string;
+          reasoning?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "agent_run_results_agent_id_fkey";
+            columns: ["agent_id"];
+            isOneToOne: false;
+            referencedRelation: "agents";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "agent_run_results_agent_run_id_fkey";
+            columns: ["agent_run_id"];
+            isOneToOne: false;
+            referencedRelation: "agent_runs";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "agent_run_results_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      agent_runs: {
+        Row: {
+          conversation_history: string;
+          created_at: string;
+          id: string;
+          merged_output: string | null;
+          project_id: string;
+          result_artifact_id: string | null;
+          selected_agent_ids: string[];
+          status: string;
+          title: string;
+          updated_at: string;
+          user_id: string;
+          user_message: string;
+        };
+        Insert: {
+          conversation_history?: string;
+          created_at?: string;
+          id?: string;
+          merged_output?: string | null;
+          project_id: string;
+          result_artifact_id?: string | null;
+          selected_agent_ids?: string[];
+          status?: string;
+          title: string;
+          updated_at?: string;
+          user_id: string;
+          user_message: string;
+        };
+        Update: {
+          conversation_history?: string;
+          created_at?: string;
+          id?: string;
+          merged_output?: string | null;
+          project_id?: string;
+          result_artifact_id?: string | null;
+          selected_agent_ids?: string[];
+          status?: string;
+          title?: string;
+          updated_at?: string;
+          user_id?: string;
+          user_message?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "agent_runs_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "agent_runs_result_artifact_id_fkey";
+            columns: ["result_artifact_id"];
+            isOneToOne: false;
+            referencedRelation: "artifacts";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      agents: {
+        Row: {
+          created_at: string;
+          description: string;
+          id: string;
+          name: string;
+          system_prompt: string;
+        };
+        Insert: {
+          created_at?: string;
+          description: string;
+          id?: string;
+          name: string;
+          system_prompt: string;
+        };
+        Update: {
+          created_at?: string;
+          description?: string;
+          id?: string;
+          name?: string;
+          system_prompt?: string;
+        };
+        Relationships: [];
+      };
       artifact_folders: {
         Row: {
           created_at: string;
@@ -191,6 +330,41 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "project_members_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      project_memory: {
+        Row: {
+          content: string;
+          created_at: string;
+          id: string;
+          project_id: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          content?: string;
+          created_at?: string;
+          id?: string;
+          project_id: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          content?: string;
+          created_at?: string;
+          id?: string;
+          project_id?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "project_memory_project_id_fkey";
             columns: ["project_id"];
             isOneToOne: false;
             referencedRelation: "projects";
