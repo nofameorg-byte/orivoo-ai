@@ -18,7 +18,7 @@ const memoryLinks = [
   },
   {
     title: "Saved Memory",
-    description: "Edit approved long-term user memories and importance scores.",
+    description: "Edit approved long-term user memories and context.",
     href: "/dashboard/memory/saved",
     icon: FileText,
   },
@@ -29,6 +29,32 @@ const memoryLinks = [
     icon: BookOpen,
   },
 ];
+
+type MemoryCandidatePreview = {
+  id: string;
+  memory_type: string;
+  content: string;
+  approved: boolean | null;
+  created_at: string;
+};
+
+type WorkspaceKnowledgePreview = {
+  id: string;
+  workspace_id: string;
+  title: string;
+  content: string;
+  knowledge_type: string | null;
+  created_at: string;
+};
+
+type ConversationPreview = {
+  id: string;
+  user_id: string;
+  title: string;
+  model: string | null;
+  created_at: string;
+  updated_at: string;
+};
 
 function formatDate(date: string) {
   return new Intl.DateTimeFormat("en", {
@@ -69,22 +95,22 @@ export default async function DashboardPage() {
       .limit(5),
     supabase
       .from("memory_candidates")
-      .select("id, memory_type, content, importance, created_at")
+      .select("id, memory_type, content, approved, created_at")
       .order("created_at", { ascending: false })
       .limit(5),
     supabase
       .from("workspace_knowledge")
-      .select("id, workspace_id, title, content, updated_at")
-      .order("updated_at", { ascending: false })
+      .select("id, workspace_id, title, content, knowledge_type, created_at")
+      .order("created_at", { ascending: false })
       .limit(5),
     supabase
       .from("conversation_summaries")
-      .select("id, summary, message_count, created_at")
+      .select("id, conversation_id, user_id, summary, created_at")
       .order("created_at", { ascending: false })
       .limit(3),
     supabase
       .from("conversations")
-      .select("id, title, workspace_id, updated_at")
+      .select("id, user_id, title, model, created_at, updated_at")
       .order("updated_at", { ascending: false })
       .limit(5),
     supabase
@@ -97,10 +123,13 @@ export default async function DashboardPage() {
 
   const workspaces = workspacesResult.data ?? [];
   const userMemories = userMemoriesResult.data ?? [];
-  const memoryCandidates = memoryCandidatesResult.data ?? [];
-  const workspaceKnowledge = workspaceKnowledgeResult.data ?? [];
+  const memoryCandidates = (memoryCandidatesResult.data ??
+    []) as unknown as MemoryCandidatePreview[];
+  const workspaceKnowledge = (workspaceKnowledgeResult.data ??
+    []) as unknown as WorkspaceKnowledgePreview[];
   const conversationSummaries = conversationSummariesResult.data ?? [];
-  const conversations = conversationsResult.data ?? [];
+  const conversations = (conversationsResult.data ??
+    []) as unknown as ConversationPreview[];
   const metrics = [
     { label: "Workspaces", value: workspaces.length.toString() },
     { label: "Saved memories", value: userMemories.length.toString() },
@@ -229,8 +258,7 @@ export default async function DashboardPage() {
                     {summary.summary}
                   </p>
                   <p className="mt-2 text-xs text-muted">
-                    {summary.message_count} messages /{" "}
-                    {formatDate(summary.created_at)}
+                    Created {formatDate(summary.created_at)}
                   </p>
                 </article>
               ))
@@ -298,6 +326,9 @@ export default async function DashboardPage() {
                   className="rounded-2xl border border-white/10 bg-panel-soft p-4"
                 >
                   <h3 className="font-medium text-white">{note.title}</h3>
+                  <p className="mt-1 text-xs uppercase tracking-[0.18em] text-gold-bright">
+                    {note.knowledge_type}
+                  </p>
                   <p className="mt-2 text-sm leading-6 text-muted">
                     {note.content}
                   </p>
@@ -324,6 +355,9 @@ export default async function DashboardPage() {
                 className="rounded-2xl border border-white/10 bg-black/40 p-4"
               >
                 <h3 className="font-medium text-white">{conversation.title}</h3>
+                <p className="mt-1 text-xs uppercase tracking-[0.18em] text-gold-bright">
+                  {conversation.model}
+                </p>
                 <p className="mt-2 text-xs text-muted">
                   Updated {formatDate(conversation.updated_at)}
                 </p>
