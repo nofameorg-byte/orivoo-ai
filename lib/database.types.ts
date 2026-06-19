@@ -9,6 +9,95 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      artifact_folders: {
+        Row: {
+          created_at: string;
+          id: string;
+          name: string;
+          project_id: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          name: string;
+          project_id: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          name?: string;
+          project_id?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "artifact_folders_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      artifacts: {
+        Row: {
+          artifact_type: string;
+          content: string;
+          created_at: string;
+          folder_id: string | null;
+          id: string;
+          metadata: Json;
+          project_id: string;
+          title: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          artifact_type: string;
+          content: string;
+          created_at?: string;
+          folder_id?: string | null;
+          id?: string;
+          metadata?: Json;
+          project_id: string;
+          title: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          artifact_type?: string;
+          content?: string;
+          created_at?: string;
+          folder_id?: string | null;
+          id?: string;
+          metadata?: Json;
+          project_id?: string;
+          title?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "artifacts_folder_id_fkey";
+            columns: ["folder_id"];
+            isOneToOne: false;
+            referencedRelation: "artifact_folders";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "artifacts_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       files: {
         Row: {
           created_at: string;

@@ -3,8 +3,12 @@ import {
   Bot,
   Braces,
   Building2,
+  Copy,
+  Download,
+  Eye,
   FileText,
   FlaskConical,
+  FolderPlus,
   Globe2,
   Landmark,
   Layers3,
@@ -20,9 +24,17 @@ import {
   Users,
 } from "lucide-react";
 import {
+  createArtifact,
+  createArtifactFolder,
+  deleteArtifact,
+  duplicateArtifact,
+  updateArtifact,
+} from "@/app/actions/artifacts";
+import {
   deleteProjectFile,
   uploadProjectFile,
 } from "@/app/actions/files";
+import { artifactTypes, getArtifactTypeLabel } from "@/lib/artifacts";
 import { ensureDefaultProject } from "@/lib/projects";
 import { createClient } from "@/lib/supabase/server";
 
@@ -106,6 +118,8 @@ const baseMetrics = [
 
 type DashboardPageProps = {
   searchParams?: Promise<{
+    artifactId?: string;
+    artifactMessage?: string;
     fileMessage?: string;
   }>;
 };
@@ -168,6 +182,22 @@ export default async function DashboardPage({
         .eq("project_id", project.id)
         .order("created_at", { ascending: false })
     : { data: [] };
+  const { data: artifactFolders } = project
+    ? await supabase
+        .from("artifact_folders")
+        .select("id, name, created_at, updated_at")
+        .eq("project_id", project.id)
+        .order("name", { ascending: true })
+    : { data: [] };
+  const { data: artifacts } = project
+    ? await supabase
+        .from("artifacts")
+        .select(
+          "id, folder_id, title, artifact_type, content, metadata, created_at, updated_at",
+        )
+        .eq("project_id", project.id)
+        .order("updated_at", { ascending: false })
+    : { data: [] };
 
   const filesWithUrls = await Promise.all(
     (projectFiles ?? []).map(async (file) => {
@@ -181,10 +211,22 @@ export default async function DashboardPage({
       };
     }),
   );
+  const artifactList = artifacts ?? [];
+  const folders = artifactFolders ?? [];
+  const selectedArtifact =
+    artifactList.find((artifact) => artifact.id === params?.artifactId) ??
+    artifactList[0] ??
+    null;
+  const getArtifactFolderName = (folderId: string | null) =>
+    folderId
+      ? folders.find((folder) => folder.id === folderId)?.name ??
+        "Project folder"
+      : "Unfiled";
 
   const metrics = [
     ...baseMetrics,
     { label: "Project files", value: filesWithUrls.length.toString() },
+    { label: "Artifacts", value: artifactList.length.toString() },
   ];
 
   return (
@@ -387,6 +429,381 @@ export default async function DashboardPage({
         </div>
       </section>
 
+      <section
+        id="artifacts"
+        className="space-y-5 rounded-[2rem] border border-white/10 bg-white/[0.03] p-6"
+      >
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-gold/25 bg-gold/10 px-4 py-2 text-sm text-gold-bright">
+              <Layers3 className="size-4" aria-hidden />
+              Artifact workspace
+            </div>
+            <h2 className="text-3xl font-semibold text-white">
+              Save valuable AI-generated work.
+            </h2>
+            <p className="mt-3 max-w-3xl leading-6 text-muted">
+              Store documents, reports, code, research, plans, legal drafts, and
+              civic reports by project so outputs do not get lost in
+              conversations.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {["PDF Export", "DOCX Export", "Markdown Export", "Code Export"].map(
+              (exportType) => (
+                <span
+                  key={exportType}
+                  className="rounded-full border border-white/10 px-3 py-1 text-xs text-muted"
+                >
+                  Future: {exportType}
+                </span>
+              ),
+            )}
+          </div>
+        </div>
+
+        {params?.artifactMessage ? (
+          <div className="rounded-2xl border border-gold/20 bg-gold/10 px-4 py-3 text-sm text-gold-bright">
+            {params.artifactMessage}
+          </div>
+        ) : null}
+
+        <div className="grid gap-5 xl:grid-cols-[0.78fr_1.22fr]">
+          <div className="space-y-5">
+            <div className="rounded-3xl border border-white/10 bg-black/40 p-5">
+              <div className="mb-4 flex items-center gap-3">
+                <div className="flex size-10 items-center justify-center rounded-xl border border-gold/20 bg-gold/10 text-gold">
+                  <FolderPlus className="size-4" aria-hidden />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white">
+                    Project artifact folders
+                  </h3>
+                  <p className="text-xs text-muted">
+                    {folders.length} {folders.length === 1 ? "folder" : "folders"}{" "}
+                    in {project?.name ?? "this project"}
+                  </p>
+                </div>
+              </div>
+
+              <form action={createArtifactFolder} className="flex gap-2">
+                <input type="hidden" name="projectId" value={project?.id ?? ""} />
+                <input
+                  required
+                  name="folderName"
+                  placeholder="Folder name"
+                  className="min-w-0 flex-1 rounded-full border border-white/10 bg-panel-soft px-4 py-2 text-sm text-white outline-none placeholder:text-muted"
+                />
+                <button
+                  type="submit"
+                  className="rounded-full border border-gold/30 px-4 py-2 text-sm font-medium text-gold-bright transition hover:bg-gold/10"
+                >
+                  Create
+                </button>
+              </form>
+
+              {folders.length > 0 ? (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {folders.map((folder) => (
+                    <span
+                      key={folder.id}
+                      className="rounded-full border border-white/10 bg-panel-soft px-3 py-1 text-xs text-muted"
+                    >
+                      {folder.name}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+
+            <form
+              action={createArtifact}
+              className="rounded-3xl border border-gold/20 bg-black/40 p-5"
+            >
+              <input type="hidden" name="projectId" value={project?.id ?? ""} />
+              <div className="mb-5">
+                <p className="text-xs uppercase tracking-[0.24em] text-gold-bright">
+                  Save artifact
+                </p>
+                <h3 className="mt-2 text-xl font-semibold text-white">
+                  Capture an AI output
+                </h3>
+                <p className="mt-2 text-sm leading-6 text-muted">
+                  Paste generated work here to store it as a reusable project
+                  artifact.
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <input
+                  required
+                  name="title"
+                  placeholder="Artifact title"
+                  className="w-full rounded-2xl border border-white/10 bg-panel-soft px-4 py-3 text-sm text-white outline-none placeholder:text-muted"
+                />
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <select
+                    name="artifactType"
+                    defaultValue="document"
+                    className="rounded-2xl border border-white/10 bg-panel-soft px-4 py-3 text-sm text-white outline-none"
+                  >
+                    {artifactTypes.map((artifactType) => (
+                      <option
+                        key={artifactType.value}
+                        value={artifactType.value}
+                      >
+                        {artifactType.label}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    name="folderId"
+                    defaultValue=""
+                    className="rounded-2xl border border-white/10 bg-panel-soft px-4 py-3 text-sm text-white outline-none"
+                  >
+                    <option value="">Unfiled</option>
+                    {folders.map((folder) => (
+                      <option key={folder.id} value={folder.id}>
+                        {folder.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <textarea
+                  required
+                  name="content"
+                  rows={8}
+                  placeholder="Paste artifact content..."
+                  className="w-full rounded-2xl border border-white/10 bg-panel-soft px-4 py-3 text-sm leading-6 text-white outline-none placeholder:text-muted"
+                />
+                <button
+                  type="submit"
+                  className="gold-gradient flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-black"
+                >
+                  <FileText className="size-4" aria-hidden />
+                  Save artifact
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <div className="space-y-5">
+            <div className="rounded-3xl border border-white/10 bg-black/40 p-4 sm:p-6">
+              <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.24em] text-muted">
+                    Artifact list
+                  </p>
+                  <h3 className="mt-2 text-xl font-semibold text-white">
+                    {artifactList.length} saved{" "}
+                    {artifactList.length === 1 ? "artifact" : "artifacts"}
+                  </h3>
+                </div>
+                <span className="rounded-full border border-white/10 px-3 py-1 text-xs text-muted">
+                  Project scoped
+                </span>
+              </div>
+
+              {artifactList.length > 0 ? (
+                <div className="overflow-hidden rounded-2xl border border-white/10">
+                  <div className="grid grid-cols-[1.2fr_0.8fr_0.8fr_0.8fr] gap-3 border-b border-white/10 bg-panel-soft px-4 py-3 text-xs uppercase tracking-[0.18em] text-muted">
+                    <span>Title</span>
+                    <span>Type</span>
+                    <span>Created</span>
+                    <span>Last updated</span>
+                  </div>
+                  <div className="divide-y divide-white/10">
+                    {artifactList.map((artifact) => (
+                      <article
+                        key={artifact.id}
+                        className={`grid gap-3 px-4 py-4 text-sm lg:grid-cols-[1.2fr_0.8fr_0.8fr_0.8fr] ${
+                          artifact.id === selectedArtifact?.id
+                            ? "bg-gold/10"
+                            : "bg-black/30"
+                        }`}
+                      >
+                        <div className="min-w-0">
+                          <h4 className="truncate font-medium text-white">
+                            {artifact.title}
+                          </h4>
+                          <p className="mt-1 text-xs text-muted">
+                            Folder: {getArtifactFolderName(artifact.folder_id)}
+                          </p>
+                        </div>
+                        <p className="text-muted">
+                          {getArtifactTypeLabel(artifact.artifact_type)}
+                        </p>
+                        <p className="text-muted">
+                          {formatDate(artifact.created_at)}
+                        </p>
+                        <div className="space-y-3">
+                          <p className="text-muted">
+                            {formatDate(artifact.updated_at)}
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            <a
+                              href={`/dashboard?artifactId=${artifact.id}#artifacts`}
+                              className="inline-flex items-center gap-1 rounded-full border border-white/10 px-3 py-1.5 text-xs text-white transition hover:border-gold/40 hover:text-gold-bright"
+                            >
+                              <Eye className="size-3.5" aria-hidden />
+                              View
+                            </a>
+                            <a
+                              href={`/dashboard/artifacts/${artifact.id}/download`}
+                              className="inline-flex items-center gap-1 rounded-full border border-white/10 px-3 py-1.5 text-xs text-white transition hover:border-gold/40 hover:text-gold-bright"
+                            >
+                              <Download className="size-3.5" aria-hidden />
+                              Download
+                            </a>
+                            <form action={duplicateArtifact}>
+                              <input
+                                type="hidden"
+                                name="artifactId"
+                                value={artifact.id}
+                              />
+                              <button
+                                type="submit"
+                                className="inline-flex items-center gap-1 rounded-full border border-white/10 px-3 py-1.5 text-xs text-white transition hover:border-gold/40 hover:text-gold-bright"
+                              >
+                                <Copy className="size-3.5" aria-hidden />
+                                Duplicate
+                              </button>
+                            </form>
+                            <form action={deleteArtifact}>
+                              <input
+                                type="hidden"
+                                name="artifactId"
+                                value={artifact.id}
+                              />
+                              <button
+                                type="submit"
+                                className="inline-flex items-center gap-1 rounded-full border border-red-400/20 px-3 py-1.5 text-xs text-red-200 transition hover:border-red-300/50 hover:bg-red-400/10"
+                              >
+                                <Trash2 className="size-3.5" aria-hidden />
+                                Delete
+                              </button>
+                            </form>
+                          </div>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-dashed border-white/10 bg-panel-soft p-8 text-center">
+                  <Layers3
+                    className="mx-auto mb-4 size-8 text-gold"
+                    aria-hidden
+                  />
+                  <h4 className="font-semibold text-white">No artifacts yet</h4>
+                  <p className="mt-2 text-sm leading-6 text-muted">
+                    Save important outputs here once AI generation is connected.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="rounded-3xl border border-white/10 bg-black/40 p-5">
+              {selectedArtifact ? (
+                <form action={updateArtifact} className="space-y-4">
+                  <input
+                    type="hidden"
+                    name="artifactId"
+                    value={selectedArtifact.id}
+                  />
+                  <input
+                    type="hidden"
+                    name="projectId"
+                    value={project?.id ?? ""}
+                  />
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.24em] text-muted">
+                        View and edit
+                      </p>
+                      <h3 className="mt-2 text-xl font-semibold text-white">
+                        {selectedArtifact.title}
+                      </h3>
+                      <p className="mt-1 text-sm text-muted">
+                        {getArtifactTypeLabel(selectedArtifact.artifact_type)}{" "}
+                        in {getArtifactFolderName(selectedArtifact.folder_id)}
+                      </p>
+                    </div>
+                    <a
+                      href={`/dashboard/artifacts/${selectedArtifact.id}/download`}
+                      className="inline-flex items-center justify-center gap-2 rounded-full border border-gold/30 px-4 py-2 text-sm font-medium text-gold-bright transition hover:bg-gold/10"
+                    >
+                      <Download className="size-4" aria-hidden />
+                      Download
+                    </a>
+                  </div>
+
+                  <input
+                    required
+                    name="title"
+                    defaultValue={selectedArtifact.title}
+                    className="w-full rounded-2xl border border-white/10 bg-panel-soft px-4 py-3 text-sm text-white outline-none"
+                  />
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <select
+                      name="artifactType"
+                      defaultValue={selectedArtifact.artifact_type}
+                      className="rounded-2xl border border-white/10 bg-panel-soft px-4 py-3 text-sm text-white outline-none"
+                    >
+                      {artifactTypes.map((artifactType) => (
+                        <option
+                          key={artifactType.value}
+                          value={artifactType.value}
+                        >
+                          {artifactType.label}
+                        </option>
+                      ))}
+                    </select>
+                    <select
+                      name="folderId"
+                      defaultValue={selectedArtifact.folder_id ?? ""}
+                      className="rounded-2xl border border-white/10 bg-panel-soft px-4 py-3 text-sm text-white outline-none"
+                    >
+                      <option value="">Unfiled</option>
+                      {folders.map((folder) => (
+                        <option key={folder.id} value={folder.id}>
+                          {folder.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <textarea
+                    required
+                    name="content"
+                    rows={12}
+                    defaultValue={selectedArtifact.content}
+                    className="w-full rounded-2xl border border-white/10 bg-panel-soft px-4 py-3 font-mono text-sm leading-6 text-white outline-none"
+                  />
+                  <button
+                    type="submit"
+                    className="gold-gradient flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-black"
+                  >
+                    <FileText className="size-4" aria-hidden />
+                    Save changes
+                  </button>
+                </form>
+              ) : (
+                <div className="rounded-2xl border border-dashed border-white/10 bg-panel-soft p-8 text-center">
+                  <Eye className="mx-auto mb-4 size-8 text-gold" aria-hidden />
+                  <h4 className="font-semibold text-white">
+                    Select an artifact to view
+                  </h4>
+                  <p className="mt-2 text-sm leading-6 text-muted">
+                    Saved artifacts can be reviewed, edited, duplicated,
+                    deleted, or downloaded from this panel.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {studios.map((studio) => (
           <article
@@ -418,7 +835,7 @@ export default async function DashboardPage({
           },
           {
             title: "Database",
-            body: "Profiles, projects, workspaces, and file metadata are prepared with RLS-enabled SQL.",
+            body: "Profiles, projects, files, artifact folders, and artifacts are prepared with RLS-enabled SQL.",
           },
           {
             title: "Deployment",
