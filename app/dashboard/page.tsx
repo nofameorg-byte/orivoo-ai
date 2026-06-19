@@ -1,185 +1,34 @@
 import {
-  ArrowUp,
+  BookOpen,
   Bot,
-  Braces,
-  Building2,
-  CheckCircle2,
-  Clock3,
-  Copy,
-  Crown,
-  Download,
-  Eye,
+  Brain,
   FileText,
-  FlaskConical,
-  FolderPlus,
-  Globe2,
-  Landmark,
-  Layers3,
-  Leaf,
-  Palette,
-  Scale,
-  Search,
-  ShieldCheck,
+  MessageSquareText,
   Sparkles,
-  Trees,
-  Trash2,
-  Upload,
-  UserMinus,
-  UserPlus,
-  Users,
-  XCircle,
 } from "lucide-react";
-import {
-  runOrivooAgents,
-  saveProjectMemory,
-} from "@/app/actions/agents";
-import {
-  createArtifact,
-  createArtifactFolder,
-  deleteArtifact,
-  duplicateArtifact,
-  updateArtifact,
-} from "@/app/actions/artifacts";
-import {
-  deleteProjectFile,
-  uploadProjectFile,
-} from "@/app/actions/files";
-import { startDeepResearch } from "@/app/actions/research";
-import {
-  inviteProjectMember,
-  removeProjectMember,
-  transferProjectOwnership,
-  updateProjectMemberRole,
-} from "@/app/actions/team";
-import { futureAgentProviders } from "@/lib/agents";
-import { artifactTypes, getArtifactTypeLabel } from "@/lib/artifacts";
-import { ensureDefaultProject } from "@/lib/projects";
-import {
-  getProjectMemberRoleDescription,
-  getProjectMemberRoleLabel,
-  isTeamPlan,
-  projectMemberRoles,
-} from "@/lib/team";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 
-const studios = [
+const memoryLinks = [
   {
-    name: "Assistant",
-    description: "Ask, plan, summarize, and coordinate across every studio.",
-    icon: Bot,
+    title: "Memory Approval",
+    description: "Review extracted memory candidates before they are saved.",
+    href: "/dashboard/memory",
+    icon: Brain,
   },
   {
-    name: "Document Studio",
-    description: "Draft, edit, and transform high-quality written assets.",
+    title: "Saved Memory",
+    description: "Edit approved long-term user memories and importance scores.",
+    href: "/dashboard/memory/saved",
     icon: FileText,
   },
   {
-    name: "Research Studio",
-    description: "Explore topics, collect evidence, and turn findings into maps.",
-    icon: Search,
-  },
-  {
-    name: "Website Builder",
-    description: "Shape landing pages, content blocks, and deployment plans.",
-    icon: Globe2,
-  },
-  {
-    name: "Code Studio",
-    description: "Create implementation plans, code, tests, and technical notes.",
-    icon: Braces,
-  },
-  {
-    name: "Business Builder",
-    description: "Model offers, operations, positioning, and growth systems.",
-    icon: Building2,
-  },
-  {
-    name: "Design Studio",
-    description: "Develop brand systems, UI direction, and visual concepts.",
-    icon: Palette,
-  },
-  {
-    name: "Land Studio",
-    description: "Organize property, planning, and land-use intelligence.",
-    icon: Trees,
-  },
-  {
-    name: "Concept Studio",
-    description: "Turn raw ideas into structured concepts and next actions.",
-    icon: Layers3,
-  },
-  {
-    name: "Legal Studio",
-    description: "Summarize legal context and prepare review-ready drafts.",
-    icon: Scale,
-  },
-  {
-    name: "Civic Studio",
-    description: "Navigate public programs, policy, and civic research.",
-    icon: Landmark,
-  },
-  {
-    name: "Botanical Studio",
-    description: "Study plants, cultivation workflows, and botanical data.",
-    icon: Leaf,
-  },
-  {
-    name: "Genealogy Studio",
-    description: "Trace family history, records, and ancestry narratives.",
-    icon: Users,
-  },
-  {
-    name: "Science Studio",
-    description: "Frame hypotheses, lab notes, and research explainers.",
-    icon: FlaskConical,
+    title: "Knowledge Base",
+    description: "Create durable workspace knowledge for future AI context.",
+    href: "/dashboard/knowledge",
+    icon: BookOpen,
   },
 ];
-
-const baseMetrics = [
-  { label: "Active studios", value: "14" },
-  { label: "Auth provider", value: "Supabase" },
-];
-
-const researchWorkflowSteps = [
-  "Queued research job",
-  "Gathered source material",
-  "Extracted findings",
-  "Generated structured report",
-  "Saved report artifact",
-];
-
-type DashboardPageProps = {
-  searchParams?: Promise<{
-    artifactId?: string;
-    artifactMessage?: string;
-    agentMessage?: string;
-    agentRunId?: string;
-    fileMessage?: string;
-    projectId?: string;
-    researchJobId?: string;
-    researchMessage?: string;
-    teamMessage?: string;
-  }>;
-};
-
-const projectFilesBucket = "project-files";
-
-function formatFileSize(sizeBytes: number) {
-  if (sizeBytes < 1024) {
-    return `${sizeBytes} B`;
-  }
-
-  const units = ["KB", "MB", "GB"];
-  let size = sizeBytes / 1024;
-  let unitIndex = 0;
-
-  while (size >= 1024 && unitIndex < units.length - 1) {
-    size /= 1024;
-    unitIndex += 1;
-  }
-
-  return `${size.toFixed(size >= 10 ? 0 : 1)} ${units[unitIndex]}`;
-}
 
 function formatDate(date: string) {
   return new Intl.DateTimeFormat("en", {
@@ -189,1814 +38,303 @@ function formatDate(date: string) {
   }).format(new Date(date));
 }
 
-function getResearchProgress(status: string) {
-  if (status === "completed") {
-    return 100;
-  }
-
-  if (status === "running") {
-    return 55;
-  }
-
-  if (status === "failed") {
-    return 100;
-  }
-
-  return 20;
-}
-
-function getResearchStatusIcon(status: string) {
-  if (status === "completed") {
-    return CheckCircle2;
-  }
-
-  if (status === "failed") {
-    return XCircle;
-  }
-
-  if (status === "running") {
-    return Search;
-  }
-
-  return Clock3;
-}
-
-function getMetadataObject(metadata: unknown) {
-  return metadata && typeof metadata === "object" && !Array.isArray(metadata)
-    ? (metadata as Record<string, unknown>)
-    : {};
-}
-
-function getCitationSources(metadata: unknown) {
-  const citations = getMetadataObject(metadata).citations;
-
-  if (!Array.isArray(citations)) {
-    return [];
-  }
-
-  return citations
-    .map((citation) => {
-      if (!citation || typeof citation !== "object") {
-        return null;
-      }
-
-      const source = citation as Record<string, unknown>;
-      const title = typeof source.title === "string" ? source.title : "";
-      const url = typeof source.url === "string" ? source.url : "";
-      const excerpt = typeof source.excerpt === "string" ? source.excerpt : "";
-
-      if (!title && !url && !excerpt) {
-        return null;
-      }
-
-      return { title, url, excerpt };
-    })
-    .filter((source): source is { title: string; url: string; excerpt: string } =>
-      Boolean(source),
-    );
-}
-
-export default async function DashboardPage({
-  searchParams,
-}: DashboardPageProps) {
+export default async function DashboardPage() {
   const supabase = await createClient();
-  const params = await searchParams;
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  const { data: profile } = user
-    ? await supabase
-        .from("profiles")
-        .select("display_name, plan")
-        .eq("id", user.id)
-        .maybeSingle()
-    : { data: null };
-
   const displayName =
-    profile?.display_name ??
     (typeof user?.user_metadata.display_name === "string"
       ? user.user_metadata.display_name
-      : user?.email?.split("@")[0] ?? "Operator");
+      : user?.email?.split("@")[0]) ?? "Operator";
 
-  const defaultProject = user ? await ensureDefaultProject(supabase, user.id) : null;
-  const { data: accessibleProjects } = user
-    ? await supabase
-        .from("projects")
-        .select("id, name, user_id, created_at, updated_at")
-        .order("created_at", { ascending: true })
-    : { data: [] };
-  const project =
-    accessibleProjects?.find((item) => item.id === params?.projectId) ??
-    accessibleProjects?.find((item) => item.id === defaultProject?.id) ??
-    defaultProject;
-  const { data: currentUserMembership } = project
-    ? await supabase
-        .from("project_members")
-        .select("role")
-        .eq("project_id", project.id)
-        .eq("user_id", user?.id ?? "")
-        .maybeSingle()
-    : { data: null };
-  const { data: projectMembers } = project
-    ? await supabase
-        .from("project_members")
-        .select("id, user_id, role, created_at")
-        .eq("project_id", project.id)
-        .order("created_at", { ascending: true })
-    : { data: [] };
-  const { data: projectFiles } = project
-    ? await supabase
-        .from("files")
-        .select("id, name, file_type, storage_path, size_bytes, created_at")
-        .eq("project_id", project.id)
-        .order("created_at", { ascending: false })
-    : { data: [] };
-  const { data: artifactFolders } = project
-    ? await supabase
-        .from("artifact_folders")
-        .select("id, name, created_at, updated_at")
-        .eq("project_id", project.id)
-        .order("name", { ascending: true })
-    : { data: [] };
-  const { data: artifacts } = project
-    ? await supabase
-        .from("artifacts")
-        .select(
-          "id, folder_id, title, artifact_type, content, metadata, created_at, updated_at",
-        )
-        .eq("project_id", project.id)
-        .order("updated_at", { ascending: false })
-    : { data: [] };
-  const { data: researchJobs } = project
-    ? await supabase
-        .from("research_jobs")
-        .select(
-          "id, title, status, query, result_artifact_id, created_at, updated_at",
-        )
-        .eq("project_id", project.id)
-        .order("updated_at", { ascending: false })
-    : { data: [] };
-  const { data: agents } = await supabase
-    .from("agents")
-    .select("id, name, description, system_prompt, created_at")
-    .order("name", { ascending: true });
-  const { data: projectMemory } = project
-    ? await supabase
-        .from("project_memory")
-        .select("id, content, created_at, updated_at")
-        .eq("project_id", project.id)
-        .maybeSingle()
-    : { data: null };
-  const { data: agentRuns } = project
-    ? await supabase
-        .from("agent_runs")
-        .select(
-          "id, title, status, user_message, conversation_history, selected_agent_ids, merged_output, result_artifact_id, created_at, updated_at",
-        )
-        .eq("project_id", project.id)
-        .order("updated_at", { ascending: false })
-    : { data: [] };
-  const { data: agentRunResults } = project
-    ? await supabase
-        .from("agent_run_results")
-        .select("id, agent_run_id, agent_id, reasoning, output, created_at")
-        .eq("project_id", project.id)
-        .order("created_at", { ascending: true })
-    : { data: [] };
+  const [
+    workspacesResult,
+    userMemoriesResult,
+    memoryCandidatesResult,
+    workspaceKnowledgeResult,
+    conversationSummariesResult,
+    conversationsResult,
+    messagesResult,
+    memoryEmbeddingsResult,
+  ] = await Promise.all([
+    supabase
+      .from("workspaces")
+      .select("id, name, created_at, updated_at")
+      .order("created_at", { ascending: true }),
+    supabase
+      .from("user_memories")
+      .select("id, memory_type, content, importance, updated_at")
+      .order("importance", { ascending: false })
+      .limit(5),
+    supabase
+      .from("memory_candidates")
+      .select("id, memory_type, content, importance, created_at")
+      .order("created_at", { ascending: false })
+      .limit(5),
+    supabase
+      .from("workspace_knowledge")
+      .select("id, workspace_id, title, content, updated_at")
+      .order("updated_at", { ascending: false })
+      .limit(5),
+    supabase
+      .from("conversation_summaries")
+      .select("id, summary, message_count, created_at")
+      .order("created_at", { ascending: false })
+      .limit(3),
+    supabase
+      .from("conversations")
+      .select("id, title, workspace_id, updated_at")
+      .order("updated_at", { ascending: false })
+      .limit(5),
+    supabase
+      .from("messages")
+      .select("id", { count: "exact", head: true }),
+    supabase
+      .from("memory_embeddings")
+      .select("id", { count: "exact", head: true }),
+  ]);
 
-  const filesWithUrls = await Promise.all(
-    (projectFiles ?? []).map(async (file) => {
-      const { data } = await supabase.storage
-        .from(projectFilesBucket)
-        .createSignedUrl(file.storage_path, 60 * 60);
-
-      return {
-        ...file,
-        signedUrl: data?.signedUrl ?? null,
-      };
-    }),
-  );
-  const artifactList = artifacts ?? [];
-  const folders = artifactFolders ?? [];
-  const researchJobList = researchJobs ?? [];
-  const agentList = agents ?? [];
-  const agentRunList = agentRuns ?? [];
-  const agentResultList = agentRunResults ?? [];
-  const projects = accessibleProjects ?? [];
-  const teamMembers = projectMembers ?? [];
-  const currentPlan = profile?.plan ?? "free";
-  const teamEnabled = isTeamPlan(currentPlan);
-  const currentRole =
-    currentUserMembership?.role ??
-    (project?.user_id === user?.id ? "owner" : "viewer");
-  const canManageTeam =
-    teamEnabled && (currentRole === "owner" || currentRole === "admin");
-  const canTransferOwnership = teamEnabled && currentRole === "owner";
-  const selectedArtifact =
-    artifactList.find((artifact) => artifact.id === params?.artifactId) ??
-    artifactList[0] ??
-    null;
-  const selectedResearchJob =
-    researchJobList.find((job) => job.id === params?.researchJobId) ??
-    researchJobList[0] ??
-    null;
-  const selectedResearchArtifact = selectedResearchJob?.result_artifact_id
-    ? artifactList.find(
-        (artifact) => artifact.id === selectedResearchJob.result_artifact_id,
-      ) ?? null
-    : null;
-  const researchSources = selectedResearchArtifact
-    ? getCitationSources(selectedResearchArtifact.metadata)
-    : [];
-  const selectedAgentRun =
-    agentRunList.find((run) => run.id === params?.agentRunId) ??
-    agentRunList[0] ??
-    null;
-  const selectedAgentResults = selectedAgentRun
-    ? agentResultList.filter(
-        (result) => result.agent_run_id === selectedAgentRun.id,
-      )
-    : [];
-  const selectedAgentArtifact = selectedAgentRun?.result_artifact_id
-    ? artifactList.find(
-        (artifact) => artifact.id === selectedAgentRun.result_artifact_id,
-      ) ?? null
-    : null;
-  const canEditWorkspace =
-    currentRole === "owner" || currentRole === "admin" || currentRole === "editor";
-  const getAgentName = (agentId: string) =>
-    agentList.find((agent) => agent.id === agentId)?.name ?? "Agent";
-  const getArtifactFolderName = (folderId: string | null) =>
-    folderId
-      ? folders.find((folder) => folder.id === folderId)?.name ??
-        "Project folder"
-      : "Unfiled";
-
+  const workspaces = workspacesResult.data ?? [];
+  const userMemories = userMemoriesResult.data ?? [];
+  const memoryCandidates = memoryCandidatesResult.data ?? [];
+  const workspaceKnowledge = workspaceKnowledgeResult.data ?? [];
+  const conversationSummaries = conversationSummariesResult.data ?? [];
+  const conversations = conversationsResult.data ?? [];
   const metrics = [
-    ...baseMetrics,
-    { label: "Project files", value: filesWithUrls.length.toString() },
-    { label: "Artifacts", value: artifactList.length.toString() },
-    { label: "Research jobs", value: researchJobList.length.toString() },
-    { label: "Team members", value: teamMembers.length.toString() },
-    { label: "Agent runs", value: agentRunList.length.toString() },
+    { label: "Workspaces", value: workspaces.length.toString() },
+    { label: "Saved memories", value: userMemories.length.toString() },
+    { label: "Pending memories", value: memoryCandidates.length.toString() },
+    { label: "Knowledge notes", value: workspaceKnowledge.length.toString() },
+    {
+      label: "Messages",
+      value: (messagesResult.count ?? 0).toString(),
+    },
+    {
+      label: "Embedding records",
+      value: (memoryEmbeddingsResult.count ?? 0).toString(),
+    },
   ];
 
   return (
     <div className="space-y-8">
-      <section
-        id="workspace"
-        className="surface-card relative overflow-hidden rounded-[2rem] p-6 sm:p-8 lg:p-10"
-      >
+      <section className="surface-card relative overflow-hidden rounded-[2rem] p-6 sm:p-8 lg:p-10">
         <div className="absolute right-0 top-0 h-64 w-64 rounded-full bg-gold/10 blur-3xl" />
-        <div className="relative grid gap-8 lg:grid-cols-[1fr_0.75fr] lg:items-end">
-          <div>
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-gold/25 bg-gold/10 px-4 py-2 text-sm text-gold-bright">
-              <Sparkles className="size-4" aria-hidden />
-              ORIVOO AI Dashboard
-            </div>
-            <h1 className="max-w-4xl text-4xl font-semibold tracking-tight text-white sm:text-5xl">
-              Welcome back, {displayName}. What are we building next?
-            </h1>
-            <p className="mt-5 max-w-2xl leading-7 text-muted">
-              Start with the assistant, then route the work into specialist
-              studios for documents, research, code, design, business, science,
-              and more.
-            </p>
-            {projects.length > 0 ? (
-              <div className="mt-6 rounded-3xl border border-white/10 bg-black/40 p-4">
-                <p className="text-xs uppercase tracking-[0.24em] text-muted">
-                  Active project workspace
-                </p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {projects.map((item) => (
-                    <a
-                      key={item.id}
-                      href={`/dashboard?projectId=${item.id}#workspace`}
-                      className={`rounded-full border px-4 py-2 text-sm transition ${
-                        item.id === project?.id
-                          ? "border-gold/40 bg-gold/10 text-gold-bright"
-                          : "border-white/10 text-muted hover:border-gold/30 hover:text-white"
-                      }`}
-                    >
-                      {item.name}
-                    </a>
-                  ))}
-                </div>
-              </div>
-            ) : null}
+        <div className="relative">
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-gold/25 bg-gold/10 px-4 py-2 text-sm text-gold-bright">
+            <Sparkles className="size-4" aria-hidden />
+            ORIVOO AI Dashboard
           </div>
-          <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
-            {metrics.map((metric) => (
-              <div
-                key={metric.label}
-                className="rounded-2xl border border-white/10 bg-black/40 p-4"
-              >
-                <p className="text-xs uppercase tracking-[0.24em] text-muted">
-                  {metric.label}
-                </p>
-                <p className="mt-2 text-2xl font-semibold text-white">
-                  {metric.value}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="relative mt-8 rounded-[1.5rem] border border-white/10 bg-black/60 p-3">
-          <div className="min-h-32 rounded-2xl bg-panel-soft p-5">
-            <p className="text-sm text-muted">Assistant prompt</p>
-            <p className="mt-3 text-lg text-white">
-              Build a launch-ready brief, create a research map, and draft the
-              first landing page section for ORIVOO AI.
-            </p>
-          </div>
-          <div className="mt-3 flex items-center gap-3 rounded-full border border-white/10 bg-black/60 p-2 pl-5">
-            <span className="flex-1 text-sm text-muted">
-              Ask ORIVOO AI to plan, write, design, research, or build...
-            </span>
-            <button
-              type="button"
-              className="gold-gradient flex size-10 items-center justify-center rounded-full text-black"
-            >
-              <ArrowUp className="size-4" aria-hidden />
-              <span className="sr-only">Send prompt</span>
-            </button>
-          </div>
+          <h1 className="max-w-4xl text-4xl font-semibold tracking-tight text-white sm:text-5xl">
+            Welcome back, {displayName}. Your workspace memory is ready.
+          </h1>
+          <p className="mt-5 max-w-3xl leading-7 text-muted">
+            ORIVOO now loads workspace knowledge, approved user memories, and
+            conversation summaries before AI responses. Memory candidates remain
+            reviewable before they become long-term context.
+          </p>
         </div>
       </section>
 
-      <section
-        id="files"
-        className="grid gap-5 rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 lg:grid-cols-[0.8fr_1.2fr]"
-      >
-        <div className="rounded-3xl border border-gold/20 bg-black/40 p-6">
-          <div className="mb-5 flex size-12 items-center justify-center rounded-2xl border border-gold/25 bg-gold/10 text-gold">
-            <Upload className="size-5" aria-hidden />
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        {metrics.map((metric) => (
+          <div
+            key={metric.label}
+            className="rounded-2xl border border-white/10 bg-black/40 p-5"
+          >
+            <p className="text-xs uppercase tracking-[0.24em] text-muted">
+              {metric.label}
+            </p>
+            <p className="mt-2 text-3xl font-semibold text-white">
+              {metric.value}
+            </p>
           </div>
-          <p className="text-xs uppercase tracking-[0.24em] text-gold-bright">
-            Project files
-          </p>
-          <h2 className="mt-3 text-2xl font-semibold text-white">
-            Store files for future AI analysis.
-          </h2>
-          <p className="mt-3 leading-6 text-muted">
-            Upload PDFs, DOCX documents, TXT notes, CSV data, and common image
-            formats to {project?.name ?? "your project"}. Analysis is not
-            enabled yet.
-          </p>
+        ))}
+      </section>
 
-          {params?.fileMessage ? (
-            <div className="mt-5 rounded-2xl border border-gold/20 bg-gold/10 px-4 py-3 text-sm text-gold-bright">
-              {params.fileMessage}
+      <section className="grid gap-4 lg:grid-cols-3">
+        {memoryLinks.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className="group rounded-3xl border border-white/10 bg-white/[0.03] p-6 transition hover:-translate-y-1 hover:border-gold/40 hover:bg-gold/10"
+          >
+            <div className="mb-6 flex size-12 items-center justify-center rounded-2xl border border-gold/25 bg-gold/10 text-gold">
+              <item.icon className="size-5" aria-hidden />
             </div>
-          ) : null}
+            <h2 className="text-xl font-semibold text-white">{item.title}</h2>
+            <p className="mt-3 leading-6 text-muted">{item.description}</p>
+          </Link>
+        ))}
+      </section>
 
-          <form action={uploadProjectFile} className="mt-6 space-y-4">
-            <input type="hidden" name="projectId" value={project?.id ?? ""} />
-            <label className="block rounded-2xl border border-dashed border-white/15 bg-panel-soft p-4">
-              <span className="text-sm font-medium text-white">
-                Choose a supported file
-              </span>
-              <span className="mt-1 block text-xs text-muted">
-                PDF, DOCX, TXT, CSV, JPG, PNG, GIF, or WEBP up to 50 MB.
-              </span>
-              <input
-                required
-                type="file"
-                name="file"
-                accept=".pdf,.docx,.txt,.csv,image/jpeg,image/png,image/gif,image/webp"
-                className="mt-4 block w-full cursor-pointer rounded-xl border border-white/10 bg-black/50 p-3 text-sm text-muted file:mr-4 file:rounded-full file:border-0 file:bg-gold file:px-4 file:py-2 file:text-sm file:font-semibold file:text-black"
-              />
-            </label>
-            <button
-              type="submit"
-              className="gold-gradient flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-black"
-            >
-              <Upload className="size-4" aria-hidden />
-              Upload file
-            </button>
-          </form>
-        </div>
-
-        <div className="rounded-3xl border border-white/10 bg-black/40 p-4 sm:p-6">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+      <section className="grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
+        <div className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6">
+          <div className="mb-5 flex items-center gap-3">
+            <div className="flex size-10 items-center justify-center rounded-xl border border-gold/20 bg-gold/10 text-gold">
+              <Bot className="size-4" aria-hidden />
+            </div>
             <div>
               <p className="text-xs uppercase tracking-[0.24em] text-muted">
-                File listing
+                Workspaces
               </p>
-              <h3 className="mt-2 text-xl font-semibold text-white">
-                {filesWithUrls.length} stored{" "}
-                {filesWithUrls.length === 1 ? "file" : "files"}
-              </h3>
+              <h2 className="text-xl font-semibold text-white">
+                Workspace context
+              </h2>
             </div>
-            <span className="rounded-full border border-white/10 px-3 py-1 text-xs text-muted">
-              Private bucket
-            </span>
           </div>
-
-          {filesWithUrls.length > 0 ? (
-            <div className="mt-5 space-y-3">
-              {filesWithUrls.map((file) => (
+          <div className="space-y-3">
+            {workspaces.length > 0 ? (
+              workspaces.map((workspace) => (
                 <article
-                  key={file.id}
+                  key={workspace.id}
                   className="rounded-2xl border border-white/10 bg-panel-soft p-4"
                 >
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-3">
-                        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-gold/20 bg-gold/10 text-gold">
-                          <FileText className="size-4" aria-hidden />
-                        </div>
-                        <div className="min-w-0">
-                          <h4 className="truncate font-medium text-white">
-                            {file.name}
-                          </h4>
-                          <p className="mt-1 text-xs text-muted">
-                            {file.file_type} &bull;{" "}
-                            {formatFileSize(file.size_bytes)} &bull;{" "}
-                            {formatDate(file.created_at)}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex shrink-0 items-center gap-2">
-                      {file.signedUrl ? (
-                        <a
-                          href={file.signedUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="rounded-full border border-white/10 px-3 py-2 text-xs font-medium text-white transition hover:border-gold/40 hover:text-gold-bright"
-                        >
-                          View
-                        </a>
-                      ) : (
-                        <span className="rounded-full border border-white/10 px-3 py-2 text-xs text-muted">
-                          View unavailable
-                        </span>
-                      )}
-                      <form action={deleteProjectFile}>
-                        <input type="hidden" name="fileId" value={file.id} />
-                        <button
-                          type="submit"
-                          className="flex items-center gap-2 rounded-full border border-red-400/20 px-3 py-2 text-xs font-medium text-red-200 transition hover:border-red-300/50 hover:bg-red-400/10"
-                        >
-                          <Trash2 className="size-3.5" aria-hidden />
-                          Delete
-                        </button>
-                      </form>
-                    </div>
-                  </div>
+                  <h3 className="font-medium text-white">{workspace.name}</h3>
+                  <p className="mt-2 text-xs text-muted">
+                    Created {formatDate(workspace.created_at)}
+                  </p>
                 </article>
-              ))}
-            </div>
-          ) : (
-            <div className="mt-5 rounded-2xl border border-dashed border-white/10 bg-panel-soft p-8 text-center">
-              <FileText className="mx-auto mb-4 size-8 text-gold" aria-hidden />
-              <h4 className="font-semibold text-white">No files yet</h4>
-              <p className="mt-2 text-sm leading-6 text-muted">
-                Upload files here so each project can retain source material for
-                future analysis.
+              ))
+            ) : (
+              <p className="rounded-2xl border border-dashed border-white/10 bg-panel-soft p-5 text-sm leading-6 text-muted">
+                No workspaces were returned for this user.
               </p>
-            </div>
-          )}
-        </div>
-      </section>
-
-      <section
-        id="team"
-        className="space-y-5 rounded-[2rem] border border-white/10 bg-white/[0.03] p-6"
-      >
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-gold/25 bg-gold/10 px-4 py-2 text-sm text-gold-bright">
-              <Users className="size-4" aria-hidden />
-              Team Workspaces
-            </div>
-            <h2 className="text-3xl font-semibold text-white">
-              Collaborate inside the same ORIVOO workspace.
-            </h2>
-            <p className="mt-3 max-w-3xl leading-6 text-muted">
-              Invite existing users, assign roles, share project files,
-              artifacts, conversations, and memory, or transfer ownership when
-              the workspace changes hands.
-            </p>
-          </div>
-          <div className="rounded-2xl border border-white/10 bg-black/40 px-4 py-3">
-            <p className="text-xs uppercase tracking-[0.24em] text-muted">
-              Current plan
-            </p>
-            <p className="mt-1 text-lg font-semibold capitalize text-white">
-              {currentPlan}
-            </p>
-          </div>
-        </div>
-
-        {params?.teamMessage ? (
-          <div className="rounded-2xl border border-gold/20 bg-gold/10 px-4 py-3 text-sm text-gold-bright">
-            {params.teamMessage}
-          </div>
-        ) : null}
-
-        {!teamEnabled ? (
-          <div className="rounded-3xl border border-white/10 bg-black/40 p-5">
-            <ShieldCheck className="mb-4 size-8 text-gold" aria-hidden />
-            <h3 className="text-xl font-semibold text-white">
-              Team workspaces are disabled on Free and Pro.
-            </h3>
-            <p className="mt-3 max-w-3xl text-sm leading-6 text-muted">
-              Upgrade the account plan to Business or Enterprise to invite
-              collaborators, manage shared roles, and enable multi-user access
-              to project workspace resources.
-            </p>
-          </div>
-        ) : null}
-
-        <div className="grid gap-5 xl:grid-cols-[0.82fr_1.18fr]">
-          <div className="space-y-5">
-            <div className="rounded-3xl border border-white/10 bg-black/40 p-5">
-              <div className="mb-5 flex items-center gap-3">
-                <div className="flex size-10 items-center justify-center rounded-xl border border-gold/20 bg-gold/10 text-gold">
-                  <UserPlus className="size-4" aria-hidden />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-white">
-                    Invite existing user
-                  </h3>
-                  <p className="text-xs text-muted">
-                    Business and Enterprise only
-                  </p>
-                </div>
-              </div>
-
-              <form action={inviteProjectMember} className="space-y-3">
-                <input type="hidden" name="projectId" value={project?.id ?? ""} />
-                <input
-                  required
-                  disabled={!canManageTeam}
-                  name="userId"
-                  placeholder="Supabase user ID"
-                  className="w-full rounded-2xl border border-white/10 bg-panel-soft px-4 py-3 text-sm text-white outline-none placeholder:text-muted disabled:cursor-not-allowed disabled:opacity-50"
-                />
-                <select
-                  name="role"
-                  defaultValue="viewer"
-                  disabled={!canManageTeam}
-                  className="w-full rounded-2xl border border-white/10 bg-panel-soft px-4 py-3 text-sm text-white outline-none disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {projectMemberRoles
-                    .filter((role) => role.value !== "owner")
-                    .map((role) => (
-                      <option key={role.value} value={role.value}>
-                        {role.label} - {role.description}
-                      </option>
-                    ))}
-                </select>
-                <button
-                  type="submit"
-                  disabled={!canManageTeam}
-                  className="gold-gradient flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <UserPlus className="size-4" aria-hidden />
-                  Invite user
-                </button>
-              </form>
-            </div>
-
-            <div className="rounded-3xl border border-white/10 bg-black/40 p-5">
-              <div className="mb-5 flex items-center gap-3">
-                <div className="flex size-10 items-center justify-center rounded-xl border border-gold/20 bg-gold/10 text-gold">
-                  <Crown className="size-4" aria-hidden />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-white">
-                    Transfer ownership
-                  </h3>
-                  <p className="text-xs text-muted">
-                    Owners have full control over the project.
-                  </p>
-                </div>
-              </div>
-
-              <form action={transferProjectOwnership} className="space-y-3">
-                <input type="hidden" name="projectId" value={project?.id ?? ""} />
-                <input
-                  required
-                  disabled={!canTransferOwnership}
-                  name="newOwnerUserId"
-                  placeholder="New owner Supabase user ID"
-                  className="w-full rounded-2xl border border-white/10 bg-panel-soft px-4 py-3 text-sm text-white outline-none placeholder:text-muted disabled:cursor-not-allowed disabled:opacity-50"
-                />
-                <button
-                  type="submit"
-                  disabled={!canTransferOwnership}
-                  className="flex w-full items-center justify-center gap-2 rounded-full border border-gold/30 px-5 py-3 text-sm font-semibold text-gold-bright transition hover:bg-gold/10 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <Crown className="size-4" aria-hidden />
-                  Transfer ownership
-                </button>
-              </form>
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-2">
-              {[
-                "Shared conversations",
-                "Shared artifacts",
-                "Shared files",
-                "Shared project memory",
-              ].map((capability) => (
-                <div
-                  key={capability}
-                  className="rounded-2xl border border-white/10 bg-black/40 p-4"
-                >
-                  <ShieldCheck className="mb-3 size-5 text-gold" aria-hidden />
-                  <h4 className="text-sm font-semibold text-white">
-                    {capability}
-                  </h4>
-                  <p className="mt-2 text-xs leading-5 text-muted">
-                    Controlled by project member roles and workspace plan.
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="space-y-5">
-            <div className="rounded-3xl border border-white/10 bg-black/40 p-5">
-              <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.24em] text-muted">
-                    Members
-                  </p>
-                  <h3 className="mt-2 text-xl font-semibold text-white">
-                    {teamMembers.length}{" "}
-                    {teamMembers.length === 1 ? "collaborator" : "collaborators"}
-                  </h3>
-                </div>
-                <span className="rounded-full border border-white/10 px-3 py-1 text-xs text-muted">
-                  Your role: {getProjectMemberRoleLabel(currentRole)}
-                </span>
-              </div>
-
-              {teamMembers.length > 0 ? (
-                <div className="space-y-3">
-                  {teamMembers.map((member) => (
-                    <article
-                      key={member.id}
-                      className="rounded-2xl border border-white/10 bg-panel-soft p-4"
-                    >
-                      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-3">
-                            <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-gold/25 bg-gold/10 text-gold">
-                              {member.role === "owner" ? (
-                                <Crown className="size-4" aria-hidden />
-                              ) : (
-                                <Users className="size-4" aria-hidden />
-                              )}
-                            </div>
-                            <div className="min-w-0">
-                              <h4 className="truncate text-sm font-medium text-white">
-                                {member.user_id}
-                              </h4>
-                              <p className="mt-1 text-xs text-muted">
-                                {getProjectMemberRoleLabel(member.role)} -{" "}
-                                {getProjectMemberRoleDescription(member.role)}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="flex flex-wrap gap-2">
-                          {member.role !== "owner" ? (
-                            <form
-                              action={updateProjectMemberRole}
-                              className="flex gap-2"
-                            >
-                              <input
-                                type="hidden"
-                                name="projectId"
-                                value={project?.id ?? ""}
-                              />
-                              <input
-                                type="hidden"
-                                name="memberId"
-                                value={member.id}
-                              />
-                              <select
-                                name="role"
-                                defaultValue={member.role}
-                                disabled={!canManageTeam}
-                                className="rounded-full border border-white/10 bg-black/40 px-3 py-2 text-xs text-white outline-none disabled:cursor-not-allowed disabled:opacity-50"
-                              >
-                                {projectMemberRoles
-                                  .filter((role) => role.value !== "owner")
-                                  .map((role) => (
-                                    <option key={role.value} value={role.value}>
-                                      {role.label}
-                                    </option>
-                                  ))}
-                              </select>
-                              <button
-                                type="submit"
-                                disabled={!canManageTeam}
-                                className="rounded-full border border-gold/30 px-3 py-2 text-xs font-medium text-gold-bright transition hover:bg-gold/10 disabled:cursor-not-allowed disabled:opacity-50"
-                              >
-                                Update
-                              </button>
-                            </form>
-                          ) : null}
-
-                          {member.role !== "owner" ? (
-                            <form action={removeProjectMember}>
-                              <input
-                                type="hidden"
-                                name="projectId"
-                                value={project?.id ?? ""}
-                              />
-                              <input
-                                type="hidden"
-                                name="memberId"
-                                value={member.id}
-                              />
-                              <button
-                                type="submit"
-                                disabled={!canManageTeam}
-                                className="inline-flex items-center gap-2 rounded-full border border-red-400/20 px-3 py-2 text-xs font-medium text-red-200 transition hover:border-red-300/50 hover:bg-red-400/10 disabled:cursor-not-allowed disabled:opacity-50"
-                              >
-                                <UserMinus className="size-3.5" aria-hidden />
-                                Remove
-                              </button>
-                            </form>
-                          ) : (
-                            <span className="rounded-full border border-gold/20 px-3 py-2 text-xs text-gold-bright">
-                              Owner
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              ) : (
-                <div className="rounded-2xl border border-dashed border-white/10 bg-panel-soft p-8 text-center">
-                  <Users className="mx-auto mb-4 size-8 text-gold" aria-hidden />
-                  <h4 className="font-semibold text-white">No members yet</h4>
-                  <p className="mt-2 text-sm leading-6 text-muted">
-                    The project owner will be added automatically when team
-                    workspace migrations run.
-                  </p>
-                </div>
-              )}
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              {projectMemberRoles.map((role) => (
-                <div
-                  key={role.value}
-                  className="rounded-2xl border border-white/10 bg-black/40 p-4"
-                >
-                  <p className="text-xs uppercase tracking-[0.18em] text-gold-bright">
-                    {role.label}
-                  </p>
-                  <p className="mt-2 text-sm leading-6 text-muted">
-                    {role.description}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section
-        id="agents"
-        className="space-y-5 rounded-[2rem] border border-white/10 bg-white/[0.03] p-6"
-      >
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-gold/25 bg-gold/10 px-4 py-2 text-sm text-gold-bright">
-              <Bot className="size-4" aria-hidden />
-              ORIVOO Agent Framework
-            </div>
-            <h2 className="text-3xl font-semibold text-white">
-              Assign specialized agents to complex tasks.
-            </h2>
-            <p className="mt-3 max-w-3xl leading-6 text-muted">
-              Select one or more agents, let them work independently, review
-              their reasoning separately, merge the results, and save the final
-              response as a project artifact.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {futureAgentProviders.map((provider) => (
-              <span
-                key={provider}
-                className="rounded-full border border-white/10 px-3 py-1 text-xs text-muted"
-              >
-                Future: {provider}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {params?.agentMessage ? (
-          <div className="rounded-2xl border border-gold/20 bg-gold/10 px-4 py-3 text-sm text-gold-bright">
-            {params.agentMessage}
-          </div>
-        ) : null}
-
-        <div className="grid gap-5 xl:grid-cols-[0.82fr_1.18fr]">
-          <div className="space-y-5">
-            <form
-              action={saveProjectMemory}
-              className="rounded-3xl border border-white/10 bg-black/40 p-5"
-            >
-              <input type="hidden" name="projectId" value={project?.id ?? ""} />
-              <div className="mb-4">
-                <p className="text-xs uppercase tracking-[0.24em] text-muted">
-                  Shared project memory
-                </p>
-                <h3 className="mt-2 text-xl font-semibold text-white">
-                  Memory used by every selected agent
-                </h3>
-                <p className="mt-2 text-sm leading-6 text-muted">
-                  This memory is shared by project members and included in the
-                  prompt stack for future agent runs.
-                </p>
-              </div>
-              <textarea
-                name="content"
-                rows={5}
-                disabled={!canEditWorkspace}
-                defaultValue={projectMemory?.content ?? ""}
-                placeholder="Add persistent context, goals, constraints, brand notes, or project facts..."
-                className="w-full rounded-2xl border border-white/10 bg-panel-soft px-4 py-3 text-sm leading-6 text-white outline-none placeholder:text-muted disabled:cursor-not-allowed disabled:opacity-50"
-              />
-              <button
-                type="submit"
-                disabled={!canEditWorkspace}
-                className="mt-3 flex w-full items-center justify-center gap-2 rounded-full border border-gold/30 px-5 py-3 text-sm font-semibold text-gold-bright transition hover:bg-gold/10 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <Sparkles className="size-4" aria-hidden />
-                Save project memory
-              </button>
-            </form>
-
-            <form
-              action={runOrivooAgents}
-              className="rounded-3xl border border-gold/20 bg-black/40 p-5"
-            >
-              <input type="hidden" name="projectId" value={project?.id ?? ""} />
-              <div className="mb-5">
-                <p className="text-xs uppercase tracking-[0.24em] text-gold-bright">
-                  Agent run
-                </p>
-                <h3 className="mt-2 text-xl font-semibold text-white">
-                  Compose the ORIVOO prompt stack
-                </h3>
-                <p className="mt-2 text-sm leading-6 text-muted">
-                  Architecture: Master Prompt + Studio Prompt + Agent Prompt +
-                  Project Memory + Conversation History + User Message.
-                </p>
-              </div>
-
-              <div className="space-y-3">
-                <input
-                  required
-                  disabled={!canEditWorkspace}
-                  name="title"
-                  placeholder="Artifact title for merged output"
-                  className="w-full rounded-2xl border border-white/10 bg-panel-soft px-4 py-3 text-sm text-white outline-none placeholder:text-muted disabled:cursor-not-allowed disabled:opacity-50"
-                />
-                <textarea
-                  name="conversationHistory"
-                  rows={4}
-                  disabled={!canEditWorkspace}
-                  placeholder="Optional conversation history..."
-                  className="w-full rounded-2xl border border-white/10 bg-panel-soft px-4 py-3 text-sm leading-6 text-white outline-none placeholder:text-muted disabled:cursor-not-allowed disabled:opacity-50"
-                />
-                <textarea
-                  required
-                  name="userMessage"
-                  rows={5}
-                  disabled={!canEditWorkspace}
-                  placeholder="What should the agents solve collaboratively?"
-                  className="w-full rounded-2xl border border-white/10 bg-panel-soft px-4 py-3 text-sm leading-6 text-white outline-none placeholder:text-muted disabled:cursor-not-allowed disabled:opacity-50"
-                />
-
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {agentList.map((agent, index) => (
-                    <label
-                      key={agent.id}
-                      className="rounded-2xl border border-white/10 bg-panel-soft p-4"
-                    >
-                      <div className="flex items-start gap-3">
-                        <input
-                          type="checkbox"
-                          name="agentIds"
-                          value={agent.id}
-                          defaultChecked={index < 2}
-                          disabled={!canEditWorkspace}
-                          className="mt-1 size-4 accent-gold disabled:cursor-not-allowed"
-                        />
-                        <span>
-                          <span className="block text-sm font-semibold text-white">
-                            {agent.name}
-                          </span>
-                          <span className="mt-1 block text-xs leading-5 text-muted">
-                            {agent.description}
-                          </span>
-                        </span>
-                      </div>
-                    </label>
-                  ))}
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={!canEditWorkspace || agentList.length === 0}
-                  className="gold-gradient flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <Bot className="size-4" aria-hidden />
-                  Run selected agents
-                </button>
-              </div>
-            </form>
-          </div>
-
-          <div className="space-y-5">
-            <div className="rounded-3xl border border-white/10 bg-black/40 p-5">
-              <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.24em] text-muted">
-                    Agent run history
-                  </p>
-                  <h3 className="mt-2 text-xl font-semibold text-white">
-                    {selectedAgentRun?.title ?? "No agent runs yet"}
-                  </h3>
-                </div>
-                {selectedAgentRun ? (
-                  <span className="rounded-full border border-white/10 px-3 py-1 text-xs uppercase tracking-[0.18em] text-muted">
-                    {selectedAgentRun.status}
-                  </span>
-                ) : null}
-              </div>
-
-              {agentRunList.length > 0 ? (
-                <div className="space-y-3">
-                  {agentRunList.map((run) => (
-                    <a
-                      key={run.id}
-                      href={`/dashboard?projectId=${project?.id ?? ""}&agentRunId=${run.id}#agents`}
-                      className={`block rounded-2xl border p-4 transition hover:border-gold/40 ${
-                        run.id === selectedAgentRun?.id
-                          ? "border-gold/30 bg-gold/10"
-                          : "border-white/10 bg-panel-soft"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="min-w-0">
-                          <h4 className="truncate text-sm font-medium text-white">
-                            {run.title}
-                          </h4>
-                          <p className="mt-1 text-xs text-muted">
-                            {run.selected_agent_ids.length} agent
-                            {run.selected_agent_ids.length === 1 ? "" : "s"}{" "}
-                            &bull; Updated {formatDate(run.updated_at)}
-                          </p>
-                        </div>
-                        <Bot className="size-4 shrink-0 text-gold" aria-hidden />
-                      </div>
-                    </a>
-                  ))}
-                </div>
-              ) : (
-                <div className="rounded-2xl border border-dashed border-white/10 bg-panel-soft p-8 text-center">
-                  <Bot className="mx-auto mb-4 size-8 text-gold" aria-hidden />
-                  <h4 className="font-semibold text-white">No agent runs yet</h4>
-                  <p className="mt-2 text-sm leading-6 text-muted">
-                    Select agents and run a task to create merged artifacts.
-                  </p>
-                </div>
-              )}
-            </div>
-
-            {selectedAgentRun ? (
-              <div className="rounded-3xl border border-white/10 bg-black/40 p-5">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.24em] text-muted">
-                      Merged result
-                    </p>
-                    <h3 className="mt-2 text-xl font-semibold text-white">
-                      {selectedAgentRun.title}
-                    </h3>
-                    <p className="mt-2 text-sm leading-6 text-muted">
-                      Results from independent agents were merged and saved as a
-                      project artifact.
-                    </p>
-                  </div>
-                  {selectedAgentArtifact ? (
-                    <div className="flex flex-wrap gap-2">
-                      <a
-                        href={`/dashboard?projectId=${project?.id ?? ""}&artifactId=${selectedAgentArtifact.id}#artifacts`}
-                        className="inline-flex items-center gap-2 rounded-full border border-gold/30 px-4 py-2 text-sm font-medium text-gold-bright transition hover:bg-gold/10"
-                      >
-                        <FileText className="size-4" aria-hidden />
-                        Open artifact
-                      </a>
-                      <a
-                        href={`/dashboard/artifacts/${selectedAgentArtifact.id}/download`}
-                        className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm font-medium text-white transition hover:border-gold/40 hover:text-gold-bright"
-                      >
-                        <Download className="size-4" aria-hidden />
-                        Download
-                      </a>
-                    </div>
-                  ) : null}
-                </div>
-                <pre className="mt-5 max-h-80 overflow-auto whitespace-pre-wrap rounded-2xl border border-white/10 bg-panel-soft p-4 text-xs leading-6 text-muted">
-                  {selectedAgentRun.merged_output ?? "Merged output pending."}
-                </pre>
-              </div>
-            ) : null}
-
-            <div className="rounded-3xl border border-white/10 bg-black/40 p-5">
-              <div className="mb-5 flex items-center justify-between">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.24em] text-muted">
-                    Separate agent reasoning
-                  </p>
-                  <h3 className="mt-2 text-xl font-semibold text-white">
-                    {selectedAgentResults.length} agent result
-                    {selectedAgentResults.length === 1 ? "" : "s"}
-                  </h3>
-                </div>
-              </div>
-
-              {selectedAgentResults.length > 0 ? (
-                <div className="space-y-3">
-                  {selectedAgentResults.map((result) => (
-                    <article
-                      key={result.id}
-                      className="rounded-2xl border border-white/10 bg-panel-soft p-4"
-                    >
-                      <p className="text-xs uppercase tracking-[0.18em] text-gold-bright">
-                        {getAgentName(result.agent_id)}
-                      </p>
-                      <h4 className="mt-3 text-sm font-semibold text-white">
-                        Reasoning summary
-                      </h4>
-                      <p className="mt-2 text-sm leading-6 text-muted">
-                        {result.reasoning}
-                      </p>
-                      <h4 className="mt-4 text-sm font-semibold text-white">
-                        Agent output
-                      </h4>
-                      <pre className="mt-2 max-h-60 overflow-auto whitespace-pre-wrap rounded-xl border border-white/10 bg-black/40 p-3 text-xs leading-6 text-muted">
-                        {result.output}
-                      </pre>
-                    </article>
-                  ))}
-                </div>
-              ) : (
-                <div className="rounded-2xl border border-dashed border-white/10 bg-panel-soft p-8 text-center">
-                  <Eye className="mx-auto mb-4 size-8 text-gold" aria-hidden />
-                  <h4 className="font-semibold text-white">
-                    No reasoning to display
-                  </h4>
-                  <p className="mt-2 text-sm leading-6 text-muted">
-                    Run agents to see separate reasoning summaries and outputs.
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section
-        id="research"
-        className="space-y-5 rounded-[2rem] border border-white/10 bg-white/[0.03] p-6"
-      >
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-gold/25 bg-gold/10 px-4 py-2 text-sm text-gold-bright">
-              <Search className="size-4" aria-hidden />
-              Deep Research Engine
-            </div>
-            <h2 className="text-3xl font-semibold text-white">
-              Run long-form research and save the report.
-            </h2>
-            <p className="mt-3 max-w-3xl leading-6 text-muted">
-              Turn on Research Mode, gather evidence from multiple sources,
-              generate a structured report, and store the final result as a
-              project artifact.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {[
-              "Scheduled research",
-              "Monitoring topics",
-              "Auto-update reports",
-            ].map((feature) => (
-              <span
-                key={feature}
-                className="rounded-full border border-white/10 px-3 py-1 text-xs text-muted"
-              >
-                Future: {feature}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {params?.researchMessage ? (
-          <div className="rounded-2xl border border-gold/20 bg-gold/10 px-4 py-3 text-sm text-gold-bright">
-            {params.researchMessage}
-          </div>
-        ) : null}
-
-        <div className="grid gap-5 xl:grid-cols-[0.8fr_1.2fr]">
-          <form
-            action={startDeepResearch}
-            className="rounded-3xl border border-gold/20 bg-black/40 p-5"
-          >
-            <input type="hidden" name="projectId" value={project?.id ?? ""} />
-            <div className="mb-5">
-              <p className="text-xs uppercase tracking-[0.24em] text-gold-bright">
-                Research mode
-              </p>
-              <h3 className="mt-2 text-xl font-semibold text-white">
-                Start a multi-step research run
-              </h3>
-              <p className="mt-2 text-sm leading-6 text-muted">
-                Provide URLs for targeted source gathering, or leave sources
-                blank to use a default public knowledge search.
-              </p>
-            </div>
-
-            <label className="mb-4 flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-panel-soft p-4">
-              <span>
-                <span className="block text-sm font-medium text-white">
-                  Research Mode
-                </span>
-                <span className="mt-1 block text-xs text-muted">
-                  Required before ORIVOO runs the deep workflow.
-                </span>
-              </span>
-              <input
-                type="checkbox"
-                name="researchMode"
-                defaultChecked
-                className="size-5 accent-gold"
-              />
-            </label>
-
-            <div className="space-y-3">
-              <input
-                required
-                name="title"
-                placeholder="Research report title"
-                className="w-full rounded-2xl border border-white/10 bg-panel-soft px-4 py-3 text-sm text-white outline-none placeholder:text-muted"
-              />
-              <textarea
-                required
-                name="query"
-                rows={4}
-                placeholder="What should ORIVOO research?"
-                className="w-full rounded-2xl border border-white/10 bg-panel-soft px-4 py-3 text-sm leading-6 text-white outline-none placeholder:text-muted"
-              />
-              <textarea
-                name="sourceUrls"
-                rows={4}
-                placeholder="Optional source URLs, one per line"
-                className="w-full rounded-2xl border border-white/10 bg-panel-soft px-4 py-3 text-sm leading-6 text-white outline-none placeholder:text-muted"
-              />
-              <button
-                type="submit"
-                className="gold-gradient flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-black"
-              >
-                <Search className="size-4" aria-hidden />
-                Start deep research
-              </button>
-            </div>
-          </form>
-
-          <div className="space-y-5">
-            <div className="rounded-3xl border border-white/10 bg-black/40 p-5">
-              <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.24em] text-muted">
-                    Research progress
-                  </p>
-                  <h3 className="mt-2 text-xl font-semibold text-white">
-                    {selectedResearchJob?.title ?? "No research jobs yet"}
-                  </h3>
-                </div>
-                {selectedResearchJob ? (
-                  <span className="rounded-full border border-white/10 px-3 py-1 text-xs uppercase tracking-[0.18em] text-muted">
-                    {selectedResearchJob.status}
-                  </span>
-                ) : null}
-              </div>
-
-              {selectedResearchJob ? (
-                <>
-                  <div className="mb-5 h-2 overflow-hidden rounded-full bg-panel-soft">
-                    <div
-                      className="h-full rounded-full bg-gold"
-                      style={{
-                        width: `${getResearchProgress(
-                          selectedResearchJob.status,
-                        )}%`,
-                      }}
-                    />
-                  </div>
-                  <div className="grid gap-3 sm:grid-cols-5">
-                    {researchWorkflowSteps.map((step, index) => {
-                      const StatusIcon = getResearchStatusIcon(
-                        selectedResearchJob.status,
-                      );
-                      const progress = getResearchProgress(
-                        selectedResearchJob.status,
-                      );
-                      const isComplete = progress >= ((index + 1) / 5) * 100;
-
-                      return (
-                        <div
-                          key={step}
-                          className={`rounded-2xl border p-3 ${
-                            isComplete
-                              ? "border-gold/30 bg-gold/10"
-                              : "border-white/10 bg-panel-soft"
-                          }`}
-                        >
-                          <StatusIcon
-                            className={`mb-3 size-4 ${
-                              isComplete ? "text-gold" : "text-muted"
-                            }`}
-                            aria-hidden
-                          />
-                          <p className="text-xs leading-5 text-muted">{step}</p>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  <p className="mt-5 text-sm leading-6 text-muted">
-                    Query: {selectedResearchJob.query}
-                  </p>
-                  {selectedResearchArtifact ? (
-                    <div className="mt-5 flex flex-wrap gap-2">
-                      <a
-                        href={`/dashboard?projectId=${project?.id ?? ""}&artifactId=${selectedResearchArtifact.id}#artifacts`}
-                        className="inline-flex items-center gap-2 rounded-full border border-gold/30 px-4 py-2 text-sm font-medium text-gold-bright transition hover:bg-gold/10"
-                      >
-                        <FileText className="size-4" aria-hidden />
-                        Open saved report
-                      </a>
-                      <a
-                        href={`/dashboard/artifacts/${selectedResearchArtifact.id}/download`}
-                        className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm font-medium text-white transition hover:border-gold/40 hover:text-gold-bright"
-                      >
-                        <Download className="size-4" aria-hidden />
-                        Download report
-                      </a>
-                    </div>
-                  ) : null}
-                </>
-              ) : (
-                <div className="rounded-2xl border border-dashed border-white/10 bg-panel-soft p-8 text-center">
-                  <Search className="mx-auto mb-4 size-8 text-gold" aria-hidden />
-                  <h4 className="font-semibold text-white">
-                    No research started
-                  </h4>
-                  <p className="mt-2 text-sm leading-6 text-muted">
-                    Run a research job to see queued, running, completed, or
-                    failed progress here.
-                  </p>
-                </div>
-              )}
-            </div>
-
-            <div className="grid gap-5 lg:grid-cols-2">
-              <div className="rounded-3xl border border-white/10 bg-black/40 p-5">
-                <div className="mb-4 flex items-center justify-between">
-                  <h3 className="font-semibold text-white">Recent jobs</h3>
-                  <span className="text-xs text-muted">
-                    {researchJobList.length} total
-                  </span>
-                </div>
-                {researchJobList.length > 0 ? (
-                  <div className="space-y-3">
-                    {researchJobList.map((job) => {
-                      const StatusIcon = getResearchStatusIcon(job.status);
-
-                      return (
-                        <a
-                          key={job.id}
-                          href={`/dashboard?projectId=${project?.id ?? ""}&researchJobId=${job.id}#research`}
-                          className={`block rounded-2xl border p-4 transition hover:border-gold/40 ${
-                            job.id === selectedResearchJob?.id
-                              ? "border-gold/30 bg-gold/10"
-                              : "border-white/10 bg-panel-soft"
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            <StatusIcon
-                              className="size-4 shrink-0 text-gold"
-                              aria-hidden
-                            />
-                            <div className="min-w-0">
-                              <h4 className="truncate text-sm font-medium text-white">
-                                {job.title}
-                              </h4>
-                              <p className="mt-1 text-xs text-muted">
-                                Created {formatDate(job.created_at)} &bull;
-                                Updated {formatDate(job.updated_at)}
-                              </p>
-                            </div>
-                          </div>
-                        </a>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <p className="rounded-2xl border border-dashed border-white/10 bg-panel-soft p-5 text-sm leading-6 text-muted">
-                    Research jobs will appear here after a deep run starts.
-                  </p>
-                )}
-              </div>
-
-              <div className="rounded-3xl border border-white/10 bg-black/40 p-5">
-                <div className="mb-4 flex items-center justify-between">
-                  <h3 className="font-semibold text-white">
-                    Citations and sources
-                  </h3>
-                  <span className="text-xs text-muted">
-                    {researchSources.length} sources
-                  </span>
-                </div>
-                {researchSources.length > 0 ? (
-                  <div className="space-y-3">
-                    {researchSources.map((source, index) => (
-                      <article
-                        key={`${source.url}-${index}`}
-                        className="rounded-2xl border border-white/10 bg-panel-soft p-4"
-                      >
-                        <p className="text-xs uppercase tracking-[0.18em] text-gold-bright">
-                          Source {index + 1}
-                        </p>
-                        <h4 className="mt-2 text-sm font-medium text-white">
-                          {source.title || source.url}
-                        </h4>
-                        {source.url && source.url !== "about:blank" ? (
-                          <a
-                            href={source.url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="mt-2 block break-all text-xs text-gold-bright"
-                          >
-                            {source.url}
-                          </a>
-                        ) : null}
-                        <p className="mt-3 text-xs leading-5 text-muted">
-                          {source.excerpt}
-                        </p>
-                      </article>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="rounded-2xl border border-dashed border-white/10 bg-panel-soft p-5 text-sm leading-6 text-muted">
-                    Completed research reports will show citations here.
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section
-        id="artifacts"
-        className="space-y-5 rounded-[2rem] border border-white/10 bg-white/[0.03] p-6"
-      >
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-gold/25 bg-gold/10 px-4 py-2 text-sm text-gold-bright">
-              <Layers3 className="size-4" aria-hidden />
-              Artifact workspace
-            </div>
-            <h2 className="text-3xl font-semibold text-white">
-              Save valuable AI-generated work.
-            </h2>
-            <p className="mt-3 max-w-3xl leading-6 text-muted">
-              Store documents, reports, code, research, plans, legal drafts, and
-              civic reports by project so outputs do not get lost in
-              conversations.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {["PDF Export", "DOCX Export", "Markdown Export", "Code Export"].map(
-              (exportType) => (
-                <span
-                  key={exportType}
-                  className="rounded-full border border-white/10 px-3 py-1 text-xs text-muted"
-                >
-                  Future: {exportType}
-                </span>
-              ),
             )}
           </div>
         </div>
 
-        {params?.artifactMessage ? (
-          <div className="rounded-2xl border border-gold/20 bg-gold/10 px-4 py-3 text-sm text-gold-bright">
-            {params.artifactMessage}
+        <div className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6">
+          <div className="mb-5 flex items-center gap-3">
+            <div className="flex size-10 items-center justify-center rounded-xl border border-gold/20 bg-gold/10 text-gold">
+              <MessageSquareText className="size-4" aria-hidden />
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-[0.24em] text-muted">
+                Conversation memory
+              </p>
+              <h2 className="text-xl font-semibold text-white">
+                Recent summaries
+              </h2>
+            </div>
           </div>
-        ) : null}
-
-        <div className="grid gap-5 xl:grid-cols-[0.78fr_1.22fr]">
-          <div className="space-y-5">
-            <div className="rounded-3xl border border-white/10 bg-black/40 p-5">
-              <div className="mb-4 flex items-center gap-3">
-                <div className="flex size-10 items-center justify-center rounded-xl border border-gold/20 bg-gold/10 text-gold">
-                  <FolderPlus className="size-4" aria-hidden />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-white">
-                    Project artifact folders
-                  </h3>
-                  <p className="text-xs text-muted">
-                    {folders.length} {folders.length === 1 ? "folder" : "folders"}{" "}
-                    in {project?.name ?? "this project"}
-                  </p>
-                </div>
-              </div>
-
-              <form action={createArtifactFolder} className="flex gap-2">
-                <input type="hidden" name="projectId" value={project?.id ?? ""} />
-                <input
-                  required
-                  name="folderName"
-                  placeholder="Folder name"
-                  className="min-w-0 flex-1 rounded-full border border-white/10 bg-panel-soft px-4 py-2 text-sm text-white outline-none placeholder:text-muted"
-                />
-                <button
-                  type="submit"
-                  className="rounded-full border border-gold/30 px-4 py-2 text-sm font-medium text-gold-bright transition hover:bg-gold/10"
+          <div className="space-y-3">
+            {conversationSummaries.length > 0 ? (
+              conversationSummaries.map((summary) => (
+                <article
+                  key={summary.id}
+                  className="rounded-2xl border border-white/10 bg-panel-soft p-4"
                 >
-                  Create
-                </button>
-              </form>
-
-              {folders.length > 0 ? (
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {folders.map((folder) => (
-                    <span
-                      key={folder.id}
-                      className="rounded-full border border-white/10 bg-panel-soft px-3 py-1 text-xs text-muted"
-                    >
-                      {folder.name}
-                    </span>
-                  ))}
-                </div>
-              ) : null}
-            </div>
-
-            <form
-              action={createArtifact}
-              className="rounded-3xl border border-gold/20 bg-black/40 p-5"
-            >
-              <input type="hidden" name="projectId" value={project?.id ?? ""} />
-              <div className="mb-5">
-                <p className="text-xs uppercase tracking-[0.24em] text-gold-bright">
-                  Save artifact
-                </p>
-                <h3 className="mt-2 text-xl font-semibold text-white">
-                  Capture an AI output
-                </h3>
-                <p className="mt-2 text-sm leading-6 text-muted">
-                  Paste generated work here to store it as a reusable project
-                  artifact.
-                </p>
-              </div>
-
-              <div className="space-y-3">
-                <input
-                  required
-                  name="title"
-                  placeholder="Artifact title"
-                  className="w-full rounded-2xl border border-white/10 bg-panel-soft px-4 py-3 text-sm text-white outline-none placeholder:text-muted"
-                />
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <select
-                    name="artifactType"
-                    defaultValue="document"
-                    className="rounded-2xl border border-white/10 bg-panel-soft px-4 py-3 text-sm text-white outline-none"
-                  >
-                    {artifactTypes.map((artifactType) => (
-                      <option
-                        key={artifactType.value}
-                        value={artifactType.value}
-                      >
-                        {artifactType.label}
-                      </option>
-                    ))}
-                  </select>
-                  <select
-                    name="folderId"
-                    defaultValue=""
-                    className="rounded-2xl border border-white/10 bg-panel-soft px-4 py-3 text-sm text-white outline-none"
-                  >
-                    <option value="">Unfiled</option>
-                    {folders.map((folder) => (
-                      <option key={folder.id} value={folder.id}>
-                        {folder.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <textarea
-                  required
-                  name="content"
-                  rows={8}
-                  placeholder="Paste artifact content..."
-                  className="w-full rounded-2xl border border-white/10 bg-panel-soft px-4 py-3 text-sm leading-6 text-white outline-none placeholder:text-muted"
-                />
-                <button
-                  type="submit"
-                  className="gold-gradient flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-black"
-                >
-                  <FileText className="size-4" aria-hidden />
-                  Save artifact
-                </button>
-              </div>
-            </form>
-          </div>
-
-          <div className="space-y-5">
-            <div className="rounded-3xl border border-white/10 bg-black/40 p-4 sm:p-6">
-              <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.24em] text-muted">
-                    Artifact list
+                  <p className="text-sm leading-6 text-white">
+                    {summary.summary}
                   </p>
-                  <h3 className="mt-2 text-xl font-semibold text-white">
-                    {artifactList.length} saved{" "}
-                    {artifactList.length === 1 ? "artifact" : "artifacts"}
-                  </h3>
-                </div>
-                <span className="rounded-full border border-white/10 px-3 py-1 text-xs text-muted">
-                  Project scoped
-                </span>
-              </div>
-
-              {artifactList.length > 0 ? (
-                <div className="overflow-hidden rounded-2xl border border-white/10">
-                  <div className="grid grid-cols-[1.2fr_0.8fr_0.8fr_0.8fr] gap-3 border-b border-white/10 bg-panel-soft px-4 py-3 text-xs uppercase tracking-[0.18em] text-muted">
-                    <span>Title</span>
-                    <span>Type</span>
-                    <span>Created</span>
-                    <span>Last updated</span>
-                  </div>
-                  <div className="divide-y divide-white/10">
-                    {artifactList.map((artifact) => (
-                      <article
-                        key={artifact.id}
-                        className={`grid gap-3 px-4 py-4 text-sm lg:grid-cols-[1.2fr_0.8fr_0.8fr_0.8fr] ${
-                          artifact.id === selectedArtifact?.id
-                            ? "bg-gold/10"
-                            : "bg-black/30"
-                        }`}
-                      >
-                        <div className="min-w-0">
-                          <h4 className="truncate font-medium text-white">
-                            {artifact.title}
-                          </h4>
-                          <p className="mt-1 text-xs text-muted">
-                            Folder: {getArtifactFolderName(artifact.folder_id)}
-                          </p>
-                        </div>
-                        <p className="text-muted">
-                          {getArtifactTypeLabel(artifact.artifact_type)}
-                        </p>
-                        <p className="text-muted">
-                          {formatDate(artifact.created_at)}
-                        </p>
-                        <div className="space-y-3">
-                          <p className="text-muted">
-                            {formatDate(artifact.updated_at)}
-                          </p>
-                          <div className="flex flex-wrap gap-2">
-                            <a
-                              href={`/dashboard?projectId=${project?.id ?? ""}&artifactId=${artifact.id}#artifacts`}
-                              className="inline-flex items-center gap-1 rounded-full border border-white/10 px-3 py-1.5 text-xs text-white transition hover:border-gold/40 hover:text-gold-bright"
-                            >
-                              <Eye className="size-3.5" aria-hidden />
-                              View
-                            </a>
-                            <a
-                              href={`/dashboard/artifacts/${artifact.id}/download`}
-                              className="inline-flex items-center gap-1 rounded-full border border-white/10 px-3 py-1.5 text-xs text-white transition hover:border-gold/40 hover:text-gold-bright"
-                            >
-                              <Download className="size-3.5" aria-hidden />
-                              Download
-                            </a>
-                            <form action={duplicateArtifact}>
-                              <input
-                                type="hidden"
-                                name="artifactId"
-                                value={artifact.id}
-                              />
-                              <button
-                                type="submit"
-                                className="inline-flex items-center gap-1 rounded-full border border-white/10 px-3 py-1.5 text-xs text-white transition hover:border-gold/40 hover:text-gold-bright"
-                              >
-                                <Copy className="size-3.5" aria-hidden />
-                                Duplicate
-                              </button>
-                            </form>
-                            <form action={deleteArtifact}>
-                              <input
-                                type="hidden"
-                                name="artifactId"
-                                value={artifact.id}
-                              />
-                              <button
-                                type="submit"
-                                className="inline-flex items-center gap-1 rounded-full border border-red-400/20 px-3 py-1.5 text-xs text-red-200 transition hover:border-red-300/50 hover:bg-red-400/10"
-                              >
-                                <Trash2 className="size-3.5" aria-hidden />
-                                Delete
-                              </button>
-                            </form>
-                          </div>
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <div className="rounded-2xl border border-dashed border-white/10 bg-panel-soft p-8 text-center">
-                  <Layers3
-                    className="mx-auto mb-4 size-8 text-gold"
-                    aria-hidden
-                  />
-                  <h4 className="font-semibold text-white">No artifacts yet</h4>
-                  <p className="mt-2 text-sm leading-6 text-muted">
-                    Save important outputs here once AI generation is connected.
+                  <p className="mt-2 text-xs text-muted">
+                    {summary.message_count} messages /{" "}
+                    {formatDate(summary.created_at)}
                   </p>
-                </div>
-              )}
-            </div>
-
-            <div className="rounded-3xl border border-white/10 bg-black/40 p-5">
-              {selectedArtifact ? (
-                <form action={updateArtifact} className="space-y-4">
-                  <input
-                    type="hidden"
-                    name="artifactId"
-                    value={selectedArtifact.id}
-                  />
-                  <input
-                    type="hidden"
-                    name="projectId"
-                    value={project?.id ?? ""}
-                  />
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.24em] text-muted">
-                        View and edit
-                      </p>
-                      <h3 className="mt-2 text-xl font-semibold text-white">
-                        {selectedArtifact.title}
-                      </h3>
-                      <p className="mt-1 text-sm text-muted">
-                        {getArtifactTypeLabel(selectedArtifact.artifact_type)}{" "}
-                        in {getArtifactFolderName(selectedArtifact.folder_id)}
-                      </p>
-                    </div>
-                    <a
-                      href={`/dashboard/artifacts/${selectedArtifact.id}/download`}
-                      className="inline-flex items-center justify-center gap-2 rounded-full border border-gold/30 px-4 py-2 text-sm font-medium text-gold-bright transition hover:bg-gold/10"
-                    >
-                      <Download className="size-4" aria-hidden />
-                      Download
-                    </a>
-                  </div>
-
-                  <input
-                    required
-                    name="title"
-                    defaultValue={selectedArtifact.title}
-                    className="w-full rounded-2xl border border-white/10 bg-panel-soft px-4 py-3 text-sm text-white outline-none"
-                  />
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <select
-                      name="artifactType"
-                      defaultValue={selectedArtifact.artifact_type}
-                      className="rounded-2xl border border-white/10 bg-panel-soft px-4 py-3 text-sm text-white outline-none"
-                    >
-                      {artifactTypes.map((artifactType) => (
-                        <option
-                          key={artifactType.value}
-                          value={artifactType.value}
-                        >
-                          {artifactType.label}
-                        </option>
-                      ))}
-                    </select>
-                    <select
-                      name="folderId"
-                      defaultValue={selectedArtifact.folder_id ?? ""}
-                      className="rounded-2xl border border-white/10 bg-panel-soft px-4 py-3 text-sm text-white outline-none"
-                    >
-                      <option value="">Unfiled</option>
-                      {folders.map((folder) => (
-                        <option key={folder.id} value={folder.id}>
-                          {folder.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <textarea
-                    required
-                    name="content"
-                    rows={12}
-                    defaultValue={selectedArtifact.content}
-                    className="w-full rounded-2xl border border-white/10 bg-panel-soft px-4 py-3 font-mono text-sm leading-6 text-white outline-none"
-                  />
-                  <button
-                    type="submit"
-                    className="gold-gradient flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-black"
-                  >
-                    <FileText className="size-4" aria-hidden />
-                    Save changes
-                  </button>
-                </form>
-              ) : (
-                <div className="rounded-2xl border border-dashed border-white/10 bg-panel-soft p-8 text-center">
-                  <Eye className="mx-auto mb-4 size-8 text-gold" aria-hidden />
-                  <h4 className="font-semibold text-white">
-                    Select an artifact to view
-                  </h4>
-                  <p className="mt-2 text-sm leading-6 text-muted">
-                    Saved artifacts can be reviewed, edited, duplicated,
-                    deleted, or downloaded from this panel.
-                  </p>
-                </div>
-              )}
-            </div>
+                </article>
+              ))
+            ) : (
+              <p className="rounded-2xl border border-dashed border-white/10 bg-panel-soft p-5 text-sm leading-6 text-muted">
+                Conversation summaries will appear after every 20 messages.
+              </p>
+            )}
           </div>
         </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {studios.map((studio) => (
-          <article
-            key={studio.name}
-            className="group rounded-3xl border border-white/10 bg-white/[0.03] p-6 transition hover:-translate-y-1 hover:border-gold/40 hover:bg-gold/10"
-          >
-            <div className="mb-6 flex items-center justify-between">
-              <div className="flex size-12 items-center justify-center rounded-2xl border border-gold/25 bg-gold/10 text-gold">
-                <studio.icon className="size-5" aria-hidden />
-              </div>
-              <span className="rounded-full border border-white/10 px-3 py-1 text-xs text-muted">
-                Ready
-              </span>
-            </div>
-            <h2 className="text-xl font-semibold text-white">{studio.name}</h2>
-            <p className="mt-3 leading-6 text-muted">{studio.description}</p>
-          </article>
-        ))}
+      <section className="grid gap-5 xl:grid-cols-3">
+        <div className="rounded-3xl border border-white/10 bg-black/40 p-5">
+          <h2 className="text-lg font-semibold text-white">
+            Pending memory candidates
+          </h2>
+          <div className="mt-4 space-y-3">
+            {memoryCandidates.length > 0 ? (
+              memoryCandidates.map((candidate) => (
+                <p
+                  key={candidate.id}
+                  className="rounded-2xl border border-white/10 bg-panel-soft p-4 text-sm leading-6 text-muted"
+                >
+                  {candidate.content}
+                </p>
+              ))
+            ) : (
+              <p className="text-sm leading-6 text-muted">
+                No pending memory candidates.
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="rounded-3xl border border-white/10 bg-black/40 p-5">
+          <h2 className="text-lg font-semibold text-white">Saved memories</h2>
+          <div className="mt-4 space-y-3">
+            {userMemories.length > 0 ? (
+              userMemories.map((memory) => (
+                <p
+                  key={memory.id}
+                  className="rounded-2xl border border-white/10 bg-panel-soft p-4 text-sm leading-6 text-muted"
+                >
+                  {memory.content}
+                </p>
+              ))
+            ) : (
+              <p className="text-sm leading-6 text-muted">
+                No approved memories yet.
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="rounded-3xl border border-white/10 bg-black/40 p-5">
+          <h2 className="text-lg font-semibold text-white">
+            Workspace knowledge
+          </h2>
+          <div className="mt-4 space-y-3">
+            {workspaceKnowledge.length > 0 ? (
+              workspaceKnowledge.map((note) => (
+                <article
+                  key={note.id}
+                  className="rounded-2xl border border-white/10 bg-panel-soft p-4"
+                >
+                  <h3 className="font-medium text-white">{note.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-muted">
+                    {note.content}
+                  </p>
+                </article>
+              ))
+            ) : (
+              <p className="text-sm leading-6 text-muted">
+                No workspace knowledge notes yet.
+              </p>
+            )}
+          </div>
+        </div>
       </section>
 
-      <section
-        id="settings"
-        className="grid gap-4 rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 lg:grid-cols-3"
-      >
-        {[
-          {
-            title: "Authentication",
-            body: "Email/password sessions are managed through Supabase Auth.",
-          },
-          {
-            title: "Database",
-            body: "Profiles, projects, files, artifacts, research jobs, agents, project memory, and team roles are prepared with RLS-enabled SQL.",
-          },
-          {
-            title: "Deployment",
-            body: "Environment variables are ready for Vercel project settings.",
-          },
-        ].map((item) => (
-          <div key={item.title} className="rounded-3xl bg-black/40 p-6">
-            <ShieldCheck className="mb-6 size-6 text-gold" aria-hidden />
-            <h3 className="text-lg font-semibold text-white">{item.title}</h3>
-            <p className="mt-3 leading-6 text-muted">{item.body}</p>
-          </div>
-        ))}
+      <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6">
+        <p className="text-xs uppercase tracking-[0.24em] text-muted">
+          Recent conversations
+        </p>
+        <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {conversations.length > 0 ? (
+            conversations.map((conversation) => (
+              <article
+                key={conversation.id}
+                className="rounded-2xl border border-white/10 bg-black/40 p-4"
+              >
+                <h3 className="font-medium text-white">{conversation.title}</h3>
+                <p className="mt-2 text-xs text-muted">
+                  Updated {formatDate(conversation.updated_at)}
+                </p>
+              </article>
+            ))
+          ) : (
+            <p className="text-sm text-muted">
+              Conversations will appear after AI responses are stored.
+            </p>
+          )}
+        </div>
       </section>
     </div>
   );
