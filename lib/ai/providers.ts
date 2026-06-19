@@ -10,7 +10,10 @@ type ProviderStream = {
   stream: ReadableStream<string>;
 };
 
-function assertResponse(response: Response, provider: string) {
+function assertResponse(
+  response: Response,
+  provider: string,
+): asserts response is Response & { body: ReadableStream<Uint8Array> } {
   if (!response.ok || !response.body) {
     throw new Error(`${provider} request failed with status ${response.status}.`);
   }
