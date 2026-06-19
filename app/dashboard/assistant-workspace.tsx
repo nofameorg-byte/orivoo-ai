@@ -8,6 +8,7 @@ import {
   renameAssistantConversation,
 } from "@/app/actions/assistant";
 import { AssistantPrompt } from "@/app/dashboard/assistant-prompt";
+import { ProjectMemoryPanel } from "@/app/dashboard/project-memory-panel";
 import { ProjectSelector } from "@/app/dashboard/project-selector";
 import type {
   AssistantModelId,
@@ -22,6 +23,7 @@ import type {
   AssistantConversation,
   AssistantMessage,
   AssistantProject,
+  ProjectMemory,
 } from "@/lib/assistant/types";
 
 export function AssistantWorkspace({
@@ -44,6 +46,7 @@ export function AssistantWorkspace({
   );
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
   const [conversations, setConversations] = useState(initialConversations);
+  const [memory, setMemory] = useState<ProjectMemory[]>([]);
   const [messages, setMessages] = useState(initialMessages);
   const [projects, setProjects] = useState(initialProjects);
   const [selectedModel, setSelectedModel] = useState(initialSelectedModel);
@@ -129,6 +132,7 @@ export function AssistantWorkspace({
     setActiveProjectId(project.id);
     setActiveConversationId(null);
     setConversations([]);
+    setMemory([]);
     setMessages([]);
     setSelectedStudio(normalizeAssistantStudioId(project.studio));
   }
@@ -152,6 +156,7 @@ export function AssistantWorkspace({
       setActiveProjectId(result.projectId);
       setActiveConversationId(result.activeConversationId);
       setConversations(result.conversations);
+      setMemory(result.memory);
       setMessages(result.messages);
       setSelectedStudio(normalizeAssistantStudioId(project.studio));
     } catch {
@@ -198,6 +203,12 @@ export function AssistantWorkspace({
         onSelectProject={handleSelectProject}
         projects={projects}
         selectedStudio={selectedStudio}
+      />
+
+      <ProjectMemoryPanel
+        activeProjectId={activeProjectId}
+        memory={memory}
+        onMemoryChange={setMemory}
       />
 
       <AssistantPrompt

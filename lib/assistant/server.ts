@@ -3,6 +3,7 @@ import type {
   AssistantConversation,
   AssistantMessage,
   AssistantRole,
+  ProjectMemory,
 } from "@/lib/assistant/types";
 import type { Database } from "@/lib/database.types";
 
@@ -128,6 +129,27 @@ export async function loadAssistantConversationSummary(
   }
 
   return data;
+}
+
+export async function loadProjectMemory(
+  supabase: AssistantSupabaseClient,
+  projectId: string | null,
+): Promise<ProjectMemory[]> {
+  if (!projectId) {
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from("project_memory")
+    .select("id, project_id, memory_type, title, content, created_at, updated_at")
+    .eq("project_id", projectId)
+    .order("updated_at", { ascending: false });
+
+  if (error) {
+    return [];
+  }
+
+  return data ?? [];
 }
 
 function createConversationTitle(prompt: string) {

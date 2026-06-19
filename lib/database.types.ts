@@ -81,6 +81,51 @@ export type Database = {
         };
         Relationships: [];
       };
+      project_memory: {
+        Row: {
+          content: string;
+          created_at: string;
+          id: string;
+          memory_type:
+            | "project_context"
+            | "requirements"
+            | "architecture"
+            | "preferences"
+            | "notes";
+          project_id: string;
+          title: string;
+          updated_at: string;
+        };
+        Insert: {
+          content: string;
+          created_at?: string;
+          id?: string;
+          memory_type:
+            | "project_context"
+            | "requirements"
+            | "architecture"
+            | "preferences"
+            | "notes";
+          project_id: string;
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          content?: string;
+          created_at?: string;
+          id?: string;
+          memory_type?:
+            | "project_context"
+            | "requirements"
+            | "architecture"
+            | "preferences"
+            | "notes";
+          project_id?: string;
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       projects: {
         Row: {
           created_at: string;

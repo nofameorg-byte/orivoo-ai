@@ -7,13 +7,19 @@ import {
   normalizeSubscriptionTier,
 } from "@/lib/assistant/models";
 import { normalizeAssistantStudioId } from "@/lib/assistant/studios";
-import { loadAssistantMessages } from "@/lib/assistant/server";
+import {
+  loadAssistantMessages,
+  loadProjectMemory,
+} from "@/lib/assistant/server";
 import type {
   CreateProjectResult,
   DeleteConversationResult,
+  DeleteProjectMemoryResult,
   LoadConversationResult,
   LoadProjectResult,
+  ProjectMemoryType,
   RenameConversationResult,
+  SaveProjectMemoryResult,
   SelectAssistantModelResult,
 } from "@/lib/assistant/types";
 
@@ -258,6 +264,7 @@ export async function loadAssistantProject(
       conversations: [],
       activeConversationId: null,
       messages: [],
+      memory: await loadProjectMemory(supabase, project.id),
     };
   }
 
@@ -283,5 +290,115 @@ export async function loadAssistantProject(
     messages: activeConversationId
       ? await loadAssistantMessages(supabase, activeConversationId)
       : [],
+    memory: await loadProjectMemory(supabase, project.id),
   };
+}
+
+export async function saveProjectMemory(input: {
+  projectId: string;
+  memoryId?: string;
+  memoryType: ProjectMemoryType;
+  title: string;
+  content: string;
+}): Promise<SaveProjectMemoryResult> {
+  const title = input.title.trim();
+  const content = input.content.trim();
+
+  if (!title || !content) {
+    return { ok: false, error: "Enter a memory title and content." };
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return { ok: false, error: "You must be signed in to save memory." };
+  }
+
+  const { data: project, error: projectError } = await supabase
+    .from("projects")
+    .select("id")
+    .eq("id", input.projectId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (projectError || !project) {
+    return { ok: false, error: "Project not found." };
+  }
+
+  const query = input.memoryId
+    ? supabase
+        .from("project_memory")
+        .update({
+          memory_type: input.memoryType,
+          title,
+          content,
+        })
+        .eq("id", input.memoryId)
+        .eq("project_id", project.id)
+    : supabase.from("project_memory").insert({
+        project_id: project.id,
+        memory_type: input.memoryType,
+        title,
+        content,
+      });
+
+  const { data: memory, error } = await query
+    .select("id, project_id, memory_type, title, content, created_at, updated_at")
+    .single();
+
+  if (error || !memory) {
+    return { ok: false, error: "Could not save project memory." };
+  }
+
+  return { ok: true, memory };
+}
+
+export async function deleteProjectMemory(
+  memoryId: string,
+): Promise<DeleteProjectMemoryResult> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return { ok: false, error: "You must be signed in to delete memory." };
+  }
+
+  const { data: memory, error: memoryError } = await supabase
+    .from("project_memory")
+    .select("id, project_id")
+    .eq("id", memoryId)
+    .maybeSingle();
+
+  if (memoryError || !memory) {
+    return { ok: false, error: "Project memory not found." };
+  }
+
+  const { data: project, error: projectError } = await supabase
+    .from("projects")
+    .select("id")
+    .eq("id", memory.project_id)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (projectError || !project) {
+    return { ok: false, error: "Project memory not found." };
+  }
+
+  const { error } = await supabase
+    .from("project_memory")
+    .delete()
+    .eq("id", memory.id);
+
+  if (error) {
+    return { ok: false, error: "Could not delete project memory." };
+  }
+
+  return { ok: true, memoryId: memory.id };
 }

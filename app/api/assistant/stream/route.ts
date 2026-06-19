@@ -17,6 +17,7 @@ import {
   loadAssistantConversationSummary,
   loadAssistantMessages,
   loadGroqMessageHistory,
+  loadProjectMemory,
 } from "@/lib/assistant/server";
 import type { AssistantStreamEvent } from "@/lib/assistant/types";
 
@@ -228,9 +229,14 @@ export async function POST(request: NextRequest) {
         let assistantResponse = "";
 
         try {
+          const projectMemory = await loadProjectMemory(
+            supabase,
+            requestedProjectId,
+          );
           const { messages: promptMessages, studio } =
             buildAssistantPromptMessages({
               conversationHistory: historyBeforePrompt.messages,
+              projectMemory,
               requestedStudioId:
                 typeof body?.studioId === "string" ? body.studioId : null,
               userMessage: prompt,

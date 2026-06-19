@@ -23,6 +23,23 @@ export type AssistantProject = {
   updated_at: string;
 };
 
+export type ProjectMemoryType =
+  | "project_context"
+  | "requirements"
+  | "architecture"
+  | "preferences"
+  | "notes";
+
+export type ProjectMemory = {
+  id: string;
+  project_id: string;
+  memory_type: ProjectMemoryType;
+  title: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+};
+
 export type AssistantStreamEvent =
   | {
       type: "conversation";
@@ -108,6 +125,27 @@ export type LoadProjectResult =
       conversations: AssistantConversation[];
       activeConversationId: string | null;
       messages: AssistantMessage[];
+      memory: ProjectMemory[];
+    }
+  | {
+      ok: false;
+      error: string;
+    };
+
+export type SaveProjectMemoryResult =
+  | {
+      ok: true;
+      memory: ProjectMemory;
+    }
+  | {
+      ok: false;
+      error: string;
+    };
+
+export type DeleteProjectMemoryResult =
+  | {
+      ok: true;
+      memoryId: string;
     }
   | {
       ok: false;
