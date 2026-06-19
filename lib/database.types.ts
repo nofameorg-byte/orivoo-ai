@@ -198,6 +198,57 @@ export type Database = {
           },
         ];
       };
+      research_jobs: {
+        Row: {
+          created_at: string;
+          id: string;
+          project_id: string;
+          query: string;
+          result_artifact_id: string | null;
+          status: string;
+          title: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          project_id: string;
+          query: string;
+          result_artifact_id?: string | null;
+          status?: string;
+          title: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          project_id?: string;
+          query?: string;
+          result_artifact_id?: string | null;
+          status?: string;
+          title?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "research_jobs_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "research_jobs_result_artifact_id_fkey";
+            columns: ["result_artifact_id"];
+            isOneToOne: false;
+            referencedRelation: "artifacts";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       workspaces: {
         Row: {
           created_at: string;

@@ -3,6 +3,8 @@ import {
   Bot,
   Braces,
   Building2,
+  CheckCircle2,
+  Clock3,
   Copy,
   Download,
   Eye,
@@ -22,6 +24,7 @@ import {
   Trash2,
   Upload,
   Users,
+  XCircle,
 } from "lucide-react";
 import {
   createArtifact,
@@ -34,6 +37,7 @@ import {
   deleteProjectFile,
   uploadProjectFile,
 } from "@/app/actions/files";
+import { startDeepResearch } from "@/app/actions/research";
 import { artifactTypes, getArtifactTypeLabel } from "@/lib/artifacts";
 import { ensureDefaultProject } from "@/lib/projects";
 import { createClient } from "@/lib/supabase/server";
@@ -116,11 +120,21 @@ const baseMetrics = [
   { label: "Auth provider", value: "Supabase" },
 ];
 
+const researchWorkflowSteps = [
+  "Queued research job",
+  "Gathered source material",
+  "Extracted findings",
+  "Generated structured report",
+  "Saved report artifact",
+];
+
 type DashboardPageProps = {
   searchParams?: Promise<{
     artifactId?: string;
     artifactMessage?: string;
     fileMessage?: string;
+    researchJobId?: string;
+    researchMessage?: string;
   }>;
 };
 
@@ -149,6 +163,73 @@ function formatDate(date: string) {
     day: "numeric",
     year: "numeric",
   }).format(new Date(date));
+}
+
+function getResearchProgress(status: string) {
+  if (status === "completed") {
+    return 100;
+  }
+
+  if (status === "running") {
+    return 55;
+  }
+
+  if (status === "failed") {
+    return 100;
+  }
+
+  return 20;
+}
+
+function getResearchStatusIcon(status: string) {
+  if (status === "completed") {
+    return CheckCircle2;
+  }
+
+  if (status === "failed") {
+    return XCircle;
+  }
+
+  if (status === "running") {
+    return Search;
+  }
+
+  return Clock3;
+}
+
+function getMetadataObject(metadata: unknown) {
+  return metadata && typeof metadata === "object" && !Array.isArray(metadata)
+    ? (metadata as Record<string, unknown>)
+    : {};
+}
+
+function getCitationSources(metadata: unknown) {
+  const citations = getMetadataObject(metadata).citations;
+
+  if (!Array.isArray(citations)) {
+    return [];
+  }
+
+  return citations
+    .map((citation) => {
+      if (!citation || typeof citation !== "object") {
+        return null;
+      }
+
+      const source = citation as Record<string, unknown>;
+      const title = typeof source.title === "string" ? source.title : "";
+      const url = typeof source.url === "string" ? source.url : "";
+      const excerpt = typeof source.excerpt === "string" ? source.excerpt : "";
+
+      if (!title && !url && !excerpt) {
+        return null;
+      }
+
+      return { title, url, excerpt };
+    })
+    .filter((source): source is { title: string; url: string; excerpt: string } =>
+      Boolean(source),
+    );
 }
 
 export default async function DashboardPage({
@@ -198,6 +279,15 @@ export default async function DashboardPage({
         .eq("project_id", project.id)
         .order("updated_at", { ascending: false })
     : { data: [] };
+  const { data: researchJobs } = project
+    ? await supabase
+        .from("research_jobs")
+        .select(
+          "id, title, status, query, result_artifact_id, created_at, updated_at",
+        )
+        .eq("project_id", project.id)
+        .order("updated_at", { ascending: false })
+    : { data: [] };
 
   const filesWithUrls = await Promise.all(
     (projectFiles ?? []).map(async (file) => {
@@ -213,10 +303,23 @@ export default async function DashboardPage({
   );
   const artifactList = artifacts ?? [];
   const folders = artifactFolders ?? [];
+  const researchJobList = researchJobs ?? [];
   const selectedArtifact =
     artifactList.find((artifact) => artifact.id === params?.artifactId) ??
     artifactList[0] ??
     null;
+  const selectedResearchJob =
+    researchJobList.find((job) => job.id === params?.researchJobId) ??
+    researchJobList[0] ??
+    null;
+  const selectedResearchArtifact = selectedResearchJob?.result_artifact_id
+    ? artifactList.find(
+        (artifact) => artifact.id === selectedResearchJob.result_artifact_id,
+      ) ?? null
+    : null;
+  const researchSources = selectedResearchArtifact
+    ? getCitationSources(selectedResearchArtifact.metadata)
+    : [];
   const getArtifactFolderName = (folderId: string | null) =>
     folderId
       ? folders.find((folder) => folder.id === folderId)?.name ??
@@ -227,6 +330,7 @@ export default async function DashboardPage({
     ...baseMetrics,
     { label: "Project files", value: filesWithUrls.length.toString() },
     { label: "Artifacts", value: artifactList.length.toString() },
+    { label: "Research jobs", value: researchJobList.length.toString() },
   ];
 
   return (
@@ -426,6 +530,307 @@ export default async function DashboardPage({
               </p>
             </div>
           )}
+        </div>
+      </section>
+
+      <section
+        id="research"
+        className="space-y-5 rounded-[2rem] border border-white/10 bg-white/[0.03] p-6"
+      >
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-gold/25 bg-gold/10 px-4 py-2 text-sm text-gold-bright">
+              <Search className="size-4" aria-hidden />
+              Deep Research Engine
+            </div>
+            <h2 className="text-3xl font-semibold text-white">
+              Run long-form research and save the report.
+            </h2>
+            <p className="mt-3 max-w-3xl leading-6 text-muted">
+              Turn on Research Mode, gather evidence from multiple sources,
+              generate a structured report, and store the final result as a
+              project artifact.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {[
+              "Scheduled research",
+              "Monitoring topics",
+              "Auto-update reports",
+            ].map((feature) => (
+              <span
+                key={feature}
+                className="rounded-full border border-white/10 px-3 py-1 text-xs text-muted"
+              >
+                Future: {feature}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {params?.researchMessage ? (
+          <div className="rounded-2xl border border-gold/20 bg-gold/10 px-4 py-3 text-sm text-gold-bright">
+            {params.researchMessage}
+          </div>
+        ) : null}
+
+        <div className="grid gap-5 xl:grid-cols-[0.8fr_1.2fr]">
+          <form
+            action={startDeepResearch}
+            className="rounded-3xl border border-gold/20 bg-black/40 p-5"
+          >
+            <input type="hidden" name="projectId" value={project?.id ?? ""} />
+            <div className="mb-5">
+              <p className="text-xs uppercase tracking-[0.24em] text-gold-bright">
+                Research mode
+              </p>
+              <h3 className="mt-2 text-xl font-semibold text-white">
+                Start a multi-step research run
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-muted">
+                Provide URLs for targeted source gathering, or leave sources
+                blank to use a default public knowledge search.
+              </p>
+            </div>
+
+            <label className="mb-4 flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-panel-soft p-4">
+              <span>
+                <span className="block text-sm font-medium text-white">
+                  Research Mode
+                </span>
+                <span className="mt-1 block text-xs text-muted">
+                  Required before ORIVOO runs the deep workflow.
+                </span>
+              </span>
+              <input
+                type="checkbox"
+                name="researchMode"
+                defaultChecked
+                className="size-5 accent-gold"
+              />
+            </label>
+
+            <div className="space-y-3">
+              <input
+                required
+                name="title"
+                placeholder="Research report title"
+                className="w-full rounded-2xl border border-white/10 bg-panel-soft px-4 py-3 text-sm text-white outline-none placeholder:text-muted"
+              />
+              <textarea
+                required
+                name="query"
+                rows={4}
+                placeholder="What should ORIVOO research?"
+                className="w-full rounded-2xl border border-white/10 bg-panel-soft px-4 py-3 text-sm leading-6 text-white outline-none placeholder:text-muted"
+              />
+              <textarea
+                name="sourceUrls"
+                rows={4}
+                placeholder="Optional source URLs, one per line"
+                className="w-full rounded-2xl border border-white/10 bg-panel-soft px-4 py-3 text-sm leading-6 text-white outline-none placeholder:text-muted"
+              />
+              <button
+                type="submit"
+                className="gold-gradient flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-black"
+              >
+                <Search className="size-4" aria-hidden />
+                Start deep research
+              </button>
+            </div>
+          </form>
+
+          <div className="space-y-5">
+            <div className="rounded-3xl border border-white/10 bg-black/40 p-5">
+              <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.24em] text-muted">
+                    Research progress
+                  </p>
+                  <h3 className="mt-2 text-xl font-semibold text-white">
+                    {selectedResearchJob?.title ?? "No research jobs yet"}
+                  </h3>
+                </div>
+                {selectedResearchJob ? (
+                  <span className="rounded-full border border-white/10 px-3 py-1 text-xs uppercase tracking-[0.18em] text-muted">
+                    {selectedResearchJob.status}
+                  </span>
+                ) : null}
+              </div>
+
+              {selectedResearchJob ? (
+                <>
+                  <div className="mb-5 h-2 overflow-hidden rounded-full bg-panel-soft">
+                    <div
+                      className="h-full rounded-full bg-gold"
+                      style={{
+                        width: `${getResearchProgress(
+                          selectedResearchJob.status,
+                        )}%`,
+                      }}
+                    />
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-5">
+                    {researchWorkflowSteps.map((step, index) => {
+                      const StatusIcon = getResearchStatusIcon(
+                        selectedResearchJob.status,
+                      );
+                      const progress = getResearchProgress(
+                        selectedResearchJob.status,
+                      );
+                      const isComplete = progress >= ((index + 1) / 5) * 100;
+
+                      return (
+                        <div
+                          key={step}
+                          className={`rounded-2xl border p-3 ${
+                            isComplete
+                              ? "border-gold/30 bg-gold/10"
+                              : "border-white/10 bg-panel-soft"
+                          }`}
+                        >
+                          <StatusIcon
+                            className={`mb-3 size-4 ${
+                              isComplete ? "text-gold" : "text-muted"
+                            }`}
+                            aria-hidden
+                          />
+                          <p className="text-xs leading-5 text-muted">{step}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <p className="mt-5 text-sm leading-6 text-muted">
+                    Query: {selectedResearchJob.query}
+                  </p>
+                  {selectedResearchArtifact ? (
+                    <div className="mt-5 flex flex-wrap gap-2">
+                      <a
+                        href={`/dashboard?artifactId=${selectedResearchArtifact.id}#artifacts`}
+                        className="inline-flex items-center gap-2 rounded-full border border-gold/30 px-4 py-2 text-sm font-medium text-gold-bright transition hover:bg-gold/10"
+                      >
+                        <FileText className="size-4" aria-hidden />
+                        Open saved report
+                      </a>
+                      <a
+                        href={`/dashboard/artifacts/${selectedResearchArtifact.id}/download`}
+                        className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm font-medium text-white transition hover:border-gold/40 hover:text-gold-bright"
+                      >
+                        <Download className="size-4" aria-hidden />
+                        Download report
+                      </a>
+                    </div>
+                  ) : null}
+                </>
+              ) : (
+                <div className="rounded-2xl border border-dashed border-white/10 bg-panel-soft p-8 text-center">
+                  <Search className="mx-auto mb-4 size-8 text-gold" aria-hidden />
+                  <h4 className="font-semibold text-white">
+                    No research started
+                  </h4>
+                  <p className="mt-2 text-sm leading-6 text-muted">
+                    Run a research job to see queued, running, completed, or
+                    failed progress here.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="grid gap-5 lg:grid-cols-2">
+              <div className="rounded-3xl border border-white/10 bg-black/40 p-5">
+                <div className="mb-4 flex items-center justify-between">
+                  <h3 className="font-semibold text-white">Recent jobs</h3>
+                  <span className="text-xs text-muted">
+                    {researchJobList.length} total
+                  </span>
+                </div>
+                {researchJobList.length > 0 ? (
+                  <div className="space-y-3">
+                    {researchJobList.map((job) => {
+                      const StatusIcon = getResearchStatusIcon(job.status);
+
+                      return (
+                        <a
+                          key={job.id}
+                          href={`/dashboard?researchJobId=${job.id}#research`}
+                          className={`block rounded-2xl border p-4 transition hover:border-gold/40 ${
+                            job.id === selectedResearchJob?.id
+                              ? "border-gold/30 bg-gold/10"
+                              : "border-white/10 bg-panel-soft"
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <StatusIcon
+                              className="size-4 shrink-0 text-gold"
+                              aria-hidden
+                            />
+                            <div className="min-w-0">
+                              <h4 className="truncate text-sm font-medium text-white">
+                                {job.title}
+                              </h4>
+                              <p className="mt-1 text-xs text-muted">
+                                Created {formatDate(job.created_at)} &bull;
+                                Updated {formatDate(job.updated_at)}
+                              </p>
+                            </div>
+                          </div>
+                        </a>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="rounded-2xl border border-dashed border-white/10 bg-panel-soft p-5 text-sm leading-6 text-muted">
+                    Research jobs will appear here after a deep run starts.
+                  </p>
+                )}
+              </div>
+
+              <div className="rounded-3xl border border-white/10 bg-black/40 p-5">
+                <div className="mb-4 flex items-center justify-between">
+                  <h3 className="font-semibold text-white">
+                    Citations and sources
+                  </h3>
+                  <span className="text-xs text-muted">
+                    {researchSources.length} sources
+                  </span>
+                </div>
+                {researchSources.length > 0 ? (
+                  <div className="space-y-3">
+                    {researchSources.map((source, index) => (
+                      <article
+                        key={`${source.url}-${index}`}
+                        className="rounded-2xl border border-white/10 bg-panel-soft p-4"
+                      >
+                        <p className="text-xs uppercase tracking-[0.18em] text-gold-bright">
+                          Source {index + 1}
+                        </p>
+                        <h4 className="mt-2 text-sm font-medium text-white">
+                          {source.title || source.url}
+                        </h4>
+                        {source.url && source.url !== "about:blank" ? (
+                          <a
+                            href={source.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="mt-2 block break-all text-xs text-gold-bright"
+                          >
+                            {source.url}
+                          </a>
+                        ) : null}
+                        <p className="mt-3 text-xs leading-5 text-muted">
+                          {source.excerpt}
+                        </p>
+                      </article>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="rounded-2xl border border-dashed border-white/10 bg-panel-soft p-5 text-sm leading-6 text-muted">
+                    Completed research reports will show citations here.
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -835,7 +1240,7 @@ export default async function DashboardPage({
           },
           {
             title: "Database",
-            body: "Profiles, projects, files, artifact folders, and artifacts are prepared with RLS-enabled SQL.",
+            body: "Profiles, projects, files, artifact folders, artifacts, and research jobs are prepared with RLS-enabled SQL.",
           },
           {
             title: "Deployment",
