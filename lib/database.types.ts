@@ -148,6 +148,36 @@ export type Database = {
         };
         Relationships: [];
       };
+      billing_events: {
+        Row: {
+          created_at: string;
+          event_type: string;
+          id: string;
+          payload: Json;
+          processed_at: string;
+          square_event_id: string;
+          square_object_id: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          event_type: string;
+          id?: string;
+          payload: Json;
+          processed_at?: string;
+          square_event_id: string;
+          square_object_id?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          event_type?: string;
+          id?: string;
+          payload?: Json;
+          processed_at?: string;
+          square_event_id?: string;
+          square_object_id?: string | null;
+        };
+        Relationships: [];
+      };
       artifact_folders: {
         Row: {
           created_at: string;
@@ -285,6 +315,9 @@ export type Database = {
           display_name: string | null;
           id: string;
           plan: string;
+          square_customer_id: string | null;
+          subscription_status: string;
+          subscription_tier: string;
           updated_at: string;
         };
         Insert: {
@@ -293,6 +326,9 @@ export type Database = {
           display_name?: string | null;
           id: string;
           plan?: string;
+          square_customer_id?: string | null;
+          subscription_status?: string;
+          subscription_tier?: string;
           updated_at?: string;
         };
         Update: {
@@ -301,6 +337,9 @@ export type Database = {
           display_name?: string | null;
           id?: string;
           plan?: string;
+          square_customer_id?: string | null;
+          subscription_status?: string;
+          subscription_tier?: string;
           updated_at?: string;
         };
         Relationships: [];
@@ -457,6 +496,54 @@ export type Database = {
             referencedColumns: ["id"];
           },
         ];
+      };
+      subscriptions: {
+        Row: {
+          cancel_at_period_end: boolean;
+          created_at: string;
+          current_period_end: string | null;
+          current_period_start: string | null;
+          id: string;
+          metadata: Json;
+          square_checkout_id: string | null;
+          square_customer_id: string | null;
+          square_subscription_id: string | null;
+          status: string;
+          tier: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          cancel_at_period_end?: boolean;
+          created_at?: string;
+          current_period_end?: string | null;
+          current_period_start?: string | null;
+          id?: string;
+          metadata?: Json;
+          square_checkout_id?: string | null;
+          square_customer_id?: string | null;
+          square_subscription_id?: string | null;
+          status?: string;
+          tier?: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          cancel_at_period_end?: boolean;
+          created_at?: string;
+          current_period_end?: string | null;
+          current_period_start?: string | null;
+          id?: string;
+          metadata?: Json;
+          square_checkout_id?: string | null;
+          square_customer_id?: string | null;
+          square_subscription_id?: string | null;
+          status?: string;
+          tier?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
       };
       workspaces: {
         Row: {
