@@ -6,6 +6,7 @@ import {
   CheckCircle2,
   Clock3,
   Copy,
+  Crown,
   Download,
   Eye,
   FileText,
@@ -23,6 +24,8 @@ import {
   Trees,
   Trash2,
   Upload,
+  UserMinus,
+  UserPlus,
   Users,
   XCircle,
 } from "lucide-react";
@@ -38,8 +41,20 @@ import {
   uploadProjectFile,
 } from "@/app/actions/files";
 import { startDeepResearch } from "@/app/actions/research";
+import {
+  inviteProjectMember,
+  removeProjectMember,
+  transferProjectOwnership,
+  updateProjectMemberRole,
+} from "@/app/actions/team";
 import { artifactTypes, getArtifactTypeLabel } from "@/lib/artifacts";
 import { ensureDefaultProject } from "@/lib/projects";
+import {
+  getProjectMemberRoleDescription,
+  getProjectMemberRoleLabel,
+  isTeamPlan,
+  projectMemberRoles,
+} from "@/lib/team";
 import { createClient } from "@/lib/supabase/server";
 
 const studios = [
@@ -133,8 +148,10 @@ type DashboardPageProps = {
     artifactId?: string;
     artifactMessage?: string;
     fileMessage?: string;
+    projectId?: string;
     researchJobId?: string;
     researchMessage?: string;
+    teamMessage?: string;
   }>;
 };
 
@@ -244,7 +261,7 @@ export default async function DashboardPage({
   const { data: profile } = user
     ? await supabase
         .from("profiles")
-        .select("display_name")
+        .select("display_name, plan")
         .eq("id", user.id)
         .maybeSingle()
     : { data: null };
@@ -255,7 +272,32 @@ export default async function DashboardPage({
       ? user.user_metadata.display_name
       : user?.email?.split("@")[0] ?? "Operator");
 
-  const project = user ? await ensureDefaultProject(supabase, user.id) : null;
+  const defaultProject = user ? await ensureDefaultProject(supabase, user.id) : null;
+  const { data: accessibleProjects } = user
+    ? await supabase
+        .from("projects")
+        .select("id, name, user_id, created_at, updated_at")
+        .order("created_at", { ascending: true })
+    : { data: [] };
+  const project =
+    accessibleProjects?.find((item) => item.id === params?.projectId) ??
+    accessibleProjects?.find((item) => item.id === defaultProject?.id) ??
+    defaultProject;
+  const { data: currentUserMembership } = project
+    ? await supabase
+        .from("project_members")
+        .select("role")
+        .eq("project_id", project.id)
+        .eq("user_id", user?.id ?? "")
+        .maybeSingle()
+    : { data: null };
+  const { data: projectMembers } = project
+    ? await supabase
+        .from("project_members")
+        .select("id, user_id, role, created_at")
+        .eq("project_id", project.id)
+        .order("created_at", { ascending: true })
+    : { data: [] };
   const { data: projectFiles } = project
     ? await supabase
         .from("files")
@@ -304,6 +346,16 @@ export default async function DashboardPage({
   const artifactList = artifacts ?? [];
   const folders = artifactFolders ?? [];
   const researchJobList = researchJobs ?? [];
+  const projects = accessibleProjects ?? [];
+  const teamMembers = projectMembers ?? [];
+  const currentPlan = profile?.plan ?? "free";
+  const teamEnabled = isTeamPlan(currentPlan);
+  const currentRole =
+    currentUserMembership?.role ??
+    (project?.user_id === user?.id ? "owner" : "viewer");
+  const canManageTeam =
+    teamEnabled && (currentRole === "owner" || currentRole === "admin");
+  const canTransferOwnership = teamEnabled && currentRole === "owner";
   const selectedArtifact =
     artifactList.find((artifact) => artifact.id === params?.artifactId) ??
     artifactList[0] ??
@@ -331,6 +383,7 @@ export default async function DashboardPage({
     { label: "Project files", value: filesWithUrls.length.toString() },
     { label: "Artifacts", value: artifactList.length.toString() },
     { label: "Research jobs", value: researchJobList.length.toString() },
+    { label: "Team members", value: teamMembers.length.toString() },
   ];
 
   return (
@@ -354,6 +407,28 @@ export default async function DashboardPage({
               studios for documents, research, code, design, business, science,
               and more.
             </p>
+            {projects.length > 0 ? (
+              <div className="mt-6 rounded-3xl border border-white/10 bg-black/40 p-4">
+                <p className="text-xs uppercase tracking-[0.24em] text-muted">
+                  Active project workspace
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {projects.map((item) => (
+                    <a
+                      key={item.id}
+                      href={`/dashboard?projectId=${item.id}#workspace`}
+                      className={`rounded-full border px-4 py-2 text-sm transition ${
+                        item.id === project?.id
+                          ? "border-gold/40 bg-gold/10 text-gold-bright"
+                          : "border-white/10 text-muted hover:border-gold/30 hover:text-white"
+                      }`}
+                    >
+                      {item.name}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </div>
           <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
             {metrics.map((metric) => (
@@ -534,6 +609,312 @@ export default async function DashboardPage({
       </section>
 
       <section
+        id="team"
+        className="space-y-5 rounded-[2rem] border border-white/10 bg-white/[0.03] p-6"
+      >
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-gold/25 bg-gold/10 px-4 py-2 text-sm text-gold-bright">
+              <Users className="size-4" aria-hidden />
+              Team Workspaces
+            </div>
+            <h2 className="text-3xl font-semibold text-white">
+              Collaborate inside the same ORIVOO workspace.
+            </h2>
+            <p className="mt-3 max-w-3xl leading-6 text-muted">
+              Invite existing users, assign roles, share project files,
+              artifacts, conversations, and memory, or transfer ownership when
+              the workspace changes hands.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-black/40 px-4 py-3">
+            <p className="text-xs uppercase tracking-[0.24em] text-muted">
+              Current plan
+            </p>
+            <p className="mt-1 text-lg font-semibold capitalize text-white">
+              {currentPlan}
+            </p>
+          </div>
+        </div>
+
+        {params?.teamMessage ? (
+          <div className="rounded-2xl border border-gold/20 bg-gold/10 px-4 py-3 text-sm text-gold-bright">
+            {params.teamMessage}
+          </div>
+        ) : null}
+
+        {!teamEnabled ? (
+          <div className="rounded-3xl border border-white/10 bg-black/40 p-5">
+            <ShieldCheck className="mb-4 size-8 text-gold" aria-hidden />
+            <h3 className="text-xl font-semibold text-white">
+              Team workspaces are disabled on Free and Pro.
+            </h3>
+            <p className="mt-3 max-w-3xl text-sm leading-6 text-muted">
+              Upgrade the account plan to Business or Enterprise to invite
+              collaborators, manage shared roles, and enable multi-user access
+              to project workspace resources.
+            </p>
+          </div>
+        ) : null}
+
+        <div className="grid gap-5 xl:grid-cols-[0.82fr_1.18fr]">
+          <div className="space-y-5">
+            <div className="rounded-3xl border border-white/10 bg-black/40 p-5">
+              <div className="mb-5 flex items-center gap-3">
+                <div className="flex size-10 items-center justify-center rounded-xl border border-gold/20 bg-gold/10 text-gold">
+                  <UserPlus className="size-4" aria-hidden />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white">
+                    Invite existing user
+                  </h3>
+                  <p className="text-xs text-muted">
+                    Business and Enterprise only
+                  </p>
+                </div>
+              </div>
+
+              <form action={inviteProjectMember} className="space-y-3">
+                <input type="hidden" name="projectId" value={project?.id ?? ""} />
+                <input
+                  required
+                  disabled={!canManageTeam}
+                  name="userId"
+                  placeholder="Supabase user ID"
+                  className="w-full rounded-2xl border border-white/10 bg-panel-soft px-4 py-3 text-sm text-white outline-none placeholder:text-muted disabled:cursor-not-allowed disabled:opacity-50"
+                />
+                <select
+                  name="role"
+                  defaultValue="viewer"
+                  disabled={!canManageTeam}
+                  className="w-full rounded-2xl border border-white/10 bg-panel-soft px-4 py-3 text-sm text-white outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {projectMemberRoles
+                    .filter((role) => role.value !== "owner")
+                    .map((role) => (
+                      <option key={role.value} value={role.value}>
+                        {role.label} - {role.description}
+                      </option>
+                    ))}
+                </select>
+                <button
+                  type="submit"
+                  disabled={!canManageTeam}
+                  className="gold-gradient flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <UserPlus className="size-4" aria-hidden />
+                  Invite user
+                </button>
+              </form>
+            </div>
+
+            <div className="rounded-3xl border border-white/10 bg-black/40 p-5">
+              <div className="mb-5 flex items-center gap-3">
+                <div className="flex size-10 items-center justify-center rounded-xl border border-gold/20 bg-gold/10 text-gold">
+                  <Crown className="size-4" aria-hidden />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white">
+                    Transfer ownership
+                  </h3>
+                  <p className="text-xs text-muted">
+                    Owners have full control over the project.
+                  </p>
+                </div>
+              </div>
+
+              <form action={transferProjectOwnership} className="space-y-3">
+                <input type="hidden" name="projectId" value={project?.id ?? ""} />
+                <input
+                  required
+                  disabled={!canTransferOwnership}
+                  name="newOwnerUserId"
+                  placeholder="New owner Supabase user ID"
+                  className="w-full rounded-2xl border border-white/10 bg-panel-soft px-4 py-3 text-sm text-white outline-none placeholder:text-muted disabled:cursor-not-allowed disabled:opacity-50"
+                />
+                <button
+                  type="submit"
+                  disabled={!canTransferOwnership}
+                  className="flex w-full items-center justify-center gap-2 rounded-full border border-gold/30 px-5 py-3 text-sm font-semibold text-gold-bright transition hover:bg-gold/10 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <Crown className="size-4" aria-hidden />
+                  Transfer ownership
+                </button>
+              </form>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              {[
+                "Shared conversations",
+                "Shared artifacts",
+                "Shared files",
+                "Shared project memory",
+              ].map((capability) => (
+                <div
+                  key={capability}
+                  className="rounded-2xl border border-white/10 bg-black/40 p-4"
+                >
+                  <ShieldCheck className="mb-3 size-5 text-gold" aria-hidden />
+                  <h4 className="text-sm font-semibold text-white">
+                    {capability}
+                  </h4>
+                  <p className="mt-2 text-xs leading-5 text-muted">
+                    Controlled by project member roles and workspace plan.
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-5">
+            <div className="rounded-3xl border border-white/10 bg-black/40 p-5">
+              <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.24em] text-muted">
+                    Members
+                  </p>
+                  <h3 className="mt-2 text-xl font-semibold text-white">
+                    {teamMembers.length}{" "}
+                    {teamMembers.length === 1 ? "collaborator" : "collaborators"}
+                  </h3>
+                </div>
+                <span className="rounded-full border border-white/10 px-3 py-1 text-xs text-muted">
+                  Your role: {getProjectMemberRoleLabel(currentRole)}
+                </span>
+              </div>
+
+              {teamMembers.length > 0 ? (
+                <div className="space-y-3">
+                  {teamMembers.map((member) => (
+                    <article
+                      key={member.id}
+                      className="rounded-2xl border border-white/10 bg-panel-soft p-4"
+                    >
+                      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-3">
+                            <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-gold/25 bg-gold/10 text-gold">
+                              {member.role === "owner" ? (
+                                <Crown className="size-4" aria-hidden />
+                              ) : (
+                                <Users className="size-4" aria-hidden />
+                              )}
+                            </div>
+                            <div className="min-w-0">
+                              <h4 className="truncate text-sm font-medium text-white">
+                                {member.user_id}
+                              </h4>
+                              <p className="mt-1 text-xs text-muted">
+                                {getProjectMemberRoleLabel(member.role)} -{" "}
+                                {getProjectMemberRoleDescription(member.role)}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2">
+                          {member.role !== "owner" ? (
+                            <form
+                              action={updateProjectMemberRole}
+                              className="flex gap-2"
+                            >
+                              <input
+                                type="hidden"
+                                name="projectId"
+                                value={project?.id ?? ""}
+                              />
+                              <input
+                                type="hidden"
+                                name="memberId"
+                                value={member.id}
+                              />
+                              <select
+                                name="role"
+                                defaultValue={member.role}
+                                disabled={!canManageTeam}
+                                className="rounded-full border border-white/10 bg-black/40 px-3 py-2 text-xs text-white outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                              >
+                                {projectMemberRoles
+                                  .filter((role) => role.value !== "owner")
+                                  .map((role) => (
+                                    <option key={role.value} value={role.value}>
+                                      {role.label}
+                                    </option>
+                                  ))}
+                              </select>
+                              <button
+                                type="submit"
+                                disabled={!canManageTeam}
+                                className="rounded-full border border-gold/30 px-3 py-2 text-xs font-medium text-gold-bright transition hover:bg-gold/10 disabled:cursor-not-allowed disabled:opacity-50"
+                              >
+                                Update
+                              </button>
+                            </form>
+                          ) : null}
+
+                          {member.role !== "owner" ? (
+                            <form action={removeProjectMember}>
+                              <input
+                                type="hidden"
+                                name="projectId"
+                                value={project?.id ?? ""}
+                              />
+                              <input
+                                type="hidden"
+                                name="memberId"
+                                value={member.id}
+                              />
+                              <button
+                                type="submit"
+                                disabled={!canManageTeam}
+                                className="inline-flex items-center gap-2 rounded-full border border-red-400/20 px-3 py-2 text-xs font-medium text-red-200 transition hover:border-red-300/50 hover:bg-red-400/10 disabled:cursor-not-allowed disabled:opacity-50"
+                              >
+                                <UserMinus className="size-3.5" aria-hidden />
+                                Remove
+                              </button>
+                            </form>
+                          ) : (
+                            <span className="rounded-full border border-gold/20 px-3 py-2 text-xs text-gold-bright">
+                              Owner
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-dashed border-white/10 bg-panel-soft p-8 text-center">
+                  <Users className="mx-auto mb-4 size-8 text-gold" aria-hidden />
+                  <h4 className="font-semibold text-white">No members yet</h4>
+                  <p className="mt-2 text-sm leading-6 text-muted">
+                    The project owner will be added automatically when team
+                    workspace migrations run.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              {projectMemberRoles.map((role) => (
+                <div
+                  key={role.value}
+                  className="rounded-2xl border border-white/10 bg-black/40 p-4"
+                >
+                  <p className="text-xs uppercase tracking-[0.18em] text-gold-bright">
+                    {role.label}
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-muted">
+                    {role.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section
         id="research"
         className="space-y-5 rounded-[2rem] border border-white/10 bg-white/[0.03] p-6"
       >
@@ -706,7 +1087,7 @@ export default async function DashboardPage({
                   {selectedResearchArtifact ? (
                     <div className="mt-5 flex flex-wrap gap-2">
                       <a
-                        href={`/dashboard?artifactId=${selectedResearchArtifact.id}#artifacts`}
+                        href={`/dashboard?projectId=${project?.id ?? ""}&artifactId=${selectedResearchArtifact.id}#artifacts`}
                         className="inline-flex items-center gap-2 rounded-full border border-gold/30 px-4 py-2 text-sm font-medium text-gold-bright transition hover:bg-gold/10"
                       >
                         <FileText className="size-4" aria-hidden />
@@ -752,7 +1133,7 @@ export default async function DashboardPage({
                       return (
                         <a
                           key={job.id}
-                          href={`/dashboard?researchJobId=${job.id}#research`}
+                          href={`/dashboard?projectId=${project?.id ?? ""}&researchJobId=${job.id}#research`}
                           className={`block rounded-2xl border p-4 transition hover:border-gold/40 ${
                             job.id === selectedResearchJob?.id
                               ? "border-gold/30 bg-gold/10"
@@ -1047,7 +1428,7 @@ export default async function DashboardPage({
                           </p>
                           <div className="flex flex-wrap gap-2">
                             <a
-                              href={`/dashboard?artifactId=${artifact.id}#artifacts`}
+                              href={`/dashboard?projectId=${project?.id ?? ""}&artifactId=${artifact.id}#artifacts`}
                               className="inline-flex items-center gap-1 rounded-full border border-white/10 px-3 py-1.5 text-xs text-white transition hover:border-gold/40 hover:text-gold-bright"
                             >
                               <Eye className="size-3.5" aria-hidden />

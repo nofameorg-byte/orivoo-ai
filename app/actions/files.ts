@@ -97,7 +97,6 @@ export async function uploadProjectFile(formData: FormData) {
       .from("projects")
       .select("id")
       .eq("id", requestedProjectId)
-      .eq("user_id", user.id)
       .maybeSingle();
 
     if (error) {
@@ -160,7 +159,6 @@ export async function deleteProjectFile(formData: FormData) {
     .from("files")
     .select("id, storage_path")
     .eq("id", fileId)
-    .eq("user_id", user.id)
     .maybeSingle();
 
   if (lookupError) {
@@ -185,8 +183,7 @@ export async function deleteProjectFile(formData: FormData) {
   const { error: deleteError } = await supabase
     .from("files")
     .delete()
-    .eq("id", file.id)
-    .eq("user_id", user.id);
+    .eq("id", file.id);
 
   if (deleteError) {
     dashboardRedirect(deleteError.message);

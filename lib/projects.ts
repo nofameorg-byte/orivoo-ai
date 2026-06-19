@@ -67,5 +67,20 @@ export async function ensureDefaultProject(supabase: Supabase, userId: string) {
     throw new Error(createProjectError.message);
   }
 
+  const { error: createMemberError } = await supabase
+    .from("project_members")
+    .upsert(
+      {
+        project_id: project.id,
+        user_id: userId,
+        role: "owner",
+      },
+      { onConflict: "project_id,user_id" },
+    );
+
+  if (createMemberError) {
+    throw new Error(createMemberError.message);
+  }
+
   return project;
 }

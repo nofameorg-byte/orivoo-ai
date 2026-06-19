@@ -31,6 +31,7 @@ export const metadata: Metadata = {
 const navigation = [
   { name: "Assistant", icon: Bot, href: "#workspace" },
   { name: "Files", icon: FolderOpen, href: "#files" },
+  { name: "Team", icon: Users, href: "#team" },
   { name: "Deep Research", icon: Search, href: "#research" },
   { name: "Artifacts", icon: Layers3, href: "#artifacts" },
   { name: "Document Studio", icon: FileText, href: "#workspace" },

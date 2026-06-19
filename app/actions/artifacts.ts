@@ -50,7 +50,6 @@ async function getOwnedProject(projectId: string) {
     .from("projects")
     .select("id")
     .eq("id", projectId)
-    .eq("user_id", user.id)
     .maybeSingle();
 
   if (error) {
@@ -67,7 +66,6 @@ async function getOwnedProject(projectId: string) {
 async function ensureFolderBelongsToProject(
   folderId: string,
   projectId: string,
-  userId: string,
 ) {
   if (!folderId) {
     return null;
@@ -79,7 +77,6 @@ async function ensureFolderBelongsToProject(
     .select("id")
     .eq("id", folderId)
     .eq("project_id", projectId)
-    .eq("user_id", userId)
     .maybeSingle();
 
   if (error) {
@@ -141,11 +138,7 @@ export async function createArtifact(formData: FormData) {
   const projectId = getFormString(formData, "projectId");
   const { title, artifactType, content, folderId } = getArtifactFields(formData);
   const { supabase, user, project } = await getOwnedProject(projectId);
-  const validFolderId = await ensureFolderBelongsToProject(
-    folderId,
-    project.id,
-    user.id,
-  );
+  const validFolderId = await ensureFolderBelongsToProject(folderId, project.id);
 
   const { data: artifact, error } = await supabase
     .from("artifacts")
@@ -181,12 +174,8 @@ export async function updateArtifact(formData: FormData) {
     artifactsRedirect("Select an artifact to edit.");
   }
 
-  const { supabase, user, project } = await getOwnedProject(projectId);
-  const validFolderId = await ensureFolderBelongsToProject(
-    folderId,
-    project.id,
-    user.id,
-  );
+  const { supabase, project } = await getOwnedProject(projectId);
+  const validFolderId = await ensureFolderBelongsToProject(folderId, project.id);
 
   const { error } = await supabase
     .from("artifacts")
@@ -197,8 +186,7 @@ export async function updateArtifact(formData: FormData) {
       folder_id: validFolderId,
     })
     .eq("id", artifactId)
-    .eq("project_id", project.id)
-    .eq("user_id", user.id);
+    .eq("project_id", project.id);
 
   if (error) {
     artifactsRedirect(error.message, artifactId);
@@ -220,7 +208,6 @@ export async function duplicateArtifact(formData: FormData) {
     .from("artifacts")
     .select("project_id, folder_id, title, artifact_type, content")
     .eq("id", artifactId)
-    .eq("user_id", user.id)
     .maybeSingle();
 
   if (lookupError) {
@@ -270,8 +257,7 @@ export async function deleteArtifact(formData: FormData) {
   const { error } = await supabase
     .from("artifacts")
     .delete()
-    .eq("id", artifactId)
-    .eq("user_id", user.id);
+    .eq("id", artifactId);
 
   if (error) {
     artifactsRedirect(error.message, artifactId);

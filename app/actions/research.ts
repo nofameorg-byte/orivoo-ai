@@ -64,7 +64,6 @@ async function getOwnedProject(projectId: string) {
     .from("projects")
     .select("id")
     .eq("id", projectId)
-    .eq("user_id", user.id)
     .maybeSingle();
 
   if (error) {
@@ -304,7 +303,7 @@ export async function startDeepResearch(formData: FormData) {
       .from("research_jobs")
       .update({ status: "running" })
       .eq("id", job.id)
-      .eq("user_id", user.id);
+      .eq("project_id", project.id);
 
     const sources = await gatherSources(query, sourceUrls);
     const report = buildResearchReport(query, sources);
@@ -344,7 +343,7 @@ export async function startDeepResearch(formData: FormData) {
         result_artifact_id: artifact.id,
       })
       .eq("id", job.id)
-      .eq("user_id", user.id);
+      .eq("project_id", project.id);
 
     if (completeError) {
       throw new Error(completeError.message);
@@ -357,7 +356,7 @@ export async function startDeepResearch(formData: FormData) {
       .from("research_jobs")
       .update({ status: "failed" })
       .eq("id", job.id)
-      .eq("user_id", user.id);
+      .eq("project_id", project.id);
 
     revalidatePath("/dashboard");
     researchRedirect(

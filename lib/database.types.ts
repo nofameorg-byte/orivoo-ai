@@ -145,6 +145,7 @@ export type Database = {
           created_at: string;
           display_name: string | null;
           id: string;
+          plan: string;
           updated_at: string;
         };
         Insert: {
@@ -152,6 +153,7 @@ export type Database = {
           created_at?: string;
           display_name?: string | null;
           id: string;
+          plan?: string;
           updated_at?: string;
         };
         Update: {
@@ -159,9 +161,42 @@ export type Database = {
           created_at?: string;
           display_name?: string | null;
           id?: string;
+          plan?: string;
           updated_at?: string;
         };
         Relationships: [];
+      };
+      project_members: {
+        Row: {
+          created_at: string;
+          id: string;
+          project_id: string;
+          role: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          project_id: string;
+          role: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          project_id?: string;
+          role?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "project_members_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       projects: {
         Row: {
@@ -275,7 +310,36 @@ export type Database = {
       };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      current_user_can_edit_project_content: {
+        Args: { target_project_id: string };
+        Returns: boolean;
+      };
+      current_user_can_manage_project: {
+        Args: { target_project_id: string };
+        Returns: boolean;
+      };
+      current_user_can_read_project: {
+        Args: { target_project_id: string };
+        Returns: boolean;
+      };
+      current_user_has_team_plan: {
+        Args: Record<PropertyKey, never>;
+        Returns: boolean;
+      };
+      current_user_is_project_owner: {
+        Args: { target_project_id: string };
+        Returns: boolean;
+      };
+      current_user_project_role: {
+        Args: { target_project_id: string };
+        Returns: string;
+      };
+      transfer_project_ownership: {
+        Args: { target_project_id: string; new_owner_id: string };
+        Returns: undefined;
+      };
+    };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };

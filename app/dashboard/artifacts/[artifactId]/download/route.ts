@@ -32,7 +32,6 @@ export async function GET(_request: Request, context: DownloadRouteContext) {
     .from("artifacts")
     .select("title, artifact_type, content, updated_at")
     .eq("id", artifactId)
-    .eq("user_id", user.id)
     .maybeSingle();
 
   if (error) {
