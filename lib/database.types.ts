@@ -178,6 +178,109 @@ export type Database = {
         };
         Relationships: [];
       };
+      conversation_summaries: {
+        Row: {
+          conversation_id: string;
+          created_at: string;
+          id: string;
+          message_count: number;
+          project_id: string | null;
+          summary: string;
+          updated_at: string;
+          user_id: string;
+          workspace_id: string | null;
+        };
+        Insert: {
+          conversation_id: string;
+          created_at?: string;
+          id?: string;
+          message_count?: number;
+          project_id?: string | null;
+          summary: string;
+          updated_at?: string;
+          user_id: string;
+          workspace_id?: string | null;
+        };
+        Update: {
+          conversation_id?: string;
+          created_at?: string;
+          id?: string;
+          message_count?: number;
+          project_id?: string | null;
+          summary?: string;
+          updated_at?: string;
+          user_id?: string;
+          workspace_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "conversation_summaries_conversation_id_fkey";
+            columns: ["conversation_id"];
+            isOneToOne: false;
+            referencedRelation: "conversations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "conversation_summaries_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "conversation_summaries_workspace_id_fkey";
+            columns: ["workspace_id"];
+            isOneToOne: false;
+            referencedRelation: "workspaces";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      conversations: {
+        Row: {
+          created_at: string;
+          id: string;
+          project_id: string | null;
+          title: string;
+          updated_at: string;
+          user_id: string;
+          workspace_id: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          project_id?: string | null;
+          title?: string;
+          updated_at?: string;
+          user_id: string;
+          workspace_id?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          project_id?: string | null;
+          title?: string;
+          updated_at?: string;
+          user_id?: string;
+          workspace_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "conversations_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "conversations_workspace_id_fkey";
+            columns: ["workspace_id"];
+            isOneToOne: false;
+            referencedRelation: "workspaces";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       artifact_folders: {
         Row: {
           created_at: string;
@@ -308,6 +411,112 @@ export type Database = {
           },
         ];
       };
+      memory_candidates: {
+        Row: {
+          content: string;
+          conversation_id: string | null;
+          created_at: string;
+          id: string;
+          importance: number;
+          memory_type: string;
+          user_id: string;
+        };
+        Insert: {
+          content: string;
+          conversation_id?: string | null;
+          created_at?: string;
+          id?: string;
+          importance?: number;
+          memory_type?: string;
+          user_id: string;
+        };
+        Update: {
+          content?: string;
+          conversation_id?: string | null;
+          created_at?: string;
+          id?: string;
+          importance?: number;
+          memory_type?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "memory_candidates_conversation_id_fkey";
+            columns: ["conversation_id"];
+            isOneToOne: false;
+            referencedRelation: "conversations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      memory_embeddings: {
+        Row: {
+          content_hash: string | null;
+          created_at: string;
+          embedding: Json | null;
+          embedding_model: string | null;
+          id: string;
+          source_id: string;
+          source_table: string;
+          user_id: string;
+        };
+        Insert: {
+          content_hash?: string | null;
+          created_at?: string;
+          embedding?: Json | null;
+          embedding_model?: string | null;
+          id?: string;
+          source_id: string;
+          source_table: string;
+          user_id: string;
+        };
+        Update: {
+          content_hash?: string | null;
+          created_at?: string;
+          embedding?: Json | null;
+          embedding_model?: string | null;
+          id?: string;
+          source_id?: string;
+          source_table?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      messages: {
+        Row: {
+          content: string;
+          conversation_id: string;
+          created_at: string;
+          id: string;
+          role: string;
+          user_id: string;
+        };
+        Insert: {
+          content: string;
+          conversation_id: string;
+          created_at?: string;
+          id?: string;
+          role: string;
+          user_id: string;
+        };
+        Update: {
+          content?: string;
+          conversation_id?: string;
+          created_at?: string;
+          id?: string;
+          role?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey";
+            columns: ["conversation_id"];
+            isOneToOne: false;
+            referencedRelation: "conversations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       profiles: {
         Row: {
           avatar_url: string | null;
@@ -404,6 +613,47 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "project_memory_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      project_memories: {
+        Row: {
+          created_at: string;
+          id: string;
+          importance: number;
+          project_id: string;
+          summary: string;
+          title: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          importance?: number;
+          project_id: string;
+          summary: string;
+          title: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          importance?: number;
+          project_id?: string;
+          summary?: string;
+          title?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "project_memories_project_id_fkey";
             columns: ["project_id"];
             isOneToOne: false;
             referencedRelation: "projects";
@@ -577,6 +827,74 @@ export type Database = {
           user_id?: string;
         };
         Relationships: [];
+      };
+      user_memories: {
+        Row: {
+          content: string;
+          created_at: string;
+          id: string;
+          importance: number;
+          memory_type: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          content: string;
+          created_at?: string;
+          id?: string;
+          importance?: number;
+          memory_type?: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          content?: string;
+          created_at?: string;
+          id?: string;
+          importance?: number;
+          memory_type?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      workspace_knowledge: {
+        Row: {
+          content: string;
+          created_at: string;
+          id: string;
+          title: string;
+          updated_at: string;
+          user_id: string;
+          workspace_id: string;
+        };
+        Insert: {
+          content: string;
+          created_at?: string;
+          id?: string;
+          title: string;
+          updated_at?: string;
+          user_id: string;
+          workspace_id: string;
+        };
+        Update: {
+          content?: string;
+          created_at?: string;
+          id?: string;
+          title?: string;
+          updated_at?: string;
+          user_id?: string;
+          workspace_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "workspace_knowledge_workspace_id_fkey";
+            columns: ["workspace_id"];
+            isOneToOne: false;
+            referencedRelation: "workspaces";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       workspaces: {
         Row: {

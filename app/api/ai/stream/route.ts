@@ -9,12 +9,21 @@ import {
   type ModelDefinition,
 } from "@/lib/ai/models";
 import { streamProviderResponse } from "@/lib/ai/providers";
+import {
+  injectMemoryContext,
+  loadMemoryContext,
+  processMemoryAfterResponse,
+} from "@/lib/memory/context";
 import { createClient } from "@/lib/supabase/server";
 
 type StreamRequest = {
+  conversationId?: string;
   model?: string;
   messages?: ChatMessage[];
+  projectId?: string;
   prompt?: string;
+  title?: string;
+  workspaceId?: string;
 };
 
 function isChatMessage(value: unknown): value is ChatMessage {
@@ -42,6 +51,13 @@ function normalizeMessages(input: StreamRequest) {
   }
 
   throw new Error("Provide messages or a prompt.");
+}
+
+function getLatestUserMessage(messages: ChatMessage[]) {
+  return (
+    [...messages].reverse().find((message) => message.role === "user")?.content ??
+    ""
+  );
 }
 
 async function getUserTier(userId: string) {
@@ -123,6 +139,13 @@ export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as StreamRequest;
     const messages = normalizeMessages(body);
+    const memoryContext = await loadMemoryContext(supabase, {
+      userId: user.id,
+      workspaceId: body.workspaceId ?? null,
+      projectId: body.projectId ?? null,
+      conversationId: body.conversationId ?? null,
+    });
+    const routedMessages = injectMemoryContext(messages, memoryContext);
     const tier = await getUserTier(user.id);
     const candidates = getRoutingCandidates({
       requestedModelId: body.model,
@@ -144,7 +167,7 @@ export async function POST(request: NextRequest) {
           try {
             const response = await streamProviderResponse({
               model: candidate,
-              messages,
+              messages: routedMessages,
             });
 
             selectedModel = candidate;
@@ -202,19 +225,30 @@ export async function POST(request: NextRequest) {
           await logUsage({
             userId: user.id,
             model: selectedModel,
-            messages,
+            messages: routedMessages,
             output,
           });
+          const conversationId = await processMemoryAfterResponse(supabase, {
+            userId: user.id,
+            workspaceId: body.workspaceId ?? null,
+            projectId: body.projectId ?? null,
+            conversationId: body.conversationId ?? null,
+            title: body.title ?? getLatestUserMessage(messages).slice(0, 80),
+            userMessage: getLatestUserMessage(messages),
+            assistantResponse: output,
+            memoryContext,
+          }).catch(() => null);
           controller.enqueue(
             encoder.encode(
               `event: done\ndata: ${JSON.stringify({
                 model: selectedModel.id,
                 provider: selectedModel.provider,
-                input_tokens: estimateTokens(messages),
+                conversation_id: conversationId,
+                input_tokens: estimateTokens(routedMessages),
                 output_tokens: estimateTokens(output),
                 estimated_cost: estimateCost({
                   model: selectedModel,
-                  inputTokens: estimateTokens(messages),
+                  inputTokens: estimateTokens(routedMessages),
                   outputTokens: estimateTokens(output),
                 }),
               })}\n\n`,

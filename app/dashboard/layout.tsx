@@ -2,12 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
+  BookOpen,
   Bot,
   Braces,
+  Brain,
   Building2,
   FileText,
   FlaskConical,
   FolderOpen,
+  FolderPlus,
   Globe2,
   Landmark,
   Layers3,
@@ -31,6 +34,10 @@ export const metadata: Metadata = {
 const navigation = [
   { name: "Assistant", icon: Bot, href: "#workspace" },
   { name: "Agents", icon: Bot, href: "#agents" },
+  { name: "Memory", icon: Brain, href: "/dashboard/memory" },
+  { name: "Saved Memory", icon: Brain, href: "/dashboard/memory/saved" },
+  { name: "Knowledge Base", icon: BookOpen, href: "/dashboard/knowledge" },
+  { name: "Projects", icon: FolderPlus, href: "/dashboard/projects" },
   { name: "Files", icon: FolderOpen, href: "#files" },
   { name: "Team", icon: Users, href: "#team" },
   { name: "Deep Research", icon: Search, href: "#research" },
