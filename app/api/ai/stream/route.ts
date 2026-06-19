@@ -230,6 +230,7 @@ export async function POST(request: NextRequest) {
             userId: user.id,
             workspaceId: body.workspaceId ?? null,
             conversationId: body.conversationId ?? null,
+            model: selectedModel.id,
             title: body.title ?? getLatestUserMessage(messages).slice(0, 80),
             userMessage: getLatestUserMessage(messages),
             assistantResponse: output,

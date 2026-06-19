@@ -14,6 +14,7 @@ export type MemoryScope = {
 };
 
 export type ConversationScope = MemoryScope & {
+  model?: string | null;
   title?: string;
 };
 
@@ -121,8 +122,9 @@ export async function ensureConversation(
     .from("conversations")
     .insert({
       user_id: scope.userId,
+      model: scope.model ?? "orivoo",
       title: scope.title || "ORIVOO Conversation",
-    })
+    } as never)
     .select("id")
     .single();
 
@@ -139,6 +141,7 @@ export async function processMemoryAfterResponse(
     userId: string;
     workspaceId?: string | null;
     conversationId?: string | null;
+    model?: string | null;
     title?: string;
     userMessage: string;
     assistantResponse: string;
@@ -149,6 +152,7 @@ export async function processMemoryAfterResponse(
     userId: input.userId,
     workspaceId: input.workspaceId,
     conversationId: input.conversationId,
+    model: input.model,
     title: input.title,
   });
 
