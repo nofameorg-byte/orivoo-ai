@@ -5,6 +5,7 @@ import {
   DOCUMENT_BUCKET,
   type DocumentAction,
 } from "@/lib/documents/config";
+import { getMemoryContext } from "@/lib/core/memory";
 import { buildDocumentContext } from "@/lib/documents/processing";
 import { createClient } from "@/lib/supabase/server";
 
@@ -73,7 +74,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
   const { data: document, error: documentError } = await supabase
     .from("documents")
-    .select("id,title,file_name,file_path,file_type,status")
+    .select("id,title,file_name,file_path,file_type,project_id,status")
     .eq("id", documentId)
     .eq("user_id", user.id)
     .single();
@@ -85,8 +86,13 @@ export async function POST(request: NextRequest, context: RouteContext) {
   const groq = new Groq({ apiKey: groqApiKey });
   const actionPrompt = DOCUMENT_ACTION_PROMPTS[body.action];
   const question = body.question?.trim();
-  const systemPrompt =
-    "You are ORIVOO Document Studio. Analyze user-owned documents with accuracy, cite the provided chunks when possible, and clearly separate facts from assumptions.";
+  const memoryContext = await getMemoryContext({
+    projectId: document.project_id,
+    userId: user.id,
+  });
+  const systemPrompt = `${memoryContext}
+
+You are ORIVOO Document Studio. Analyze user-owned documents with accuracy, cite the provided chunks when possible, and clearly separate facts from assumptions.`;
 
   try {
     if (document.file_type === "image") {

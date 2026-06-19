@@ -4,6 +4,7 @@ import {
   WEBSITE_ACTIONS,
   type WebsiteAction,
 } from "@/lib/websites/config";
+import { getMemoryContext } from "@/lib/core/memory";
 import {
   parseGeneratedWebsite,
   slugify,
@@ -66,7 +67,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
     await Promise.all([
       supabase
         .from("website_projects")
-        .select("id,title,description,prompt")
+        .select("id,title,description,prompt,project_id")
         .eq("id", websiteId)
         .eq("user_id", user.id)
         .single(),
@@ -82,6 +83,10 @@ export async function POST(request: NextRequest, context: RouteContext) {
   }
 
   const action = WEBSITE_ACTIONS[body.action];
+  const memoryContext = await getMemoryContext({
+    projectId: website.project_id,
+    userId: user.id,
+  });
   const existingPages = (pages ?? [])
     .map((page) => `# ${page.page_name}\n${page.page_content}`)
     .join("\n\n");
@@ -93,8 +98,9 @@ export async function POST(request: NextRequest, context: RouteContext) {
         messages: [
           {
             role: "system",
-            content:
-              "You are ORIVOO Website Builder. Generate concise, actionable website planning content in markdown.",
+            content: `${memoryContext}
+
+You are ORIVOO Website Builder. Generate concise, actionable website planning content in markdown.`,
           },
           {
             role: "user",
@@ -142,8 +148,9 @@ ${existingPages}`,
       messages: [
         {
           role: "system",
-          content:
-            "You are ORIVOO Website Builder. Return only valid JSON for a complete website.",
+          content: `${memoryContext}
+
+You are ORIVOO Website Builder. Return only valid JSON for a complete website.`,
         },
         {
           role: "user",

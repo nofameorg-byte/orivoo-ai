@@ -222,6 +222,9 @@ export type Database = {
           created_at: string;
           display_name: string | null;
           id: string;
+          is_super_admin: boolean;
+          language: string;
+          theme: string;
           updated_at: string;
         };
         Insert: {
@@ -229,6 +232,9 @@ export type Database = {
           created_at?: string;
           display_name?: string | null;
           id: string;
+          is_super_admin?: boolean;
+          language?: string;
+          theme?: string;
           updated_at?: string;
         };
         Update: {
@@ -236,6 +242,9 @@ export type Database = {
           created_at?: string;
           display_name?: string | null;
           id?: string;
+          is_super_admin?: boolean;
+          language?: string;
+          theme?: string;
           updated_at?: string;
         };
         Relationships: [];
@@ -394,6 +403,168 @@ export type Database = {
           prompt?: string;
           status?: "draft" | "generating" | "ready" | "failed";
           title?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      assistant_preferences: {
+        Row: {
+          created_at: string;
+          custom_instructions: string | null;
+          id: string;
+          industry: string | null;
+          language: string;
+          memory_enabled: boolean;
+          tone: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          custom_instructions?: string | null;
+          id?: string;
+          industry?: string | null;
+          language?: string;
+          memory_enabled?: boolean;
+          tone?: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          custom_instructions?: string | null;
+          id?: string;
+          industry?: string | null;
+          language?: string;
+          memory_enabled?: boolean;
+          tone?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      notification_preferences: {
+        Row: {
+          admin_announcements: boolean;
+          code_generation: boolean;
+          created_at: string;
+          document_processing: boolean;
+          id: string;
+          in_app_enabled: boolean;
+          research_completion: boolean;
+          updated_at: string;
+          user_id: string;
+          website_generation: boolean;
+        };
+        Insert: {
+          admin_announcements?: boolean;
+          code_generation?: boolean;
+          created_at?: string;
+          document_processing?: boolean;
+          id?: string;
+          in_app_enabled?: boolean;
+          research_completion?: boolean;
+          updated_at?: string;
+          user_id: string;
+          website_generation?: boolean;
+        };
+        Update: {
+          admin_announcements?: boolean;
+          code_generation?: boolean;
+          created_at?: string;
+          document_processing?: boolean;
+          id?: string;
+          in_app_enabled?: boolean;
+          research_completion?: boolean;
+          updated_at?: string;
+          user_id?: string;
+          website_generation?: boolean;
+        };
+        Relationships: [];
+      };
+      notifications: {
+        Row: {
+          body: string;
+          created_at: string;
+          id: string;
+          is_read: boolean;
+          metadata: Json;
+          notification_type: string;
+          title: string;
+          user_id: string | null;
+        };
+        Insert: {
+          body: string;
+          created_at?: string;
+          id?: string;
+          is_read?: boolean;
+          metadata?: Json;
+          notification_type?: string;
+          title: string;
+          user_id?: string | null;
+        };
+        Update: {
+          body?: string;
+          created_at?: string;
+          id?: string;
+          is_read?: boolean;
+          metadata?: Json;
+          notification_type?: string;
+          title?: string;
+          user_id?: string | null;
+        };
+        Relationships: [];
+      };
+      project_memories: {
+        Row: {
+          created_at: string;
+          id: string;
+          memory_key: string;
+          memory_value: string;
+          project_id: string;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          memory_key: string;
+          memory_value: string;
+          project_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          memory_key?: string;
+          memory_value?: string;
+          project_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      user_memories: {
+        Row: {
+          created_at: string;
+          id: string;
+          memory_key: string;
+          memory_value: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          memory_key: string;
+          memory_value: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          memory_key?: string;
+          memory_value?: string;
           updated_at?: string;
           user_id?: string;
         };

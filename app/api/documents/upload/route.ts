@@ -10,6 +10,7 @@ import {
   sanitizeFileName,
   titleFromFileName,
 } from "@/lib/documents/processing";
+import { createNotification } from "@/lib/core/notifications";
 import { createClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -145,6 +146,14 @@ export async function POST(request: NextRequest) {
     if (updateError || !document) {
       return jsonError("Document uploaded, but status could not be updated.", 500);
     }
+
+    await createNotification({
+      body: `${document.title} is ready in Document Studio.`,
+      metadata: { documentId },
+      title: "Document processing complete",
+      type: "document_processing",
+      userId: user.id,
+    });
 
     return NextResponse.json({ document });
   } catch (error) {

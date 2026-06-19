@@ -1,6 +1,7 @@
 import Groq from "groq-sdk";
 import { NextResponse, type NextRequest } from "next/server";
 import { CODE_ACTIONS, type CodeAction } from "@/lib/code/config";
+import { getMemoryContext } from "@/lib/core/memory";
 import {
   fileNameFromPath,
   parseGeneratedCodeProject,
@@ -62,7 +63,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
     await Promise.all([
       supabase
         .from("code_projects")
-        .select("id,title,description,prompt,framework,language")
+        .select("id,title,description,prompt,framework,language,project_id")
         .eq("id", codeProjectId)
         .eq("user_id", user.id)
         .single(),
@@ -78,6 +79,10 @@ export async function POST(request: NextRequest, context: RouteContext) {
   }
 
   const action = CODE_ACTIONS[body.action];
+  const memoryContext = await getMemoryContext({
+    projectId: project.project_id,
+    userId: user.id,
+  });
   const contextFiles = (files ?? [])
     .slice(0, 24)
     .map((file) => `--- ${file.file_path}\n${file.content}`)
@@ -94,8 +99,9 @@ export async function POST(request: NextRequest, context: RouteContext) {
         messages: [
           {
             role: "system",
-            content:
-              "You are ORIVOO Code Studio. Produce practical engineering analysis in markdown.",
+            content: `${memoryContext}
+
+You are ORIVOO Code Studio. Produce practical engineering analysis in markdown.`,
           },
           {
             role: "user",
@@ -135,8 +141,9 @@ ${contextFiles}`,
       messages: [
         {
           role: "system",
-          content:
-            "You are ORIVOO Code Studio. Return only valid JSON for a complete updated code project.",
+          content: `${memoryContext}
+
+You are ORIVOO Code Studio. Return only valid JSON for a complete updated code project.`,
         },
         {
           role: "user",

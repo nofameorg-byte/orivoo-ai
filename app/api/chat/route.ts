@@ -1,5 +1,6 @@
 import Groq from "groq-sdk";
 import { NextResponse, type NextRequest } from "next/server";
+import { getMemoryContext } from "@/lib/core/memory";
 import { createClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -14,7 +15,7 @@ type ChatRequestBody = {
   projectId?: string | null;
 };
 
-const systemPrompt = `You are ORIVOO Assistant, the default AI operator inside ORIVOO AI.
+const assistantPrompt = `You are ORIVOO Assistant, the default AI operator inside ORIVOO AI.
 Use a clear, modern, practical voice. Help users build, research, write, design,
 plan, code, and reason across ORIVOO's specialist studios. Be concise by default,
 ask clarifying questions when needed, and produce structured outputs when useful.`;
@@ -153,9 +154,13 @@ export async function POST(request: NextRequest) {
   const groq = new Groq({ apiKey: groqApiKey });
   const encoder = new TextEncoder();
   let assistantResponse = "";
+  const memoryContext = await getMemoryContext({
+    projectId,
+    userId: user.id,
+  });
 
   const messages = [
-    { role: "system" as const, content: systemPrompt },
+    { role: "system" as const, content: `${memoryContext}\n\n${assistantPrompt}` },
     ...(previousMessages ?? [])
       .reverse()
       .map((message) => ({

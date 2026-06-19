@@ -3,6 +3,8 @@
 import Groq from "groq-sdk";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { getMemoryContext } from "@/lib/core/memory";
+import { createNotification } from "@/lib/core/notifications";
 import { parseGeneratedWebsite } from "@/lib/websites/generation";
 import { createClient } from "@/lib/supabase/server";
 
@@ -66,6 +68,7 @@ export async function generateWebsite(formData: FormData) {
   const project = await verifyProject(supabase, projectId, userId);
   const prompt = `${websiteName} | ${businessType} | ${description}`;
   const groq = new Groq({ apiKey: groqApiKey });
+  const memoryContext = await getMemoryContext({ projectId, userId });
   let generated;
 
   try {
@@ -73,8 +76,9 @@ export async function generateWebsite(formData: FormData) {
       messages: [
         {
           role: "system",
-          content:
-            "You are ORIVOO Website Builder. Generate complete, conversion-focused websites. Return only valid JSON.",
+          content: `${memoryContext}
+
+You are ORIVOO Website Builder. Generate complete, conversion-focused websites. Return only valid JSON.`,
         },
         {
           role: "user",
@@ -142,6 +146,14 @@ Every page must include SEO Meta Title, SEO Description, strong page copy, and C
   if (pagesError) {
     redirect(`/dashboard/websites/${website.id}?message=Website saved but pages could not be created.`);
   }
+
+  await createNotification({
+    body: `${generated.title} is ready in Website Builder.`,
+    metadata: { websiteId: website.id },
+    title: "Website generation complete",
+    type: "website_generation",
+    userId,
+  });
 
   revalidatePath("/dashboard", "layout");
   redirect(`/dashboard/websites/${website.id}`);

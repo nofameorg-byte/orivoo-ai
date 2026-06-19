@@ -3,6 +3,8 @@
 import Groq from "groq-sdk";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { getMemoryContext } from "@/lib/core/memory";
+import { createNotification } from "@/lib/core/notifications";
 import { parseGeneratedResearch } from "@/lib/research/formatting";
 import { createClient } from "@/lib/supabase/server";
 
@@ -63,6 +65,7 @@ export async function createResearchReport(formData: FormData) {
   const { supabase, userId } = await getUserContext();
   const project = await verifyProject(supabase, projectId, userId);
   const groq = new Groq({ apiKey: groqApiKey });
+  const memoryContext = await getMemoryContext({ projectId, userId });
 
   let generated;
 
@@ -71,8 +74,9 @@ export async function createResearchReport(formData: FormData) {
       messages: [
         {
           role: "system",
-          content:
-            "You are ORIVOO Research Studio, a senior intelligence and research engine. Produce structured, practical research for operators. Return only valid JSON.",
+          content: `${memoryContext}
+
+You are ORIVOO Research Studio, a senior intelligence and research engine. Produce structured, practical research for operators. Return only valid JSON.`,
         },
         {
           role: "user",
@@ -137,6 +141,14 @@ If you cannot verify live facts, say so clearly and include recommended authorit
       })),
     );
   }
+
+  await createNotification({
+    body: `${generated.title} is ready in Research Studio.`,
+    metadata: { reportId: report.id },
+    title: "Research report complete",
+    type: "research_completion",
+    userId,
+  });
 
   revalidatePath("/dashboard", "layout");
   redirect(`/dashboard/research/${report.id}`);

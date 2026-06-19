@@ -22,6 +22,12 @@ import {
   Users,
 } from "lucide-react";
 import { signOut } from "@/app/actions/auth";
+import { LanguageSelector } from "@/components/core/language-selector";
+import { NotificationBell } from "@/components/core/notification-bell";
+import { getRecentNotifications } from "@/lib/core/notifications";
+import { defaultLocale, isLocale } from "@/lib/i18n/config";
+import { createTranslator } from "@/lib/i18n/dictionaries";
+import { LanguageProvider } from "@/lib/i18n/language-provider";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -29,26 +35,26 @@ export const metadata: Metadata = {
 };
 
 const navigation = [
-  { name: "Assistant", icon: Bot, href: "/dashboard" },
-  { name: "Projects", icon: FolderKanban, href: "/dashboard/projects" },
+  { labelKey: "nav.assistant", icon: Bot, href: "/dashboard" },
+  { labelKey: "nav.projects", icon: FolderKanban, href: "/dashboard/projects" },
   {
-    name: "Document Studio",
+    labelKey: "nav.documents",
     icon: FileText,
     href: "/dashboard/document-studio",
   },
-  { name: "Research Studio", icon: Search, href: "/dashboard/research" },
-  { name: "Website Builder", icon: Globe2, href: "/dashboard/websites" },
-  { name: "Code Studio", icon: Braces, href: "/dashboard/code" },
-  { name: "Business Builder", icon: Building2, href: "/dashboard#workspace" },
-  { name: "Design Studio", icon: Palette, href: "/dashboard#workspace" },
-  { name: "Land Studio", icon: Trees, href: "/dashboard#workspace" },
-  { name: "Concept Studio", icon: Layers3, href: "/dashboard#workspace" },
-  { name: "Legal Studio", icon: Scale, href: "/dashboard#workspace" },
-  { name: "Civic Studio", icon: Landmark, href: "/dashboard#workspace" },
-  { name: "Botanical Studio", icon: Leaf, href: "/dashboard#workspace" },
-  { name: "Genealogy Studio", icon: Users, href: "/dashboard#workspace" },
-  { name: "Science Studio", icon: FlaskConical, href: "/dashboard#workspace" },
-  { name: "Settings", icon: Settings, href: "/dashboard#settings" },
+  { labelKey: "nav.research", icon: Search, href: "/dashboard/research" },
+  { labelKey: "nav.websites", icon: Globe2, href: "/dashboard/websites" },
+  { labelKey: "nav.code", icon: Braces, href: "/dashboard/code" },
+  { labelKey: "nav.business", icon: Building2, href: "/dashboard#workspace" },
+  { labelKey: "nav.design", icon: Palette, href: "/dashboard#workspace" },
+  { labelKey: "nav.land", icon: Trees, href: "/dashboard#workspace" },
+  { labelKey: "nav.concept", icon: Layers3, href: "/dashboard#workspace" },
+  { labelKey: "nav.legal", icon: Scale, href: "/dashboard#workspace" },
+  { labelKey: "nav.civic", icon: Landmark, href: "/dashboard#workspace" },
+  { labelKey: "nav.botanical", icon: Leaf, href: "/dashboard#workspace" },
+  { labelKey: "nav.genealogy", icon: Users, href: "/dashboard#workspace" },
+  { labelKey: "nav.science", icon: FlaskConical, href: "/dashboard#workspace" },
+  { labelKey: "nav.settings", icon: Settings, href: "/dashboard/settings" },
 ];
 
 export default async function DashboardLayout({
@@ -65,10 +71,26 @@ export default async function DashboardLayout({
     redirect("/login?message=Login to access your ORIVOO AI dashboard.");
   }
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("display_name,language,is_super_admin")
+    .eq("id", user.id)
+    .single();
+
   const displayName =
-    typeof user.user_metadata.display_name === "string"
+    profile?.display_name ??
+    (typeof user.user_metadata.display_name === "string"
       ? user.user_metadata.display_name
-      : user.email?.split("@")[0] ?? "Operator";
+      : user.email?.split("@")[0] ?? "Operator");
+  const locale = isLocale(profile?.language) ? profile.language : defaultLocale;
+  const t = createTranslator(locale);
+  const notifications = await getRecentNotifications(user.id);
+  const navigationItems = profile?.is_super_admin
+    ? [
+        ...navigation,
+        { labelKey: "nav.admin", icon: Settings, href: "/dashboard/admin" },
+      ]
+    : navigation;
 
   const initials = displayName
     .split(" ")
@@ -78,7 +100,8 @@ export default async function DashboardLayout({
     .toUpperCase();
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <LanguageProvider locale={locale}>
+      <div className="min-h-screen bg-black text-white">
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-72 border-r border-white/10 bg-panel/95 p-4 backdrop-blur-xl lg:flex lg:flex-col">
         <Link href="/" className="mb-8 flex items-center gap-3 px-2">
           <div className="gold-gradient flex size-10 items-center justify-center rounded-2xl text-black">
@@ -93,9 +116,9 @@ export default async function DashboardLayout({
         </Link>
 
         <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto pr-1">
-          {navigation.map((item, index) => (
+          {navigationItems.map((item, index) => (
             <Link
-              key={item.name}
+              key={item.labelKey}
               href={item.href}
               className={`group flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm transition ${
                 index === 0
@@ -109,7 +132,7 @@ export default async function DashboardLayout({
                 }`}
                 aria-hidden
               />
-              {item.name}
+              {t(item.labelKey)}
             </Link>
           ))}
         </nav>
@@ -135,6 +158,12 @@ export default async function DashboardLayout({
               Sign out
             </button>
           </form>
+          <div className="mt-4">
+            <div className="mb-3">
+              <NotificationBell notifications={notifications} />
+            </div>
+            <LanguageSelector locale={locale} />
+          </div>
         </div>
       </aside>
 
@@ -156,17 +185,21 @@ export default async function DashboardLayout({
                 <LogOut className="size-4" aria-hidden />
               </button>
             </form>
+            <NotificationBell notifications={notifications} />
           </div>
           <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
-            {navigation.map((item) => (
+            {navigationItems.map((item) => (
               <Link
-                key={item.name}
+                key={item.labelKey}
                 href={item.href}
                 className="shrink-0 rounded-full border border-white/10 px-3 py-2 text-xs text-muted"
               >
-                {item.name}
+                {t(item.labelKey)}
               </Link>
             ))}
+          </div>
+          <div className="mt-3">
+            <LanguageSelector locale={locale} />
           </div>
         </header>
 
@@ -175,5 +208,6 @@ export default async function DashboardLayout({
         </main>
       </div>
     </div>
+    </LanguageProvider>
   );
 }

@@ -4,6 +4,7 @@ import {
   RESEARCH_ACTIONS,
   type ResearchAction,
 } from "@/lib/research/config";
+import { getMemoryContext } from "@/lib/core/memory";
 import { appendResearchSection } from "@/lib/research/formatting";
 import { createClient } from "@/lib/supabase/server";
 
@@ -60,7 +61,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
   const { data: report, error: reportError } = await supabase
     .from("research_reports")
-    .select("id,title,topic,report_content")
+    .select("id,title,topic,project_id,report_content")
     .eq("id", reportId)
     .eq("user_id", user.id)
     .single();
@@ -71,14 +72,19 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
   const action = RESEARCH_ACTIONS[body.action];
   const groq = new Groq({ apiKey: groqApiKey });
+  const memoryContext = await getMemoryContext({
+    projectId: report.project_id,
+    userId: user.id,
+  });
 
   try {
     const completion = await groq.chat.completions.create({
       messages: [
         {
           role: "system",
-          content:
-            "You are ORIVOO Research Studio. Generate rigorous, structured research outputs. Use markdown bullets and clearly label assumptions.",
+          content: `${memoryContext}
+
+You are ORIVOO Research Studio. Generate rigorous, structured research outputs. Use markdown bullets and clearly label assumptions.`,
         },
         {
           role: "user",

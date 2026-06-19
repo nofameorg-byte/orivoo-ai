@@ -3,6 +3,8 @@
 import Groq from "groq-sdk";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { getMemoryContext } from "@/lib/core/memory";
+import { createNotification } from "@/lib/core/notifications";
 import { parseGeneratedCodeProject } from "@/lib/code/generation";
 import { createClient } from "@/lib/supabase/server";
 
@@ -66,6 +68,7 @@ export async function generateCodeProject(formData: FormData) {
   const { supabase, userId } = await getUserContext();
   const project = await verifyProject(supabase, projectId, userId);
   const groq = new Groq({ apiKey: groqApiKey });
+  const memoryContext = await getMemoryContext({ projectId, userId });
   let generated;
 
   try {
@@ -73,8 +76,9 @@ export async function generateCodeProject(formData: FormData) {
       messages: [
         {
           role: "system",
-          content:
-            "You are ORIVOO Code Studio. Generate complete, practical software projects. Return only valid JSON.",
+          content: `${memoryContext}
+
+You are ORIVOO Code Studio. Generate complete, practical software projects. Return only valid JSON.`,
         },
         {
           role: "user",
@@ -152,6 +156,14 @@ Return JSON exactly like:
   if (filesError) {
     redirect(`/dashboard/code/${codeProject.id}?message=Project saved but files could not be created.`);
   }
+
+  await createNotification({
+    body: `${generated.title} is ready in Code Studio.`,
+    metadata: { codeProjectId: codeProject.id },
+    title: "Code generation complete",
+    type: "code_generation",
+    userId,
+  });
 
   revalidatePath("/dashboard", "layout");
   redirect(`/dashboard/code/${codeProject.id}`);
