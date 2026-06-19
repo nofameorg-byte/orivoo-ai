@@ -1,7 +1,6 @@
 import { NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getRequiredEnv } from "@/lib/env";
-import { ORIVOO_SYSTEM_PROMPT } from "@/lib/assistant/system-prompt";
 import {
   canUseAssistantModel,
   getAssistantModel,
@@ -9,20 +8,16 @@ import {
   normalizeSubscriptionTier,
 } from "@/lib/assistant/models";
 import {
+  buildAssistantPromptMessages,
+  type AssistantPromptMessage,
+} from "@/lib/assistant/prompt-builder";
+import {
   getOrCreateAssistantConversation,
   loadAssistantConversationSummary,
   loadAssistantMessages,
   loadGroqMessageHistory,
 } from "@/lib/assistant/server";
-import type {
-  AssistantRole,
-  AssistantStreamEvent,
-} from "@/lib/assistant/types";
-
-type GroqMessage = {
-  role: "system" | AssistantRole;
-  content: string;
-};
+import type { AssistantStreamEvent } from "@/lib/assistant/types";
 
 type GroqStreamChunk = {
   choices?: Array<{
@@ -52,6 +47,7 @@ export async function POST(request: NextRequest) {
           prompt?: unknown;
           conversationId?: unknown;
           modelId?: unknown;
+          studioId?: unknown;
         } | null;
         const prompt =
           typeof body?.prompt === "string" ? body.prompt.trim() : "";
@@ -212,11 +208,18 @@ export async function POST(request: NextRequest) {
         let assistantResponse = "";
 
         try {
+          const { messages: promptMessages, studio } =
+            buildAssistantPromptMessages({
+              conversationHistory: historyBeforePrompt.messages,
+              requestedStudioId:
+                typeof body?.studioId === "string" ? body.studioId : null,
+              userMessage: prompt,
+            });
+
+          console.log("ASSISTANT STUDIO", studio.id, studio.name);
+
           assistantResponse = await streamGroqResponse(
-            [
-              ...historyBeforePrompt.messages,
-              { role: "user", content: prompt },
-            ],
+            promptMessages,
             selectedModel.providerModel,
             request.signal,
             (token) => {
@@ -307,7 +310,7 @@ export async function POST(request: NextRequest) {
 }
 
 async function streamGroqResponse(
-  messages: GroqMessage[],
+  messages: AssistantPromptMessage[],
   model: string,
   signal: AbortSignal,
   onToken: (token: string) => void,
@@ -320,13 +323,7 @@ async function streamGroqResponse(
     },
     body: JSON.stringify({
       model,
-      messages: [
-        {
-          role: "system",
-          content: ORIVOO_SYSTEM_PROMPT,
-        },
-        ...messages,
-      ],
+      messages,
       stream: true,
       temperature: 0.7,
     }),
