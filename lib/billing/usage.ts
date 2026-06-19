@@ -23,6 +23,7 @@ export async function incrementUsage({
 }) {
   const supabase = await createClient();
   const month = getUsageMonth();
+  const increment = getUsageIncrement(metric, amount);
   const { data: usage } = await supabase
     .from("usage_tracking")
     .select("*")
@@ -32,7 +33,7 @@ export async function incrementUsage({
 
   if (!usage) {
     await supabase.from("usage_tracking").insert({
-      [metric]: amount,
+      ...increment,
       month,
       user_id: userId,
     });
@@ -41,8 +42,23 @@ export async function incrementUsage({
 
   await supabase
     .from("usage_tracking")
-    .update({
-      [metric]: Number(usage[metric] ?? 0) + amount,
-    })
+    .update(getUsageIncrement(metric, Number(usage[metric] ?? 0) + amount))
     .eq("id", usage.id);
+}
+
+function getUsageIncrement(metric: UsageMetric, value: number) {
+  switch (metric) {
+    case "ai_messages":
+      return { ai_messages: value };
+    case "code_projects_generated":
+      return { code_projects_generated: value };
+    case "documents_uploaded":
+      return { documents_uploaded: value };
+    case "reports_generated":
+      return { reports_generated: value };
+    case "storage_used":
+      return { storage_used: value };
+    case "websites_generated":
+      return { websites_generated: value };
+  }
 }
