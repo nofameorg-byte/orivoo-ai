@@ -31,29 +31,29 @@ export const metadata: Metadata = {
 };
 
 const navigation = [
-  { name: "Assistant", icon: Bot, href: "#workspace" },
-  { name: "Agents", icon: Bot, href: "#agents" },
+  { name: "Assistant", icon: Bot, href: "/dashboard" },
+  { name: "Agents", icon: Bot, comingSoon: true },
   { name: "Memory", icon: Brain, href: "/dashboard/memory" },
   { name: "Saved Memory", icon: Brain, href: "/dashboard/memory/saved" },
   { name: "Knowledge Base", icon: BookOpen, href: "/dashboard/knowledge" },
-  { name: "Files", icon: FolderOpen, href: "#files" },
-  { name: "Team", icon: Users, href: "#team" },
-  { name: "Deep Research", icon: Search, href: "#research" },
-  { name: "Artifacts", icon: Layers3, href: "#artifacts" },
-  { name: "Document Studio", icon: FileText, href: "#workspace" },
-  { name: "Research Studio", icon: Search, href: "#workspace" },
-  { name: "Website Builder", icon: Globe2, href: "#workspace" },
-  { name: "Code Studio", icon: Braces, href: "#workspace" },
-  { name: "Business Builder", icon: Building2, href: "#workspace" },
-  { name: "Design Studio", icon: Palette, href: "#workspace" },
-  { name: "Land Studio", icon: Trees, href: "#workspace" },
-  { name: "Concept Studio", icon: Layers3, href: "#workspace" },
-  { name: "Legal Studio", icon: Scale, href: "#workspace" },
-  { name: "Civic Studio", icon: Landmark, href: "#workspace" },
-  { name: "Botanical Studio", icon: Leaf, href: "#workspace" },
-  { name: "Genealogy Studio", icon: Users, href: "#workspace" },
-  { name: "Science Studio", icon: FlaskConical, href: "#workspace" },
-  { name: "Settings", icon: Settings, href: "#settings" },
+  { name: "Files", icon: FolderOpen, comingSoon: true },
+  { name: "Team", icon: Users, comingSoon: true },
+  { name: "Deep Research", icon: Search, comingSoon: true },
+  { name: "Artifacts", icon: Layers3, comingSoon: true },
+  { name: "Document Studio", icon: FileText, comingSoon: true },
+  { name: "Research Studio", icon: Search, comingSoon: true },
+  { name: "Website Builder", icon: Globe2, comingSoon: true },
+  { name: "Code Studio", icon: Braces, comingSoon: true },
+  { name: "Business Builder", icon: Building2, comingSoon: true },
+  { name: "Design Studio", icon: Palette, comingSoon: true },
+  { name: "Land Studio", icon: Trees, comingSoon: true },
+  { name: "Concept Studio", icon: Layers3, comingSoon: true },
+  { name: "Legal Studio", icon: Scale, comingSoon: true },
+  { name: "Civic Studio", icon: Landmark, comingSoon: true },
+  { name: "Botanical Studio", icon: Leaf, comingSoon: true },
+  { name: "Genealogy Studio", icon: Users, comingSoon: true },
+  { name: "Science Studio", icon: FlaskConical, comingSoon: true },
+  { name: "Settings", icon: Settings, comingSoon: true },
 ];
 
 export default async function DashboardLayout({
@@ -98,25 +98,43 @@ export default async function DashboardLayout({
         </Link>
 
         <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto pr-1">
-          {navigation.map((item, index) => (
-            <a
-              key={item.name}
-              href={item.href}
-              className={`group flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm transition ${
-                index === 0
-                  ? "border border-gold/25 bg-gold/10 text-gold-bright"
+          {navigation.map((item, index) => {
+            const className = `group flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm transition ${
+              index === 0
+                ? "border border-gold/25 bg-gold/10 text-gold-bright"
+                : item.comingSoon
+                  ? "cursor-not-allowed text-muted/60"
                   : "text-muted hover:bg-white/[0.04] hover:text-white"
-              }`}
-            >
-              <item.icon
-                className={`size-4 ${
-                  index === 0 ? "text-gold" : "text-muted group-hover:text-gold"
-                }`}
-                aria-hidden
-              />
-              {item.name}
-            </a>
-          ))}
+            }`;
+            const content = (
+              <>
+                <item.icon
+                  className={`size-4 ${
+                    index === 0
+                      ? "text-gold"
+                      : "text-muted group-hover:text-gold"
+                  }`}
+                  aria-hidden
+                />
+                <span className="flex-1">{item.name}</span>
+                {item.comingSoon ? (
+                  <span className="rounded-full border border-white/10 px-2 py-0.5 text-[0.65rem] uppercase tracking-[0.16em] text-muted">
+                    Soon
+                  </span>
+                ) : null}
+              </>
+            );
+
+            return item.href ? (
+              <Link key={item.name} href={item.href} className={className}>
+                {content}
+              </Link>
+            ) : (
+              <div key={item.name} aria-disabled="true" className={className}>
+                {content}
+              </div>
+            );
+          })}
         </nav>
 
         <div className="mt-4 rounded-3xl border border-white/10 bg-black/40 p-4">
@@ -163,15 +181,24 @@ export default async function DashboardLayout({
             </form>
           </div>
           <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
-            {navigation.map((item) => (
-              <a
-                key={item.name}
-                href={item.href}
-                className="shrink-0 rounded-full border border-white/10 px-3 py-2 text-xs text-muted"
-              >
-                {item.name}
-              </a>
-            ))}
+            {navigation.map((item) =>
+              item.href ? (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className="shrink-0 rounded-full border border-white/10 px-3 py-2 text-xs text-muted"
+                >
+                  {item.name}
+                </Link>
+              ) : (
+                <span
+                  key={item.name}
+                  className="shrink-0 rounded-full border border-white/10 px-3 py-2 text-xs text-muted/60"
+                >
+                  {item.name} Soon
+                </span>
+              ),
+            )}
           </div>
         </header>
 

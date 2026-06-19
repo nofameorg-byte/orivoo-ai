@@ -41,7 +41,7 @@ export async function approveMemoryCandidate(formData: FormData) {
   const { supabase, user } = await requireUser();
   const { data: candidate, error: lookupError } = await supabase
     .from("memory_candidates")
-    .select("memory_type, content, importance")
+    .select("memory_type, content")
     .eq("id", candidateId)
     .eq("user_id", user.id)
     .maybeSingle();
@@ -58,7 +58,6 @@ export async function approveMemoryCandidate(formData: FormData) {
     user_id: user.id,
     memory_type: candidate.memory_type,
     content: candidate.content,
-    importance: candidate.importance,
   });
 
   if (insertError) {
@@ -142,6 +141,7 @@ export async function createWorkspaceKnowledge(formData: FormData) {
   const workspaceId = getFormString(formData, "workspaceId");
   const title = getFormString(formData, "title");
   const content = getFormString(formData, "content");
+  const knowledgeType = getFormString(formData, "knowledgeType") || "note";
   const { supabase, user } = await requireUser();
 
   if (!workspaceId || !title || !content) {
@@ -153,7 +153,8 @@ export async function createWorkspaceKnowledge(formData: FormData) {
     user_id: user.id,
     title,
     content,
-  });
+    knowledge_type: knowledgeType,
+  } as never);
 
   if (error) {
     memoryRedirect("/dashboard/knowledge", error.message);
@@ -167,6 +168,7 @@ export async function updateWorkspaceKnowledge(formData: FormData) {
   const noteId = getFormString(formData, "noteId");
   const title = getFormString(formData, "title");
   const content = getFormString(formData, "content");
+  const knowledgeType = getFormString(formData, "knowledgeType") || "note";
   const { supabase } = await requireUser();
 
   if (!title || !content) {
@@ -175,7 +177,7 @@ export async function updateWorkspaceKnowledge(formData: FormData) {
 
   const { error } = await supabase
     .from("workspace_knowledge")
-    .update({ title, content })
+    .update({ title, content, knowledge_type: knowledgeType } as never)
     .eq("id", noteId);
 
   if (error) {

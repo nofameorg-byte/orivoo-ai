@@ -3,10 +3,14 @@ import {
   Bot,
   Brain,
   FileText,
-  MessageSquareText,
   Sparkles,
 } from "lucide-react";
 import Link from "next/link";
+import {
+  DashboardAssistant,
+  type DashboardConversation,
+  type DashboardMessage,
+} from "@/app/dashboard/dashboard-assistant";
 import { createClient } from "@/lib/supabase/server";
 
 const memoryLinks = [
@@ -54,6 +58,14 @@ type ConversationPreview = {
   model: string | null;
   created_at: string;
   updated_at: string;
+};
+
+type MessagePreview = {
+  id: string;
+  conversation_id: string;
+  role: string;
+  content: string;
+  created_at: string;
 };
 
 function formatDate(date: string) {
@@ -112,10 +124,12 @@ export default async function DashboardPage() {
       .from("conversations")
       .select("id, user_id, title, model, created_at, updated_at")
       .order("updated_at", { ascending: false })
-      .limit(5),
+      .limit(50),
     supabase
       .from("messages")
-      .select("id", { count: "exact", head: true }),
+      .select("id, conversation_id, role, content, created_at")
+      .order("created_at", { ascending: true })
+      .limit(500),
     supabase
       .from("memory_embeddings")
       .select("id", { count: "exact", head: true }),
@@ -130,6 +144,8 @@ export default async function DashboardPage() {
   const conversationSummaries = conversationSummariesResult.data ?? [];
   const conversations = (conversationsResult.data ??
     []) as unknown as ConversationPreview[];
+  const messages = (messagesResult.data ?? []) as unknown as MessagePreview[];
+  const selectedWorkspaceId = workspaces[0]?.id ?? null;
   const metrics = [
     { label: "Workspaces", value: workspaces.length.toString() },
     { label: "Saved memories", value: userMemories.length.toString() },
@@ -137,7 +153,7 @@ export default async function DashboardPage() {
     { label: "Knowledge notes", value: workspaceKnowledge.length.toString() },
     {
       label: "Messages",
-      value: (messagesResult.count ?? 0).toString(),
+      value: messages.length.toString(),
     },
     {
       label: "Embedding records",
@@ -180,6 +196,12 @@ export default async function DashboardPage() {
           </div>
         ))}
       </section>
+
+      <DashboardAssistant
+        conversations={conversations as DashboardConversation[]}
+        messages={messages as DashboardMessage[]}
+        workspaceId={selectedWorkspaceId}
+      />
 
       <section className="grid gap-4 lg:grid-cols-3">
         {memoryLinks.map((item) => (
@@ -236,7 +258,7 @@ export default async function DashboardPage() {
         <div className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6">
           <div className="mb-5 flex items-center gap-3">
             <div className="flex size-10 items-center justify-center rounded-xl border border-gold/20 bg-gold/10 text-gold">
-              <MessageSquareText className="size-4" aria-hidden />
+              <Brain className="size-4" aria-hidden />
             </div>
             <div>
               <p className="text-xs uppercase tracking-[0.24em] text-muted">

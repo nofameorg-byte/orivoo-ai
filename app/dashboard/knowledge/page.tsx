@@ -28,9 +28,17 @@ export default async function KnowledgePage({ searchParams }: KnowledgePageProps
   const { data: notes } = user
     ? await supabase
         .from("workspace_knowledge")
-        .select("id, workspace_id, title, content, updated_at")
-        .order("updated_at", { ascending: false })
+        .select("id, workspace_id, title, content, knowledge_type, created_at")
+        .order("created_at", { ascending: false })
     : { data: [] };
+  const typedNotes = (notes ?? []) as unknown as Array<{
+    id: string;
+    workspace_id: string;
+    title: string;
+    content: string;
+    knowledge_type: string | null;
+    created_at: string;
+  }>;
 
   return (
     <div className="space-y-6">
@@ -62,7 +70,7 @@ export default async function KnowledgePage({ searchParams }: KnowledgePageProps
             Create knowledge note
           </h2>
         </div>
-        <div className="grid gap-3 lg:grid-cols-[0.8fr_1fr]">
+        <div className="grid gap-3 lg:grid-cols-[0.8fr_1fr_10rem]">
           <select
             required
             name="workspaceId"
@@ -79,6 +87,12 @@ export default async function KnowledgePage({ searchParams }: KnowledgePageProps
             required
             name="title"
             placeholder="Knowledge title"
+            className="rounded-2xl border border-white/10 bg-panel-soft px-4 py-3 text-sm text-white outline-none placeholder:text-muted"
+          />
+          <input
+            name="knowledgeType"
+            placeholder="Type"
+            defaultValue="note"
             className="rounded-2xl border border-white/10 bg-panel-soft px-4 py-3 text-sm text-white outline-none placeholder:text-muted"
           />
         </div>
@@ -98,7 +112,7 @@ export default async function KnowledgePage({ searchParams }: KnowledgePageProps
       </form>
 
       <section className="grid gap-4 xl:grid-cols-2">
-        {(notes ?? []).map((note) => (
+        {typedNotes.map((note) => (
           <article
             key={note.id}
             className="rounded-3xl border border-white/10 bg-white/[0.03] p-5"
@@ -109,6 +123,11 @@ export default async function KnowledgePage({ searchParams }: KnowledgePageProps
                 required
                 name="title"
                 defaultValue={note.title}
+                className="w-full rounded-2xl border border-white/10 bg-panel-soft px-4 py-3 text-sm text-white outline-none"
+              />
+              <input
+                name="knowledgeType"
+                defaultValue={note.knowledge_type ?? "note"}
                 className="w-full rounded-2xl border border-white/10 bg-panel-soft px-4 py-3 text-sm text-white outline-none"
               />
               <textarea

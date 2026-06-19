@@ -32,23 +32,21 @@ export async function loadMemoryContext(supabase: Supabase, scope: MemoryScope) 
     scope.workspaceId
       ? supabase
           .from("workspace_knowledge")
-          .select("title, content")
+          .select("title, content, created_at")
           .eq("workspace_id", scope.workspaceId)
-          .order("updated_at", { ascending: false })
+          .order("created_at", { ascending: false })
           .limit(8)
       : Promise.resolve({ data: [] }),
   ]);
   const summariesQuery = supabase
     .from("conversation_summaries")
-    .select("summary, message_count, created_at")
+    .select("summary, created_at")
     .eq("user_id", scope.userId)
     .order("created_at", { ascending: false })
     .limit(3);
 
   if (scope.conversationId) {
     summariesQuery.eq("conversation_id", scope.conversationId);
-  } else if (scope.workspaceId) {
-    summariesQuery.eq("workspace_id", scope.workspaceId);
   }
 
   const { data: summaries } = await summariesQuery;
@@ -71,9 +69,7 @@ export async function loadMemoryContext(supabase: Supabase, scope: MemoryScope) 
     "",
     formatSection(
       "CONVERSATION SUMMARY:",
-      (summaries ?? []).map(
-        (summary) => `- (${summary.message_count} messages) ${summary.summary}`,
-      ),
+      (summaries ?? []).map((summary) => `- ${summary.summary}`),
     ),
   ].join("\n");
 }
@@ -112,7 +108,7 @@ export async function ensureConversation(
   if (scope.conversationId) {
     const { data } = await supabase
       .from("conversations")
-      .select("id, workspace_id")
+      .select("id")
       .eq("id", scope.conversationId)
       .maybeSingle();
 
@@ -121,28 +117,13 @@ export async function ensureConversation(
     }
   }
 
-  let workspaceId = scope.workspaceId ?? null;
-
-  if (!workspaceId) {
-    const { data: workspace } = await supabase
-      .from("workspaces")
-      .select("id")
-      .eq("owner_id", scope.userId)
-      .order("created_at", { ascending: true })
-      .limit(1)
-      .maybeSingle();
-
-    workspaceId = workspace?.id ?? null;
-  }
-
   const { data: conversation, error } = await supabase
     .from("conversations")
     .insert({
       user_id: scope.userId,
-      workspace_id: workspaceId,
       title: scope.title || "ORIVOO Conversation",
     })
-    .select("id, workspace_id")
+    .select("id")
     .single();
 
   if (error) {
@@ -204,7 +185,6 @@ export async function processMemoryAfterResponse(
         conversation_id: conversation.id,
         memory_type: candidate.memory_type,
         content: candidate.content,
-        importance: candidate.importance,
       })),
     );
   }
@@ -228,9 +208,7 @@ export async function processMemoryAfterResponse(
       await supabase.from("conversation_summaries").insert({
         conversation_id: conversation.id,
         user_id: input.userId,
-        workspace_id: conversation.workspace_id,
         summary,
-        message_count: count,
       });
     }
   }

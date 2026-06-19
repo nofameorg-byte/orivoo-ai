@@ -11,6 +11,14 @@ type MemoryPageProps = {
   }>;
 };
 
+type MemoryCandidate = {
+  id: string;
+  memory_type: string;
+  content: string;
+  approved: boolean | null;
+  created_at: string;
+};
+
 export default async function MemoryPage({ searchParams }: MemoryPageProps) {
   const params = await searchParams;
   const supabase = await createClient();
@@ -20,10 +28,11 @@ export default async function MemoryPage({ searchParams }: MemoryPageProps) {
   const { data: candidates } = user
     ? await supabase
         .from("memory_candidates")
-        .select("id, memory_type, content, importance, created_at")
+        .select("id, memory_type, content, approved, created_at")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
     : { data: [] };
+  const typedCandidates = (candidates ?? []) as unknown as MemoryCandidate[];
 
   return (
     <div className="space-y-6">
@@ -46,8 +55,8 @@ export default async function MemoryPage({ searchParams }: MemoryPageProps) {
       </section>
 
       <section className="space-y-3">
-        {(candidates ?? []).length > 0 ? (
-          candidates?.map((candidate) => (
+        {typedCandidates.length > 0 ? (
+          typedCandidates.map((candidate) => (
             <article
               key={candidate.id}
               className="rounded-3xl border border-white/10 bg-white/[0.03] p-5"
@@ -55,7 +64,8 @@ export default async function MemoryPage({ searchParams }: MemoryPageProps) {
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                   <p className="text-xs uppercase tracking-[0.18em] text-gold-bright">
-                    {candidate.memory_type} / importance {candidate.importance}
+                    {candidate.memory_type} /{" "}
+                    {candidate.approved ? "approved" : "pending"}
                   </p>
                   <p className="mt-3 leading-7 text-white">
                     {candidate.content}
