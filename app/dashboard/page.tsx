@@ -1,96 +1,15 @@
+import { ShieldCheck, Sparkles } from "lucide-react";
+import { AssistantWorkspace } from "@/app/dashboard/assistant-workspace";
 import {
-  ArrowUp,
-  Bot,
-  Braces,
-  Building2,
-  FileText,
-  FlaskConical,
-  Globe2,
-  Landmark,
-  Layers3,
-  Leaf,
-  Palette,
-  Scale,
-  Search,
-  ShieldCheck,
-  Sparkles,
-  Trees,
-  Users,
-} from "lucide-react";
+  normalizeAssistantModelId,
+  normalizeSubscriptionTier,
+} from "@/lib/assistant/models";
+import type {
+  AssistantConversation,
+  AssistantMessage,
+  AssistantProject,
+} from "@/lib/assistant/types";
 import { createClient } from "@/lib/supabase/server";
-
-const studios = [
-  {
-    name: "Assistant",
-    description: "Ask, plan, summarize, and coordinate across every studio.",
-    icon: Bot,
-  },
-  {
-    name: "Document Studio",
-    description: "Draft, edit, and transform high-quality written assets.",
-    icon: FileText,
-  },
-  {
-    name: "Research Studio",
-    description: "Explore topics, collect evidence, and turn findings into maps.",
-    icon: Search,
-  },
-  {
-    name: "Website Builder",
-    description: "Shape landing pages, content blocks, and deployment plans.",
-    icon: Globe2,
-  },
-  {
-    name: "Code Studio",
-    description: "Create implementation plans, code, tests, and technical notes.",
-    icon: Braces,
-  },
-  {
-    name: "Business Builder",
-    description: "Model offers, operations, positioning, and growth systems.",
-    icon: Building2,
-  },
-  {
-    name: "Design Studio",
-    description: "Develop brand systems, UI direction, and visual concepts.",
-    icon: Palette,
-  },
-  {
-    name: "Land Studio",
-    description: "Organize property, planning, and land-use intelligence.",
-    icon: Trees,
-  },
-  {
-    name: "Concept Studio",
-    description: "Turn raw ideas into structured concepts and next actions.",
-    icon: Layers3,
-  },
-  {
-    name: "Legal Studio",
-    description: "Summarize legal context and prepare review-ready drafts.",
-    icon: Scale,
-  },
-  {
-    name: "Civic Studio",
-    description: "Navigate public programs, policy, and civic research.",
-    icon: Landmark,
-  },
-  {
-    name: "Botanical Studio",
-    description: "Study plants, cultivation workflows, and botanical data.",
-    icon: Leaf,
-  },
-  {
-    name: "Genealogy Studio",
-    description: "Trace family history, records, and ancestry narratives.",
-    icon: Users,
-  },
-  {
-    name: "Science Studio",
-    description: "Frame hypotheses, lab notes, and research explainers.",
-    icon: FlaskConical,
-  },
-];
 
 const metrics = [
   { label: "Active studios", value: "14" },
@@ -107,7 +26,7 @@ export default async function DashboardPage() {
   const { data: profile } = user
     ? await supabase
         .from("profiles")
-        .select("display_name")
+        .select("display_name, subscription_tier, selected_model")
         .eq("id", user.id)
         .maybeSingle()
     : { data: null };
@@ -117,6 +36,45 @@ export default async function DashboardPage() {
     (typeof user?.user_metadata.display_name === "string"
       ? user.user_metadata.display_name
       : user?.email?.split("@")[0] ?? "Operator");
+  const subscriptionTier = normalizeSubscriptionTier(
+    profile?.subscription_tier,
+  );
+  const initialSelectedModel = normalizeAssistantModelId(
+    profile?.selected_model,
+  );
+  let initialConversationId: string | null = null;
+  let initialConversations: AssistantConversation[] = [];
+  let initialMessages: AssistantMessage[] = [];
+  let initialProjects: AssistantProject[] = [];
+
+  if (user) {
+    const { data: projects } = await supabase
+      .from("projects")
+      .select("id, name, description, studio, created_at, updated_at")
+      .eq("user_id", user.id)
+      .order("updated_at", { ascending: false });
+
+    initialProjects = projects ?? [];
+
+    const { data: conversations } = await supabase
+      .from("conversations")
+      .select("id, title, created_at, updated_at")
+      .eq("user_id", user.id)
+      .order("updated_at", { ascending: false });
+
+    initialConversations = conversations ?? [];
+    initialConversationId = initialConversations[0]?.id ?? null;
+
+    if (initialConversationId) {
+      const { data: messages } = await supabase
+        .from("messages")
+        .select("id, role, content, created_at")
+        .eq("conversation_id", initialConversationId)
+        .order("created_at", { ascending: true });
+
+      initialMessages = messages ?? [];
+    }
+  }
 
   return (
     <div className="space-y-8">
@@ -157,47 +115,14 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        <div className="relative mt-8 rounded-[1.5rem] border border-white/10 bg-black/60 p-3">
-          <div className="min-h-32 rounded-2xl bg-panel-soft p-5">
-            <p className="text-sm text-muted">Assistant prompt</p>
-            <p className="mt-3 text-lg text-white">
-              Build a launch-ready brief, create a research map, and draft the
-              first landing page section for ORIVOO AI.
-            </p>
-          </div>
-          <div className="mt-3 flex items-center gap-3 rounded-full border border-white/10 bg-black/60 p-2 pl-5">
-            <span className="flex-1 text-sm text-muted">
-              Ask ORIVOO AI to plan, write, design, research, or build...
-            </span>
-            <button
-              type="button"
-              className="gold-gradient flex size-10 items-center justify-center rounded-full text-black"
-            >
-              <ArrowUp className="size-4" aria-hidden />
-              <span className="sr-only">Send prompt</span>
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {studios.map((studio) => (
-          <article
-            key={studio.name}
-            className="group rounded-3xl border border-white/10 bg-white/[0.03] p-6 transition hover:-translate-y-1 hover:border-gold/40 hover:bg-gold/10"
-          >
-            <div className="mb-6 flex items-center justify-between">
-              <div className="flex size-12 items-center justify-center rounded-2xl border border-gold/25 bg-gold/10 text-gold">
-                <studio.icon className="size-5" aria-hidden />
-              </div>
-              <span className="rounded-full border border-white/10 px-3 py-1 text-xs text-muted">
-                Ready
-              </span>
-            </div>
-            <h2 className="text-xl font-semibold text-white">{studio.name}</h2>
-            <p className="mt-3 leading-6 text-muted">{studio.description}</p>
-          </article>
-        ))}
+        <AssistantWorkspace
+          initialConversations={initialConversations}
+          initialConversationId={initialConversationId}
+          initialMessages={initialMessages}
+          initialProjects={initialProjects}
+          initialSelectedModel={initialSelectedModel}
+          subscriptionTier={subscriptionTier}
+        />
       </section>
 
       <section

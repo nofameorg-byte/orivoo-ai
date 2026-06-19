@@ -5,6 +5,7 @@ import {
   Bot,
   Braces,
   Building2,
+  CreditCard,
   FileText,
   FlaskConical,
   Globe2,
@@ -28,21 +29,22 @@ export const metadata: Metadata = {
 };
 
 const navigation = [
-  { name: "Assistant", icon: Bot },
-  { name: "Document Studio", icon: FileText },
-  { name: "Research Studio", icon: Search },
-  { name: "Website Builder", icon: Globe2 },
-  { name: "Code Studio", icon: Braces },
-  { name: "Business Builder", icon: Building2 },
-  { name: "Design Studio", icon: Palette },
-  { name: "Land Studio", icon: Trees },
-  { name: "Concept Studio", icon: Layers3 },
-  { name: "Legal Studio", icon: Scale },
-  { name: "Civic Studio", icon: Landmark },
-  { name: "Botanical Studio", icon: Leaf },
-  { name: "Genealogy Studio", icon: Users },
-  { name: "Science Studio", icon: FlaskConical },
-  { name: "Settings", icon: Settings },
+  { name: "Assistant", icon: Bot, href: "/dashboard#workspace" },
+  { name: "Document Studio", icon: FileText, href: "/dashboard#workspace" },
+  { name: "Research Studio", icon: Search, href: "/dashboard#workspace" },
+  { name: "Website Builder", icon: Globe2, href: "/dashboard#workspace" },
+  { name: "Code Studio", icon: Braces, href: "/dashboard#workspace" },
+  { name: "Business Builder", icon: Building2, href: "/dashboard#workspace" },
+  { name: "Design Studio", icon: Palette, href: "/dashboard#workspace" },
+  { name: "Land Studio", icon: Trees, href: "/dashboard#workspace" },
+  { name: "Concept Studio", icon: Layers3, href: "/dashboard#workspace" },
+  { name: "Legal Studio", icon: Scale, href: "/dashboard#workspace" },
+  { name: "Civic Studio", icon: Landmark, href: "/dashboard#workspace" },
+  { name: "Botanical Studio", icon: Leaf, href: "/dashboard#workspace" },
+  { name: "Genealogy Studio", icon: Users, href: "/dashboard#workspace" },
+  { name: "Science Studio", icon: FlaskConical, href: "/dashboard#workspace" },
+  { name: "Billing", icon: CreditCard, href: "/dashboard/billing" },
+  { name: "Settings", icon: Settings, href: "/dashboard#settings" },
 ];
 
 export default async function DashboardLayout({
@@ -90,7 +92,7 @@ export default async function DashboardLayout({
           {navigation.map((item, index) => (
             <a
               key={item.name}
-              href={item.name === "Settings" ? "#settings" : "#workspace"}
+              href={item.href}
               className={`group flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm transition ${
                 index === 0
                   ? "border border-gold/25 bg-gold/10 text-gold-bright"
@@ -155,7 +157,7 @@ export default async function DashboardLayout({
             {navigation.map((item) => (
               <a
                 key={item.name}
-                href={item.name === "Settings" ? "#settings" : "#workspace"}
+                href={item.href}
                 className="shrink-0 rounded-full border border-white/10 px-3 py-2 text-xs text-muted"
               >
                 {item.name}
