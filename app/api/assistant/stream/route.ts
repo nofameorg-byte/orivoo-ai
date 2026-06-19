@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getRequiredEnv } from "@/lib/env";
+import { ORIVOO_SYSTEM_PROMPT } from "@/lib/assistant/system-prompt";
 import {
   canUseAssistantModel,
   getAssistantModel,
@@ -322,8 +323,7 @@ async function streamGroqResponse(
       messages: [
         {
           role: "system",
-          content:
-            "You are ORIVOO AI, a concise assistant for planning, writing, designing, researching, and building.",
+          content: ORIVOO_SYSTEM_PROMPT,
         },
         ...messages,
       ],
