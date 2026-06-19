@@ -9,10 +9,10 @@ import {
   type KeyboardEvent,
 } from "react";
 import { ArrowUp } from "lucide-react";
-import { submitAssistantPrompt } from "@/app/actions/assistant";
 import type {
   AssistantConversation,
   AssistantMessage,
+  AssistantStreamEvent,
 } from "@/lib/assistant/types";
 
 const placeholder = "Ask ORIVOO AI to plan, write, design, research, or build...";
@@ -71,16 +71,30 @@ export function AssistantPrompt({
       return;
     }
 
+    const pendingId = Date.now();
     const optimisticUserMessage: AssistantMessage = {
-      id: `pending-${Date.now()}`,
+      id: `pending-user-${pendingId}`,
       role: "user",
       content: nextPrompt,
       created_at: new Date().toISOString(),
     };
+    const streamingAssistantMessage: AssistantMessage = {
+      id: `streaming-assistant-${pendingId}`,
+      role: "assistant",
+      content: "",
+      created_at: new Date().toISOString(),
+    };
+    let workingMessages = [
+      ...messages,
+      optimisticUserMessage,
+      streamingAssistantMessage,
+    ];
+    let streamingContent = "";
+    let completed = false;
 
     setError(null);
     setIsSubmitting(true);
-    onMessagesChange([...messages, optimisticUserMessage]);
+    onMessagesChange(workingMessages);
     setPrompt("");
 
     requestAnimationFrame(() => {
@@ -89,30 +103,124 @@ export function AssistantPrompt({
     });
 
     try {
-      const result = await submitAssistantPrompt({
-        prompt: nextPrompt,
-        conversationId,
+      const response = await fetch("/api/assistant/stream", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          prompt: nextPrompt,
+          conversationId,
+        }),
       });
 
-      if (!result.ok) {
-        setError(result.error);
-
-        if (result.conversationId) {
-          onConversationIdChange(result.conversationId);
-        }
-
-        if (result.messages) {
-          onMessagesChange(result.messages);
-        }
-
-        return;
+      if (!response.ok || !response.body) {
+        throw new Error("The assistant stream could not be started.");
       }
 
-      onConversationIdChange(result.conversationId);
-      onConversationSaved(result.conversation);
-      onMessagesChange(result.messages);
-    } catch {
-      setError("The assistant request failed. Please try again.");
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let streamError: string | null = null;
+
+      function updateWorkingMessages(nextMessages: AssistantMessage[]) {
+        workingMessages = nextMessages;
+        onMessagesChange(nextMessages);
+      }
+
+      function applyStreamEvent(event: AssistantStreamEvent) {
+        switch (event.type) {
+          case "conversation":
+            onConversationIdChange(event.conversationId);
+            onConversationSaved(event.conversation);
+            break;
+          case "user_message":
+            updateWorkingMessages(
+              workingMessages.map((message) =>
+                message.id === optimisticUserMessage.id
+                  ? event.message
+                  : message,
+              ),
+            );
+            break;
+          case "token":
+            streamingContent += event.content;
+            updateWorkingMessages(
+              workingMessages.map((message) =>
+                message.id === streamingAssistantMessage.id
+                  ? {
+                      ...message,
+                      content: streamingContent,
+                    }
+                  : message,
+              ),
+            );
+            break;
+          case "done":
+            completed = true;
+            onConversationIdChange(event.conversationId);
+            onConversationSaved(event.conversation);
+            updateWorkingMessages(event.messages);
+            break;
+          case "error":
+            streamError = event.error;
+            setError(event.error);
+
+            if (event.conversationId) {
+              onConversationIdChange(event.conversationId);
+            }
+
+            if (event.messages) {
+              updateWorkingMessages(event.messages);
+            } else if (!streamingContent.trim()) {
+              updateWorkingMessages(
+                workingMessages.filter(
+                  (message) => message.id !== streamingAssistantMessage.id,
+                ),
+              );
+            }
+
+            break;
+        }
+      }
+
+      while (true) {
+        const { done, value } = await reader.read();
+
+        if (done) {
+          break;
+        }
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+
+        for (const line of lines) {
+          if (!line.trim()) {
+            continue;
+          }
+
+          applyStreamEvent(JSON.parse(line) as AssistantStreamEvent);
+        }
+      }
+
+      if (buffer.trim()) {
+        applyStreamEvent(JSON.parse(buffer) as AssistantStreamEvent);
+      }
+
+      if (streamError) {
+        return;
+      }
+    } catch (caughtError) {
+      setError(getStreamErrorMessage(caughtError));
+
+      if (!completed && !streamingContent.trim()) {
+        onMessagesChange(
+          workingMessages.filter(
+            (message) => message.id !== streamingAssistantMessage.id,
+          ),
+        );
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -147,7 +255,11 @@ export function AssistantPrompt({
                   {message.role === "user" ? "You" : "ORIVOO AI"}
                 </p>
                 <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-white">
-                  {message.content}
+                  {message.content ||
+                    (message.id.startsWith("streaming-assistant-") &&
+                    isSubmitting
+                      ? "ORIVOO AI is typing..."
+                      : "")}
                 </p>
               </article>
             ))
@@ -156,11 +268,6 @@ export function AssistantPrompt({
               {emptyPrompt}
             </p>
           )}
-          {isSubmitting ? (
-            <div className="rounded-2xl border border-white/10 bg-black/30 p-4 text-sm text-muted">
-              ORIVOO AI is thinking...
-            </div>
-          ) : null}
           <div ref={messagesEndRef} aria-hidden="true" />
         </div>
         {error ? (
@@ -206,4 +313,16 @@ export function AssistantPrompt({
       </form>
     </div>
   );
+}
+
+function getStreamErrorMessage(error: unknown) {
+  if (error instanceof DOMException && error.name === "AbortError") {
+    return "The assistant stream was interrupted. Please try again.";
+  }
+
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return "The assistant stream was interrupted. Please try again.";
 }

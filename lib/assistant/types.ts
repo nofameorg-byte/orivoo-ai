@@ -14,16 +14,28 @@ export type AssistantConversation = {
   updated_at: string;
 };
 
-export type SubmitPromptResult =
+export type AssistantStreamEvent =
   | {
-      ok: true;
+      type: "conversation";
       conversationId: string;
       conversation: AssistantConversation;
-      assistantResponse: string;
+    }
+  | {
+      type: "user_message";
+      message: AssistantMessage;
+    }
+  | {
+      type: "token";
+      content: string;
+    }
+  | {
+      type: "done";
+      conversationId: string;
+      conversation: AssistantConversation;
       messages: AssistantMessage[];
     }
   | {
-      ok: false;
+      type: "error";
       error: string;
       conversationId?: string;
       messages?: AssistantMessage[];
