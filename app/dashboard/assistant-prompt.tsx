@@ -1,6 +1,13 @@
 "use client";
 
-import { useRef, useState, type FormEvent, type KeyboardEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+  type KeyboardEvent,
+} from "react";
 import { ArrowUp } from "lucide-react";
 import { submitAssistantPrompt } from "@/app/actions/assistant";
 import type { AssistantMessage } from "@/lib/assistant/types";
@@ -22,6 +29,20 @@ export function AssistantPrompt({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToNewestMessage = useCallback(() => {
+    messagesEndRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "end",
+    });
+  }, []);
+
+  useEffect(() => {
+    const frameId = requestAnimationFrame(scrollToNewestMessage);
+
+    return () => cancelAnimationFrame(frameId);
+  }, [messages, isSubmitting, scrollToNewestMessage]);
 
   function resizeTextarea() {
     const textarea = textareaRef.current;
@@ -135,6 +156,7 @@ export function AssistantPrompt({
               ORIVOO AI is thinking...
             </div>
           ) : null}
+          <div ref={messagesEndRef} aria-hidden="true" />
         </div>
         {error ? (
           <p
