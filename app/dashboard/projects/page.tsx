@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import {
   ArrowRight,
   Bot,
+  Braces,
   FileText,
   FolderKanban,
   Globe2,
@@ -43,6 +44,7 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
     { data: documents },
     { data: reports },
     { data: websites },
+    { data: codeProjects },
   ] = await Promise.all([
       supabase
         .from("projects")
@@ -62,12 +64,17 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
         .from("website_projects")
         .select("id,project_id")
         .eq("user_id", user.id),
+      supabase
+        .from("code_projects")
+        .select("id,project_id")
+        .eq("user_id", user.id),
     ]);
 
   const chatCounts = new Map<string, number>();
   const documentCounts = new Map<string, number>();
   const reportCounts = new Map<string, number>();
   const websiteCounts = new Map<string, number>();
+  const codeCounts = new Map<string, number>();
 
   for (const conversation of conversations ?? []) {
     if (conversation.project_id) {
@@ -101,6 +108,15 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
       websiteCounts.set(
         website.project_id,
         (websiteCounts.get(website.project_id) ?? 0) + 1,
+      );
+    }
+  }
+
+  for (const codeProject of codeProjects ?? []) {
+    if (codeProject.project_id) {
+      codeCounts.set(
+        codeProject.project_id,
+        (codeCounts.get(codeProject.project_id) ?? 0) + 1,
       );
     }
   }
@@ -180,6 +196,12 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
                   <Globe2 className="mb-3 size-4 text-gold" aria-hidden />
                   <p className="text-sm text-white">
                     {websiteCounts.get(project.id) ?? 0} websites
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-black/35 p-3">
+                  <Braces className="mb-3 size-4 text-gold" aria-hidden />
+                  <p className="text-sm text-white">
+                    {codeCounts.get(project.id) ?? 0} code
                   </p>
                 </div>
               </div>

@@ -27,6 +27,8 @@ white, and gold interface inspired by modern AI workspaces.
 - `/dashboard/research/[reportId]` - Research report viewer, actions, and exports
 - `/dashboard/websites` - Website Builder dashboard
 - `/dashboard/websites/[websiteId]` - Website project editor, preview, and exports
+- `/dashboard/code` - Code Studio dashboard
+- `/dashboard/code/[codeProjectId]` - Code project viewer, editor, actions, and exports
 
 ## Dashboard studios
 
@@ -104,6 +106,8 @@ The included migrations create:
 - `research_sources`
 - `website_projects`
 - `website_pages`
+- `code_projects`
+- `code_files`
 - Private `orivoo-documents` Supabase Storage bucket
 - Row Level Security policies
 - `updated_at` triggers
@@ -113,6 +117,7 @@ The included migrations create:
 - Project links through `conversations.project_id` and `documents.project_id`
 - Project links through `research_reports.project_id`
 - Project links through `website_projects.project_id`
+- Project links through `code_projects.project_id`
 
 ## ORIVOO Projects
 
@@ -134,6 +139,9 @@ project detail pages alongside chats and documents.
 
 Website projects include nullable `project_id` references and appear in project
 detail pages alongside chats, documents, and research reports.
+
+Code projects include nullable `project_id` references and appear in project
+detail pages alongside chats, documents, research reports, and websites.
 
 ## ORIVOO Assistant
 
@@ -211,6 +219,30 @@ prompts. It supports:
 
 Website projects are saved to `website_projects`, generated pages are saved to
 `website_pages`, and Supabase RLS restricts access to the website owner.
+
+## ORIVOO Code Studio
+
+`/dashboard/code` lets authenticated users generate, edit, analyze, and export
+software projects. It supports:
+
+- Project name, programming language, framework, and prompt inputs
+- Project assignment during generation
+- Folder structure and file generation
+- Components, pages, database schema, API routes, and authentication setup
+- Folder tree
+- File editor
+- Code viewer
+- File search
+- AI actions for refactoring, bug fixes, explanation, database schema, API
+  endpoints, documentation, security audits, and performance audits
+- ZIP export
+- Next.js project export
+- React project export
+- Node API export
+- Source code download
+
+Code projects are saved to `code_projects`, files are saved to `code_files`, and
+Supabase RLS restricts access to the project owner.
 
 ## Scripts
 

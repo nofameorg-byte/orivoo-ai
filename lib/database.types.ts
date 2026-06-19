@@ -9,6 +9,75 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      code_files: {
+        Row: {
+          code_project_id: string;
+          content: string;
+          created_at: string;
+          file_name: string;
+          file_path: string;
+          id: string;
+          updated_at: string;
+        };
+        Insert: {
+          code_project_id: string;
+          content: string;
+          created_at?: string;
+          file_name: string;
+          file_path: string;
+          id?: string;
+          updated_at?: string;
+        };
+        Update: {
+          code_project_id?: string;
+          content?: string;
+          created_at?: string;
+          file_name?: string;
+          file_path?: string;
+          id?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      code_projects: {
+        Row: {
+          created_at: string;
+          description: string;
+          framework: string;
+          id: string;
+          language: string;
+          project_id: string | null;
+          prompt: string;
+          title: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          description: string;
+          framework: string;
+          id?: string;
+          language: string;
+          project_id?: string | null;
+          prompt: string;
+          title: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          description?: string;
+          framework?: string;
+          id?: string;
+          language?: string;
+          project_id?: string | null;
+          prompt?: string;
+          title?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       conversations: {
         Row: {
           created_at: string;
