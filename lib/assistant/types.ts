@@ -51,3 +51,13 @@ export type LoadConversationResult =
       ok: false;
       error: string;
     };
+
+export type SelectAssistantModelResult =
+  | {
+      ok: true;
+      selectedModel: string;
+    }
+  | {
+      ok: false;
+      error: string;
+    };

@@ -9,6 +9,11 @@ import {
   type KeyboardEvent,
 } from "react";
 import { ArrowUp } from "lucide-react";
+import { AssistantModelSelector } from "@/app/dashboard/assistant-model-selector";
+import type {
+  AssistantModelId,
+  SubscriptionTier,
+} from "@/lib/assistant/models";
 import type {
   AssistantConversation,
   AssistantMessage,
@@ -25,12 +30,18 @@ export function AssistantPrompt({
   onConversationIdChange,
   onConversationSaved,
   onMessagesChange,
+  onSelectedModelChange,
+  selectedModel,
+  subscriptionTier,
 }: {
   conversationId: string | null;
   messages: AssistantMessage[];
   onConversationIdChange: (conversationId: string) => void;
   onConversationSaved: (conversation: AssistantConversation) => void;
   onMessagesChange: (messages: AssistantMessage[]) => void;
+  onSelectedModelChange: (modelId: AssistantModelId) => void;
+  selectedModel: AssistantModelId;
+  subscriptionTier: SubscriptionTier;
 }) {
   const [prompt, setPrompt] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -111,6 +122,7 @@ export function AssistantPrompt({
         body: JSON.stringify({
           prompt: nextPrompt,
           conversationId,
+          modelId: selectedModel,
         }),
       });
 
@@ -279,6 +291,11 @@ export function AssistantPrompt({
           </p>
         ) : null}
       </div>
+      <AssistantModelSelector
+        selectedModel={selectedModel}
+        subscriptionTier={subscriptionTier}
+        onSelectedModelChange={onSelectedModelChange}
+      />
       <form
         onSubmit={handleSubmit}
         className="mt-3 flex items-end gap-3 rounded-[1.75rem] border border-white/10 bg-black/60 p-2 pl-5 transition focus-within:border-gold/50 focus-within:ring-2 focus-within:ring-gold/20"

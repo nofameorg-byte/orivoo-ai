@@ -66,6 +66,8 @@ export type Database = {
           created_at: string;
           display_name: string | null;
           id: string;
+          selected_model: string;
+          subscription_tier: "free" | "pro" | "enterprise";
           updated_at: string;
         };
         Insert: {
@@ -73,6 +75,8 @@ export type Database = {
           created_at?: string;
           display_name?: string | null;
           id: string;
+          selected_model?: string;
+          subscription_tier?: "free" | "pro" | "enterprise";
           updated_at?: string;
         };
         Update: {
@@ -80,6 +84,8 @@ export type Database = {
           created_at?: string;
           display_name?: string | null;
           id?: string;
+          selected_model?: string;
+          subscription_tier?: "free" | "pro" | "enterprise";
           updated_at?: string;
         };
         Relationships: [];

@@ -4,6 +4,10 @@ import { useState } from "react";
 import { loadAssistantConversation } from "@/app/actions/assistant";
 import { AssistantPrompt } from "@/app/dashboard/assistant-prompt";
 import type {
+  AssistantModelId,
+  SubscriptionTier,
+} from "@/lib/assistant/models";
+import type {
   AssistantConversation,
   AssistantMessage,
 } from "@/lib/assistant/types";
@@ -12,16 +16,21 @@ export function AssistantWorkspace({
   initialConversationId,
   initialConversations,
   initialMessages,
+  initialSelectedModel,
+  subscriptionTier,
 }: {
   initialConversationId: string | null;
   initialConversations: AssistantConversation[];
   initialMessages: AssistantMessage[];
+  initialSelectedModel: AssistantModelId;
+  subscriptionTier: SubscriptionTier;
 }) {
   const [activeConversationId, setActiveConversationId] = useState(
     initialConversationId,
   );
   const [conversations, setConversations] = useState(initialConversations);
   const [messages, setMessages] = useState(initialMessages);
+  const [selectedModel, setSelectedModel] = useState(initialSelectedModel);
   const [isLoadingConversation, setIsLoadingConversation] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -74,6 +83,9 @@ export function AssistantWorkspace({
         onConversationIdChange={setActiveConversationId}
         onConversationSaved={handleConversationSaved}
         onMessagesChange={setMessages}
+        onSelectedModelChange={setSelectedModel}
+        selectedModel={selectedModel}
+        subscriptionTier={subscriptionTier}
       />
 
       <RecentConversations

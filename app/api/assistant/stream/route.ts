@@ -2,6 +2,12 @@ import { NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getRequiredEnv } from "@/lib/env";
 import {
+  canUseAssistantModel,
+  getAssistantModel,
+  normalizeAssistantModelId,
+  normalizeSubscriptionTier,
+} from "@/lib/assistant/models";
+import {
   getOrCreateAssistantConversation,
   loadAssistantConversationSummary,
   loadAssistantMessages,
@@ -29,7 +35,6 @@ type GroqStreamChunk = {
 };
 
 const groqChatCompletionsUrl = "https://api.groq.com/openai/v1/chat/completions";
-const groqModel = process.env.GROQ_MODEL ?? "llama-3.3-70b-versatile";
 
 export async function POST(request: NextRequest) {
   const stream = new ReadableStream<Uint8Array>({
@@ -44,6 +49,7 @@ export async function POST(request: NextRequest) {
         const body = (await request.json().catch(() => null)) as {
           prompt?: unknown;
           conversationId?: unknown;
+          modelId?: unknown;
         } | null;
         const prompt =
           typeof body?.prompt === "string" ? body.prompt.trim() : "";
@@ -67,6 +73,58 @@ export async function POST(request: NextRequest) {
           send({
             type: "error",
             error: "You must be signed in to send a prompt.",
+          });
+          return;
+        }
+
+        const { data: profile, error: profileError } = await supabase
+          .from("profiles")
+          .select("subscription_tier, selected_model")
+          .eq("id", user.id)
+          .maybeSingle();
+
+        if (profileError) {
+          send({
+            type: "error",
+            error: "Could not load your model permissions.",
+          });
+          return;
+        }
+
+        const subscriptionTier = normalizeSubscriptionTier(
+          profile?.subscription_tier,
+        );
+        const selectedModelId = normalizeAssistantModelId(
+          typeof body?.modelId === "string"
+            ? body.modelId
+            : profile?.selected_model,
+        );
+
+        if (
+          !canUseAssistantModel({
+            modelId: selectedModelId,
+            subscriptionTier,
+          })
+        ) {
+          send({
+            type: "error",
+            error: "Upgrade to ORIVOO Pro to access premium models.",
+          });
+          return;
+        }
+
+        const selectedModel = getAssistantModel(selectedModelId);
+
+        if (!selectedModel) {
+          send({ type: "error", error: "Selected model is not available." });
+          return;
+        }
+
+        if (selectedModel.route !== "groq") {
+          send({
+            type: "error",
+            error:
+              "This premium model is ready for ORIVOO Pro routing, but its API is not connected yet.",
           });
           return;
         }
@@ -134,6 +192,7 @@ export async function POST(request: NextRequest) {
               ...historyBeforePrompt.messages,
               { role: "user", content: prompt },
             ],
+            selectedModel.providerModel,
             request.signal,
             (token) => {
               assistantResponse += token;
@@ -224,6 +283,7 @@ export async function POST(request: NextRequest) {
 
 async function streamGroqResponse(
   messages: GroqMessage[],
+  model: string,
   signal: AbortSignal,
   onToken: (token: string) => void,
 ) {
@@ -234,7 +294,7 @@ async function streamGroqResponse(
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: groqModel,
+      model,
       messages: [
         {
           role: "system",

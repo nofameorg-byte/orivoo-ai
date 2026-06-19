@@ -1,5 +1,9 @@
 import { ShieldCheck, Sparkles } from "lucide-react";
 import { AssistantWorkspace } from "@/app/dashboard/assistant-workspace";
+import {
+  normalizeAssistantModelId,
+  normalizeSubscriptionTier,
+} from "@/lib/assistant/models";
 import type {
   AssistantConversation,
   AssistantMessage,
@@ -21,7 +25,7 @@ export default async function DashboardPage() {
   const { data: profile } = user
     ? await supabase
         .from("profiles")
-        .select("display_name")
+        .select("display_name, subscription_tier, selected_model")
         .eq("id", user.id)
         .maybeSingle()
     : { data: null };
@@ -31,6 +35,12 @@ export default async function DashboardPage() {
     (typeof user?.user_metadata.display_name === "string"
       ? user.user_metadata.display_name
       : user?.email?.split("@")[0] ?? "Operator");
+  const subscriptionTier = normalizeSubscriptionTier(
+    profile?.subscription_tier,
+  );
+  const initialSelectedModel = normalizeAssistantModelId(
+    profile?.selected_model,
+  );
   let initialConversationId: string | null = null;
   let initialConversations: AssistantConversation[] = [];
   let initialMessages: AssistantMessage[] = [];
@@ -99,6 +109,8 @@ export default async function DashboardPage() {
           initialConversations={initialConversations}
           initialConversationId={initialConversationId}
           initialMessages={initialMessages}
+          initialSelectedModel={initialSelectedModel}
+          subscriptionTier={subscriptionTier}
         />
       </section>
 
