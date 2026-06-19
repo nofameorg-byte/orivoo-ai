@@ -63,7 +63,7 @@ async function getUserTier(userId: string) {
   const supabase = await createClient();
   const { data: profile, error } = await supabase
     .from("profiles")
-    .select("subscription_tier, plan")
+    .select("subscription_tier")
     .eq("id", userId)
     .maybeSingle();
 
@@ -71,7 +71,7 @@ async function getUserTier(userId: string) {
     throw new Error(error.message);
   }
 
-  return normalizeTier(profile?.subscription_tier ?? profile?.plan);
+  return normalizeTier(profile?.subscription_tier);
 }
 
 async function logUsage(input: {

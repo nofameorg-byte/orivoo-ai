@@ -503,7 +503,6 @@ export type Database = {
           created_at: string;
           display_name: string | null;
           id: string;
-          plan: string;
           square_customer_id: string | null;
           subscription_status: string;
           subscription_tier: string;
@@ -514,7 +513,6 @@ export type Database = {
           created_at?: string;
           display_name?: string | null;
           id: string;
-          plan?: string;
           square_customer_id?: string | null;
           subscription_status?: string;
           subscription_tier?: string;
@@ -525,7 +523,6 @@ export type Database = {
           created_at?: string;
           display_name?: string | null;
           id?: string;
-          plan?: string;
           square_customer_id?: string | null;
           subscription_status?: string;
           subscription_tier?: string;

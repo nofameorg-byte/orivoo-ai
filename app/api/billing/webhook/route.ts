@@ -94,7 +94,6 @@ async function syncSubscription(subscription: SquareSubscriptionPayload) {
   await supabase
     .from("profiles")
     .update({
-      plan: profileTier,
       subscription_tier: profileTier,
       subscription_status: profileStatus,
       square_customer_id: subscription.customer_id,

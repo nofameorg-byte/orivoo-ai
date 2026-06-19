@@ -99,13 +99,7 @@ create trigger set_subscriptions_updated_at
 
 update public.profiles
 set
-  subscription_tier = case
-    when plan in ('free', 'pro', 'business', 'enterprise') then plan
-    else 'free'
-  end,
-  subscription_status = case
-    when plan in ('pro', 'business', 'enterprise') then 'active'
-    else 'inactive'
-  end
+  subscription_tier = coalesce(subscription_tier, 'free'),
+  subscription_status = coalesce(subscription_status, 'inactive')
 where subscription_tier = 'free'
   and subscription_status = 'inactive';

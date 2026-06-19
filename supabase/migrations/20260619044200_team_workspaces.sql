@@ -1,13 +1,3 @@
-alter table public.profiles
-  add column if not exists plan text not null default 'free';
-
-alter table public.profiles
-  drop constraint if exists profiles_plan_check;
-
-alter table public.profiles
-  add constraint profiles_plan_check
-  check (plan in ('free', 'pro', 'business', 'enterprise'));
-
 create table if not exists public.project_members (
   id uuid primary key default gen_random_uuid(),
   project_id uuid not null references public.projects(id) on delete cascade,
@@ -70,7 +60,7 @@ as $$
     select 1
     from public.profiles
     where profiles.id = auth.uid()
-      and profiles.plan in ('business', 'enterprise')
+      and profiles.subscription_tier in ('business', 'enterprise')
   );
 $$;
 
@@ -403,7 +393,7 @@ declare
   requested_plan text;
 begin
   requested_plan := coalesce(
-    new.raw_user_meta_data ->> 'plan',
+    new.raw_user_meta_data ->> 'subscription_tier',
     new.raw_user_meta_data ->> 'subscription_plan',
     'free'
   );
@@ -412,7 +402,7 @@ begin
     requested_plan := 'free';
   end if;
 
-  insert into public.profiles (id, display_name, plan)
+  insert into public.profiles (id, display_name, subscription_tier)
   values (
     new.id,
     coalesce(new.raw_user_meta_data ->> 'display_name', split_part(new.email, '@', 1)),

@@ -37,7 +37,7 @@ async function requireTeamPlan(projectId: string) {
   const { supabase, user } = await requireUser();
   const { data: profile, error } = await supabase
     .from("profiles")
-    .select("plan")
+    .select("subscription_tier")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -45,7 +45,7 @@ async function requireTeamPlan(projectId: string) {
     teamRedirect(error.message, projectId);
   }
 
-  if (!isTeamPlan(profile?.plan)) {
+  if (!isTeamPlan(profile?.subscription_tier)) {
     teamRedirect(
       "Team workspaces are enabled for Business and Enterprise plans only.",
       projectId,

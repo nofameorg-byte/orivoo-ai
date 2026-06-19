@@ -115,7 +115,6 @@ export async function POST(request: NextRequest) {
         .update({
           subscription_status: "active",
           subscription_tier: subscription.tier,
-          plan: subscription.tier,
         })
         .eq("id", user.id);
 
