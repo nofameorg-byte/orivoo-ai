@@ -10,8 +10,10 @@ import { normalizeAssistantStudioId } from "@/lib/assistant/studios";
 import { loadAssistantMessages } from "@/lib/assistant/server";
 import type {
   CreateProjectResult,
+  DeleteConversationResult,
   LoadConversationResult,
   LoadProjectResult,
+  RenameConversationResult,
   SelectAssistantModelResult,
 } from "@/lib/assistant/types";
 
@@ -48,6 +50,73 @@ export async function loadAssistantConversation(
     conversationId: conversation.id,
     messages: await loadAssistantMessages(supabase, conversation.id),
   };
+}
+
+export async function renameAssistantConversation(input: {
+  conversationId: string;
+  title: string;
+}): Promise<RenameConversationResult> {
+  const title = input.title.trim();
+
+  if (!title) {
+    return { ok: false, error: "Enter a conversation title." };
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return {
+      ok: false,
+      error: "You must be signed in to rename conversations.",
+    };
+  }
+
+  const { data: conversation, error } = await supabase
+    .from("conversations")
+    .update({ title })
+    .eq("id", input.conversationId)
+    .eq("user_id", user.id)
+    .select("id, title, created_at, updated_at")
+    .single();
+
+  if (error || !conversation) {
+    return { ok: false, error: "Could not rename the conversation." };
+  }
+
+  return { ok: true, conversation };
+}
+
+export async function deleteAssistantConversation(
+  conversationId: string,
+): Promise<DeleteConversationResult> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return {
+      ok: false,
+      error: "You must be signed in to delete conversations.",
+    };
+  }
+
+  const { error } = await supabase
+    .from("conversations")
+    .delete()
+    .eq("id", conversationId)
+    .eq("user_id", user.id);
+
+  if (error) {
+    return { ok: false, error: "Could not delete the conversation." };
+  }
+
+  return { ok: true, conversationId };
 }
 
 export async function selectAssistantModel(

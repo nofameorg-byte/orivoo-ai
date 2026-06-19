@@ -61,6 +61,26 @@ export type LoadConversationResult =
       error: string;
     };
 
+export type RenameConversationResult =
+  | {
+      ok: true;
+      conversation: AssistantConversation;
+    }
+  | {
+      ok: false;
+      error: string;
+    };
+
+export type DeleteConversationResult =
+  | {
+      ok: true;
+      conversationId: string;
+    }
+  | {
+      ok: false;
+      error: string;
+    };
+
 export type SelectAssistantModelResult =
   | {
       ok: true;

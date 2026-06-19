@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import {
+  deleteAssistantConversation,
   loadAssistantConversation,
   loadAssistantProject,
+  renameAssistantConversation,
 } from "@/app/actions/assistant";
 import { AssistantPrompt } from "@/app/dashboard/assistant-prompt";
 import { ProjectSelector } from "@/app/dashboard/project-selector";
@@ -49,6 +51,11 @@ export function AssistantWorkspace({
     useState<AssistantStudioId>(defaultAssistantStudioId);
   const [isLoadingProject, setIsLoadingProject] = useState(false);
   const [isLoadingConversation, setIsLoadingConversation] = useState(false);
+  const [conversationActionError, setConversationActionError] = useState<
+    string | null
+  >(null);
+  const [conversationToDelete, setConversationToDelete] =
+    useState<AssistantConversation | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
 
   function handleConversationSaved(conversation: AssistantConversation) {
@@ -62,6 +69,56 @@ export function AssistantWorkspace({
           new Date(first.updated_at).getTime(),
       ),
     );
+  }
+
+  function handleNewChat() {
+    setActiveConversationId(null);
+    setMessages([]);
+    setConversationActionError(null);
+    setLoadError(null);
+  }
+
+  async function handleRenameConversation(conversationId: string, title: string) {
+    setConversationActionError(null);
+
+    const result = await renameAssistantConversation({
+      conversationId,
+      title,
+    });
+
+    if (!result.ok) {
+      setConversationActionError(result.error);
+      return false;
+    }
+
+    handleConversationSaved(result.conversation);
+    return true;
+  }
+
+  async function handleConfirmDeleteConversation() {
+    if (!conversationToDelete) {
+      return;
+    }
+
+    setConversationActionError(null);
+    const result = await deleteAssistantConversation(conversationToDelete.id);
+
+    if (!result.ok) {
+      setConversationActionError(result.error);
+      return;
+    }
+
+    setConversations((currentConversations) =>
+      currentConversations.filter(
+        (conversation) => conversation.id !== result.conversationId,
+      ),
+    );
+
+    if (activeConversationId === result.conversationId) {
+      handleNewChat();
+    }
+
+    setConversationToDelete(null);
   }
 
   function handleProjectCreated(project: AssistantProject) {
@@ -160,9 +217,18 @@ export function AssistantWorkspace({
       <RecentConversations
         activeConversationId={activeConversationId}
         conversations={conversations}
-        error={loadError}
+        error={conversationActionError ?? loadError}
         isLoading={isLoadingConversation}
+        onDeleteConversation={setConversationToDelete}
+        onNewChat={handleNewChat}
+        onRenameConversation={handleRenameConversation}
         onSelectConversation={handleSelectConversation}
+      />
+
+      <DeleteConversationModal
+        conversation={conversationToDelete}
+        onCancel={() => setConversationToDelete(null)}
+        onDelete={handleConfirmDeleteConversation}
       />
     </>
   );
@@ -173,12 +239,21 @@ function RecentConversations({
   conversations,
   error,
   isLoading,
+  onDeleteConversation,
+  onNewChat,
+  onRenameConversation,
   onSelectConversation,
 }: {
   activeConversationId: string | null;
   conversations: AssistantConversation[];
   error: string | null;
   isLoading: boolean;
+  onDeleteConversation: (conversation: AssistantConversation) => void;
+  onNewChat: () => void;
+  onRenameConversation: (
+    conversationId: string,
+    title: string,
+  ) => Promise<boolean>;
   onSelectConversation: (conversationId: string) => void;
 }) {
   return (
@@ -190,9 +265,18 @@ function RecentConversations({
             Continue where you left off.
           </h2>
         </div>
-        {isLoading ? (
-          <p className="text-sm text-gold-bright">Loading conversation...</p>
-        ) : null}
+        <div className="flex flex-wrap items-center gap-3">
+          {isLoading ? (
+            <p className="text-sm text-gold-bright">Loading conversation...</p>
+          ) : null}
+          <button
+            type="button"
+            onClick={onNewChat}
+            className="rounded-full border border-gold/40 bg-gold/10 px-4 py-2 text-sm font-medium text-gold-bright transition hover:bg-gold/20"
+          >
+            New Chat
+          </button>
+        </div>
       </div>
 
       {error ? (
@@ -210,40 +294,15 @@ function RecentConversations({
             const isActive = conversation.id === activeConversationId;
 
             return (
-              <button
+              <ConversationCard
                 key={conversation.id}
-                type="button"
-                onClick={() => onSelectConversation(conversation.id)}
-                className={`rounded-3xl border p-4 text-left transition focus:outline-none focus:ring-2 focus:ring-gold/70 focus:ring-offset-2 focus:ring-offset-black ${
-                  isActive
-                    ? "border-gold/50 bg-gold/10"
-                    : "border-white/10 bg-white/[0.03] hover:border-gold/40 hover:bg-gold/10"
-                }`}
-                aria-pressed={isActive}
-                disabled={isLoading}
-              >
-                <span className="block truncate text-base font-semibold text-white">
-                  {conversation.title}
-                </span>
-                <span className="mt-3 block text-xs uppercase tracking-[0.2em] text-muted">
-                  Created
-                </span>
-                <time
-                  dateTime={conversation.created_at}
-                  className="mt-1 block text-sm text-white"
-                >
-                  {formatDate(conversation.created_at)}
-                </time>
-                <span className="mt-3 block text-xs uppercase tracking-[0.2em] text-muted">
-                  Updated
-                </span>
-                <time
-                  dateTime={conversation.updated_at}
-                  className="mt-1 block text-sm text-gold-bright"
-                >
-                  {formatDate(conversation.updated_at)}
-                </time>
-              </button>
+                conversation={conversation}
+                isActive={isActive}
+                isLoading={isLoading}
+                onDeleteConversation={onDeleteConversation}
+                onRenameConversation={onRenameConversation}
+                onSelectConversation={onSelectConversation}
+              />
             );
           })
         ) : (
@@ -253,6 +312,184 @@ function RecentConversations({
         )}
       </div>
     </section>
+  );
+}
+
+function ConversationCard({
+  conversation,
+  isActive,
+  isLoading,
+  onDeleteConversation,
+  onRenameConversation,
+  onSelectConversation,
+}: {
+  conversation: AssistantConversation;
+  isActive: boolean;
+  isLoading: boolean;
+  onDeleteConversation: (conversation: AssistantConversation) => void;
+  onRenameConversation: (
+    conversationId: string,
+    title: string,
+  ) => Promise<boolean>;
+  onSelectConversation: (conversationId: string) => void;
+}) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [title, setTitle] = useState(conversation.title);
+  const [isSaving, setIsSaving] = useState(false);
+
+  async function handleRename(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!title.trim() || isSaving) {
+      return;
+    }
+
+    setIsSaving(true);
+    const renamed = await onRenameConversation(conversation.id, title);
+    setIsSaving(false);
+
+    if (renamed) {
+      setIsEditing(false);
+    }
+  }
+
+  return (
+    <article
+      className={`rounded-3xl border p-4 transition ${
+        isActive
+          ? "border-gold/50 bg-gold/10"
+          : "border-white/10 bg-white/[0.03] hover:border-gold/40 hover:bg-gold/10"
+      }`}
+    >
+      {isEditing ? (
+        <form onSubmit={handleRename} className="space-y-3">
+          <label
+            className="sr-only"
+            htmlFor={`conversation-title-${conversation.id}`}
+          >
+            Conversation title
+          </label>
+          <input
+            id={`conversation-title-${conversation.id}`}
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
+            className="w-full rounded-2xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white outline-none transition focus:border-gold/50 focus:ring-2 focus:ring-gold/20"
+          />
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="submit"
+              disabled={!title.trim() || isSaving}
+              className="rounded-full border border-gold/40 bg-gold/10 px-3 py-1.5 text-xs font-medium text-gold-bright disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isSaving ? "Saving..." : "Save"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setTitle(conversation.title);
+                setIsEditing(false);
+              }}
+              className="rounded-full border border-white/10 px-3 py-1.5 text-xs text-muted"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      ) : (
+        <>
+          <button
+            type="button"
+            onClick={() => onSelectConversation(conversation.id)}
+            className="block w-full text-left focus:outline-none"
+            aria-pressed={isActive}
+            disabled={isLoading}
+          >
+            <span className="block truncate text-base font-semibold text-white">
+              {conversation.title}
+            </span>
+            <span className="mt-3 block text-xs uppercase tracking-[0.2em] text-muted">
+              Created
+            </span>
+            <time
+              dateTime={conversation.created_at}
+              className="mt-1 block text-sm text-white"
+            >
+              {formatDate(conversation.created_at)}
+            </time>
+            <span className="mt-3 block text-xs uppercase tracking-[0.2em] text-muted">
+              Updated
+            </span>
+            <time
+              dateTime={conversation.updated_at}
+              className="mt-1 block text-sm text-gold-bright"
+            >
+              {formatDate(conversation.updated_at)}
+            </time>
+          </button>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setIsEditing(true)}
+              className="rounded-full border border-white/10 px-3 py-1.5 text-xs text-muted transition hover:border-gold/40 hover:text-white"
+            >
+              Rename
+            </button>
+            <button
+              type="button"
+              onClick={() => onDeleteConversation(conversation)}
+              className="rounded-full border border-red-400/30 bg-red-500/10 px-3 py-1.5 text-xs text-red-100 transition hover:bg-red-500/20"
+            >
+              Delete
+            </button>
+          </div>
+        </>
+      )}
+    </article>
+  );
+}
+
+function DeleteConversationModal({
+  conversation,
+  onCancel,
+  onDelete,
+}: {
+  conversation: AssistantConversation | null;
+  onCancel: () => void;
+  onDelete: () => void;
+}) {
+  if (!conversation) {
+    return null;
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-5 backdrop-blur-sm">
+      <div className="w-full max-w-md rounded-[2rem] border border-white/10 bg-panel p-6 shadow-2xl">
+        <p className="text-sm text-muted">Delete conversation</p>
+        <h2 className="mt-2 text-2xl font-semibold text-white">
+          Delete this conversation permanently?
+        </h2>
+        <p className="mt-3 text-sm leading-6 text-muted">
+          This will remove the conversation, all associated messages, and project
+          links. This action cannot be undone.
+        </p>
+        <div className="mt-6 flex justify-end gap-3">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="rounded-full border border-white/10 px-4 py-2 text-sm text-muted transition hover:text-white"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={onDelete}
+            className="rounded-full border border-red-400/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-100 transition hover:bg-red-500/20"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 
