@@ -3,6 +3,7 @@
 import Groq from "groq-sdk";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { incrementUsage } from "@/lib/billing/usage";
 import { getMemoryContext } from "@/lib/core/memory";
 import { createNotification } from "@/lib/core/notifications";
 import { parseGeneratedCodeProject } from "@/lib/code/generation";
@@ -162,6 +163,10 @@ Return JSON exactly like:
     metadata: { codeProjectId: codeProject.id },
     title: "Code generation complete",
     type: "code_generation",
+    userId,
+  });
+  await incrementUsage({
+    metric: "code_projects_generated",
     userId,
   });
 

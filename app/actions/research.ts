@@ -3,6 +3,7 @@
 import Groq from "groq-sdk";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { incrementUsage } from "@/lib/billing/usage";
 import { getMemoryContext } from "@/lib/core/memory";
 import { createNotification } from "@/lib/core/notifications";
 import { parseGeneratedResearch } from "@/lib/research/formatting";
@@ -147,6 +148,10 @@ If you cannot verify live facts, say so clearly and include recommended authorit
     metadata: { reportId: report.id },
     title: "Research report complete",
     type: "research_completion",
+    userId,
+  });
+  await incrementUsage({
+    metric: "reports_generated",
     userId,
   });
 

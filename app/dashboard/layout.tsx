@@ -5,6 +5,7 @@ import {
   Bot,
   Braces,
   Building2,
+  CreditCard,
   FileText,
   FlaskConical,
   FolderKanban,
@@ -56,6 +57,9 @@ const navigation = [
   { labelKey: "nav.botanical", icon: Leaf, href: "/dashboard#workspace" },
   { labelKey: "nav.genealogy", icon: Users, href: "/dashboard#workspace" },
   { labelKey: "nav.science", icon: FlaskConical, href: "/dashboard#workspace" },
+  { labelKey: "nav.billing", icon: CreditCard, href: "/dashboard/billing" },
+  { labelKey: "nav.team", icon: Users, href: "/dashboard/team" },
+  { labelKey: "nav.organization", icon: Building2, href: "/dashboard/organization" },
   { labelKey: "nav.settings", icon: Settings, href: "/dashboard/settings" },
 ];
 

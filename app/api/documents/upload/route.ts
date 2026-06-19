@@ -10,6 +10,7 @@ import {
   sanitizeFileName,
   titleFromFileName,
 } from "@/lib/documents/processing";
+import { incrementUsage } from "@/lib/billing/usage";
 import { createNotification } from "@/lib/core/notifications";
 import { createClient } from "@/lib/supabase/server";
 
@@ -154,6 +155,14 @@ export async function POST(request: NextRequest) {
       type: "document_processing",
       userId: user.id,
     });
+    await Promise.all([
+      incrementUsage({ metric: "documents_uploaded", userId: user.id }),
+      incrementUsage({
+        amount: file.size,
+        metric: "storage_used",
+        userId: user.id,
+      }),
+    ]);
 
     return NextResponse.json({ document });
   } catch (error) {

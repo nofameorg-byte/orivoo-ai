@@ -31,6 +31,9 @@ white, and gold interface inspired by modern AI workspaces.
 - `/dashboard/code/[codeProjectId]` - Code project viewer, editor, actions, and exports
 - `/dashboard/academy` - Academy dashboard
 - `/dashboard/academy/[courseId]` - Academy course viewer, actions, progress, and exports
+- `/dashboard/billing` - Billing, plan upgrades, and usage dashboard
+- `/dashboard/team` - Team invites, members, and roles
+- `/dashboard/organization` - Organization creation and shared assets
 
 ## Dashboard studios
 
@@ -72,10 +75,16 @@ Add your Supabase and Groq project values:
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 GROQ_API_KEY=your-groq-api-key
 GROQ_MODEL=llama-3.3-70b-versatile
 GROQ_VISION_MODEL=meta-llama/llama-4-scout-17b-16e-instruct
+STRIPE_SECRET_KEY=your-stripe-secret-key
+STRIPE_WEBHOOK_SECRET=your-stripe-webhook-secret
+STRIPE_PRO_PRICE_ID=your-pro-price-id
+STRIPE_TEAM_PRICE_ID=your-team-price-id
+STRIPE_ENTERPRISE_PRICE_ID=your-enterprise-price-id
 ```
 
 Run the development server:
@@ -115,6 +124,11 @@ The included migrations create:
 - `academy_quizzes`
 - `academy_flashcards`
 - `academy_progress`
+- `subscriptions`
+- `usage_tracking`
+- `organizations`
+- `organization_members`
+- `invites`
 - Private `orivoo-documents` Supabase Storage bucket
 - Row Level Security policies
 - `updated_at` triggers
@@ -273,6 +287,30 @@ parents, teachers, nonprofits, and workforce development programs. It supports:
 Academy courses are saved to `academy_courses`, lessons to `academy_lessons`,
 quizzes to `academy_quizzes`, flashcards to `academy_flashcards`, and progress
 to `academy_progress`.
+
+## Billing, Teams, and Usage
+
+`/dashboard/billing` supports Free, Pro, Team, and Enterprise plans with Stripe
+checkout, Stripe customer portal access, cancellation, and a monthly usage
+dashboard. Usage is tracked in `usage_tracking` for:
+
+- AI messages
+- Documents uploaded
+- Research reports generated
+- Websites generated
+- Code projects generated
+- Storage used
+
+`/dashboard/organization` and `/dashboard/team` support organization creation,
+invites, member removal, role permissions, and shared organization visibility for
+projects, documents, chats, research reports, websites, and code projects.
+
+Plan highlights:
+
+- Free: 50 AI messages/day, 10 documents, 3 research reports
+- Pro: higher individual limits
+- Team: shared projects, documents, and chats
+- Enterprise: unlimited usage and admin controls
 
 ## Scripts
 

@@ -1,5 +1,6 @@
 import Groq from "groq-sdk";
 import { NextResponse, type NextRequest } from "next/server";
+import { incrementUsage } from "@/lib/billing/usage";
 import { getMemoryContext } from "@/lib/core/memory";
 import { createClient } from "@/lib/supabase/server";
 
@@ -150,6 +151,11 @@ export async function POST(request: NextRequest) {
   if (insertError) {
     return jsonError("Could not save message.", 500);
   }
+
+  await incrementUsage({
+    metric: "ai_messages",
+    userId: user.id,
+  });
 
   const groq = new Groq({ apiKey: groqApiKey });
   const encoder = new TextEncoder();

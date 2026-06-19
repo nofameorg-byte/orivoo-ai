@@ -216,6 +216,75 @@ export type Database = {
         };
         Relationships: [];
       };
+      invites: {
+        Row: {
+          created_at: string;
+          email: string;
+          id: string;
+          organization_id: string;
+          role: "admin" | "member" | "viewer";
+          status: "pending" | "accepted" | "revoked";
+        };
+        Insert: {
+          created_at?: string;
+          email: string;
+          id?: string;
+          organization_id: string;
+          role?: "admin" | "member" | "viewer";
+          status?: "pending" | "accepted" | "revoked";
+        };
+        Update: {
+          created_at?: string;
+          email?: string;
+          id?: string;
+          organization_id?: string;
+          role?: "admin" | "member" | "viewer";
+          status?: "pending" | "accepted" | "revoked";
+        };
+        Relationships: [];
+      };
+      organization_members: {
+        Row: {
+          id: string;
+          organization_id: string;
+          role: "owner" | "admin" | "member" | "viewer";
+          user_id: string;
+        };
+        Insert: {
+          id?: string;
+          organization_id: string;
+          role?: "owner" | "admin" | "member" | "viewer";
+          user_id: string;
+        };
+        Update: {
+          id?: string;
+          organization_id?: string;
+          role?: "owner" | "admin" | "member" | "viewer";
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      organizations: {
+        Row: {
+          created_at: string;
+          id: string;
+          name: string;
+          owner_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          name: string;
+          owner_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          name?: string;
+          owner_id?: string;
+        };
+        Relationships: [];
+      };
       conversations: {
         Row: {
           created_at: string;
@@ -477,6 +546,72 @@ export type Database = {
           source_title?: string;
           source_type?: string;
           source_url?: string | null;
+        };
+        Relationships: [];
+      };
+      subscriptions: {
+        Row: {
+          created_at: string;
+          id: string;
+          plan: "free" | "pro" | "team" | "enterprise";
+          status: string;
+          stripe_customer_id: string | null;
+          stripe_subscription_id: string | null;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          plan?: "free" | "pro" | "team" | "enterprise";
+          status?: string;
+          stripe_customer_id?: string | null;
+          stripe_subscription_id?: string | null;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          plan?: "free" | "pro" | "team" | "enterprise";
+          status?: string;
+          stripe_customer_id?: string | null;
+          stripe_subscription_id?: string | null;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      usage_tracking: {
+        Row: {
+          ai_messages: number;
+          code_projects_generated: number;
+          documents_uploaded: number;
+          id: string;
+          month: string;
+          reports_generated: number;
+          storage_used: number;
+          user_id: string;
+          websites_generated: number;
+        };
+        Insert: {
+          ai_messages?: number;
+          code_projects_generated?: number;
+          documents_uploaded?: number;
+          id?: string;
+          month: string;
+          reports_generated?: number;
+          storage_used?: number;
+          user_id: string;
+          websites_generated?: number;
+        };
+        Update: {
+          ai_messages?: number;
+          code_projects_generated?: number;
+          documents_uploaded?: number;
+          id?: string;
+          month?: string;
+          reports_generated?: number;
+          storage_used?: number;
+          user_id?: string;
+          websites_generated?: number;
         };
         Relationships: [];
       };

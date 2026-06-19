@@ -3,6 +3,7 @@
 import Groq from "groq-sdk";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { incrementUsage } from "@/lib/billing/usage";
 import { getMemoryContext } from "@/lib/core/memory";
 import { createNotification } from "@/lib/core/notifications";
 import { parseGeneratedWebsite } from "@/lib/websites/generation";
@@ -152,6 +153,10 @@ Every page must include SEO Meta Title, SEO Description, strong page copy, and C
     metadata: { websiteId: website.id },
     title: "Website generation complete",
     type: "website_generation",
+    userId,
+  });
+  await incrementUsage({
+    metric: "websites_generated",
     userId,
   });
 
