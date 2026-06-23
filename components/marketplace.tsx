@@ -51,6 +51,7 @@ type TrustBadgeGridProps = {
 
 type DirectoryCompanyCardProps = {
   company: {
+    id?: string;
     name: string;
     category: string;
     location: string;
@@ -69,6 +70,7 @@ type DirectoryCompanyCardProps = {
     noVerifiedBadges: string;
   };
   statusLabels: StatusLabels;
+  profileHref?: string;
 };
 
 type ReviewSystemPanelProps = {
@@ -236,6 +238,7 @@ export function DirectoryCompanyCard({
   company,
   labels,
   statusLabels,
+  profileHref = "/professionals/profile",
 }: DirectoryCompanyCardProps) {
   const approvedBadges = company.badges.filter(
     (badge) => badge.status === "approved",
@@ -297,7 +300,7 @@ export function DirectoryCompanyCard({
         </div>
         <div className="mt-5 grid gap-2 sm:grid-cols-2">
           <Link
-            href="/professionals/profile"
+            href={profileHref}
             className="inline-flex items-center justify-center rounded-full border border-border px-4 py-2.5 text-sm font-bold text-foreground transition hover:border-gold/50"
           >
             {labels.viewProfile}

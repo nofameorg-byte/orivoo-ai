@@ -17,6 +17,7 @@ import {
 } from "@/components/marketplace";
 import { isLocale } from "@/lib/i18n/config";
 import { getDictionary, getLocale, list, t } from "@/lib/i18n/server";
+import { profileCompletionScore } from "@/lib/profile-completion";
 import { createClient } from "@/lib/supabase/server";
 
 const operatingAreas = [
@@ -72,6 +73,52 @@ export default async function DashboardPage() {
     missing: t(dictionary, "trustV2.missingStatus"),
     expires: t(dictionary, "trustV2.expires"),
   };
+  const { data: companyData } = user
+    ? await supabase
+        .from("companies")
+        .select("*")
+        .eq("owner_id", user.id)
+        .limit(1)
+        .maybeSingle()
+    : { data: null };
+  const company = companyData as {
+    id?: string;
+    logo_url?: string | null;
+    cover_image_url?: string | null;
+    photos?: string[] | null;
+    videos?: string[] | null;
+    is_business_verified?: boolean | null;
+    is_license_verified?: boolean | null;
+    is_insurance_verified?: boolean | null;
+    is_identity_verified?: boolean | null;
+    is_revenue_verified?: boolean | null;
+    is_vp23_elite?: boolean | null;
+  } | null;
+  const { count: licenseCount } = company?.id
+    ? await supabase
+        .from("licenses")
+        .select("id", { count: "exact", head: true })
+        .eq("company_id", company.id)
+    : { count: 0 };
+  const { count: insuranceCount } = company?.id
+    ? await supabase
+        .from("insurance_policies")
+        .select("id", { count: "exact", head: true })
+        .eq("company_id", company.id)
+    : { count: 0 };
+  const { count: reviewCount } = company?.id
+    ? await supabase
+        .from("reviews")
+        .select("id", { count: "exact", head: true })
+        .eq("company_id", company.id)
+        .eq("is_removed", false)
+    : { count: 0 };
+  const completion = profileCompletionScore({
+    company,
+    licenseCount: licenseCount ?? 0,
+    insuranceCount: insuranceCount ?? 0,
+    reviewCount: reviewCount ?? 0,
+  });
   const verificationBadges: VerificationBadge[] = list(dictionary.trustV2.badges).map(
     (label) => ({
       label,
@@ -141,6 +188,14 @@ export default async function DashboardPage() {
           <h2 className="text-2xl font-black text-foreground">
             {t(dictionary, "trustV2.badgeSystemTitle")}
           </h2>
+          <div className="mt-5 rounded-[2rem] border border-border bg-panel-soft p-5 text-center">
+            <p className="text-sm font-bold uppercase tracking-[0.2em] text-muted">
+              {t(dictionary, "beta.completionScore")}
+            </p>
+            <p className="mt-2 text-5xl font-black text-foreground">
+              {completion.score}%
+            </p>
+          </div>
           <p className="mt-3 text-sm leading-6 text-muted">
             {t(dictionary, "trustV2.body")}
           </p>

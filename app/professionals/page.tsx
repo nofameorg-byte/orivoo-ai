@@ -41,6 +41,8 @@ type CompanyRow = {
   is_insurance_verified?: boolean | null;
   is_revenue_verified?: boolean | null;
   is_vp23_elite?: boolean | null;
+  is_featured?: boolean | null;
+  featured_rank?: number | null;
   category_id?: string | null;
   categories?: {
     name_en?: string | null;
@@ -99,6 +101,8 @@ export default async function ProfessionalsPage({
     .from("companies")
     .select("*, categories(name_en, name_es)", { count: "exact" })
     .eq("is_active", true)
+    .order("is_featured", { ascending: false })
+    .order("featured_rank", { ascending: false })
     .order("rating_average", { ascending: false })
     .range(from, to);
 
@@ -273,6 +277,7 @@ export default async function ProfessionalsPage({
               <DirectoryCompanyCard
                 key={company.id}
                 company={{
+                  id: company.id,
                   name: company.company_name,
                   category:
                     locale === "es"
@@ -282,7 +287,7 @@ export default async function ProfessionalsPage({
                   rating: String(company.rating_average ?? 0),
                   reviewCount: String(company.rating_count ?? 0),
                   years: String(company.years_in_business ?? 0),
-                  featured: false,
+                  featured: Boolean(company.is_featured),
                   badges: companyTrustBadges(badgeLabels, company),
                 }}
                 labels={{
@@ -294,6 +299,7 @@ export default async function ProfessionalsPage({
                   noVerifiedBadges: t(dictionary, "marketplace.noVerifiedBadges"),
                 }}
                 statusLabels={statusLabels}
+                profileHref={`/professionals/profile?id=${company.id}`}
               />
             ))}
           </div>

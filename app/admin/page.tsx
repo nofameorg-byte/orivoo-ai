@@ -82,6 +82,10 @@ export default async function AdminPage() {
         badge={t(dictionary, "admin.badge")}
         title={t(dictionary, "admin.headline")}
         body={t(dictionary, "admin.body")}
+        primaryAction={{
+          href: "/admin/beta",
+          label: t(dictionary, "beta.betaDashboard"),
+        }}
       />
       <section className="section-shell pb-16">
         <div className="grid gap-6 lg:grid-cols-[1fr_0.9fr]">

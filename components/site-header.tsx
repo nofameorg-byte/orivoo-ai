@@ -14,10 +14,12 @@ type SiteHeaderProps = {
 
 const navItems = [
   { href: "/professionals", labelKey: "nav.directory" },
+  { href: "/claim-business", labelKey: "nav.claimBusiness" },
+  { href: "/invite-professionals", labelKey: "nav.invitePros" },
+  { href: "/onboarding", labelKey: "nav.onboarding" },
+  { href: "/featured-professionals", labelKey: "nav.featured" },
   { href: "/business-tools", labelKey: "nav.businessTools" },
   { href: "/partners", labelKey: "nav.partners" },
-  { href: "/equipment", labelKey: "nav.equipment" },
-  { href: "/ai", labelKey: "nav.ai" },
 ];
 
 export function SiteHeader({ dictionary, locale, currentPath }: SiteHeaderProps) {

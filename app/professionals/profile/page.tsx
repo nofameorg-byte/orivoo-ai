@@ -23,6 +23,7 @@ import { TrustBadgeGrid, type VerificationBadge } from "@/components/marketplace
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { getDictionary, getLocale, list, t } from "@/lib/i18n/server";
+import { profileCompletionScore } from "@/lib/profile-completion";
 import { createClient } from "@/lib/supabase/server";
 import { companyTrustBadges } from "@/lib/trust";
 
@@ -144,6 +145,13 @@ export default async function ProfessionalProfilePage({
 
   const companyId = company?.id ?? "";
   const isOwner = Boolean(user && company?.owner_id === user.id);
+  if (companyId) {
+    await supabase.from("company_views").insert({
+      company_id: companyId,
+      viewer_id: user?.id ?? null,
+      source: "profile",
+    });
+  }
   const categoryLabel =
     locale === "es"
       ? company?.categories?.name_es ?? ""
@@ -200,6 +208,12 @@ export default async function ProfessionalProfilePage({
   }
   const displayName =
     company?.company_name ?? t(dictionary, "trustEngine.noCompanyPublic");
+  const completion = profileCompletionScore({
+    company,
+    licenseCount: licenses.length,
+    insuranceCount: insurancePolicies.length,
+    reviewCount: reviews.length,
+  });
 
   return (
     <main className="min-h-screen bg-background">
@@ -709,6 +723,14 @@ export default async function ProfessionalProfilePage({
             <h2 className="text-2xl font-black text-foreground">
               {t(dictionary, "profileV2.verificationStatus")}
             </h2>
+            <div className="mt-4 rounded-2xl border border-border bg-panel-soft p-4 text-center">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted">
+                {t(dictionary, "beta.completionScore")}
+              </p>
+              <p className="mt-2 text-4xl font-black text-foreground">
+                {completion.score}%
+              </p>
+            </div>
             <p className="mt-3 text-sm leading-6 text-muted">
               {t(dictionary, "trustV2.body")}
             </p>

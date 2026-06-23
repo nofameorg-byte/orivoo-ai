@@ -103,6 +103,9 @@ export type Database = {
       review_media: GenericTable;
       review_helpful_votes: GenericTable;
       review_flags: GenericTable;
+      company_claims: GenericTable;
+      professional_invitations: GenericTable;
+      company_views: GenericTable;
       partner_companies: GenericTable;
       equipment_listings: GenericTable;
       notifications: GenericTable;
