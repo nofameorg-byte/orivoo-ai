@@ -96,11 +96,17 @@ Open [http://localhost:3000](http://localhost:3000).
 ## Supabase setup
 
 1. Create a Supabase project.
-2. Apply the SQL migration in `supabase/migrations/20260618223900_initial_schema.sql`.
+2. Apply the SQL migrations in `supabase/migrations` in timestamp order.
 3. In Supabase Auth settings, add these redirect URLs:
    - `http://localhost:3000/auth/callback`
    - `https://your-vercel-domain.vercel.app/auth/callback`
 4. Add the environment variables from `.env.example` locally and in Vercel.
+
+## Security operations
+
+Admin accounts cannot be selected during signup. See `SECURITY.md` for the
+direct database bootstrap process used to promote the first trusted admin and
+for the current VP23 role, review, and verification security rules.
 
 ## Scripts
 

@@ -41,7 +41,8 @@ export async function signUp(formData: FormData) {
   const email = getFormValue(formData, "email");
   const password = getFormValue(formData, "password");
   const displayName = getFormValue(formData, "displayName");
-  const role = getFormValue(formData, "role") || "customer";
+  const requestedRole = getFormValue(formData, "role");
+  const role = requestedRole === "professional" ? "professional" : "customer";
   const requestedLocale = getFormValue(formData, "preferredLanguage");
   const preferredLanguage = isLocale(requestedLocale)
     ? requestedLocale

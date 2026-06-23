@@ -31,7 +31,6 @@ export default async function SignupPage({ searchParams }: AuthPageProps) {
   const roleOptions = [
     { value: "customer", label: t(dictionary, "common.customer") },
     { value: "professional", label: t(dictionary, "common.professional") },
-    { value: "admin", label: t(dictionary, "common.admin") },
   ];
 
   return (

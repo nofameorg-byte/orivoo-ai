@@ -18,9 +18,14 @@ export default async function AdminPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("preferred_language")
+    .select("preferred_language, role")
     .eq("id", user.id)
     .maybeSingle();
+
+  if (profile?.role !== "admin") {
+    redirect("/dashboard");
+  }
+
   const locale = await getLocale(
     isLocale(profile?.preferred_language) ? profile?.preferred_language : null,
   );
