@@ -863,6 +863,6 @@ export const dictionaries = {
       "Control de plagas",
     ],
   },
-} as const satisfies Record<Locale, Record<string, unknown>>;
+} satisfies Record<Locale, Record<string, unknown>>;
 
-export type Dictionary = (typeof dictionaries)["en"];
+export type Dictionary = (typeof dictionaries)[Locale];

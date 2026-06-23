@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { defaultLocale, isLocale } from "@/lib/i18n/config";
+import { defaultLocale, isLocale, type Locale } from "@/lib/i18n/config";
 import { createClient } from "@/lib/supabase/server";
 
 function safeRedirectPath(value: FormDataEntryValue | null) {
@@ -16,8 +16,10 @@ function safeRedirectPath(value: FormDataEntryValue | null) {
 
 export async function updateLanguage(formData: FormData) {
   const requestedLocale = formData.get("locale");
-  const locale = isLocale(typeof requestedLocale === "string" ? requestedLocale : null)
-    ? requestedLocale
+  const requestedLocaleValue =
+    typeof requestedLocale === "string" ? requestedLocale : null;
+  const locale: Locale = isLocale(requestedLocaleValue)
+    ? requestedLocaleValue
     : defaultLocale;
   const redirectTo = safeRedirectPath(formData.get("redirectTo"));
   const cookieStore = await cookies();

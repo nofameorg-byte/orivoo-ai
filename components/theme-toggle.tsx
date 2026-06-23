@@ -14,14 +14,19 @@ export function ThemeToggle({
   lightLabel,
   darkLabel,
 }: ThemeToggleProps) {
-  const [theme, setTheme] = useState<"light" | "dark">("dark");
+  const [theme, setTheme] = useState<"light" | "dark">(() => {
+    if (typeof window === "undefined") {
+      return "dark";
+    }
+
+    return window.localStorage.getItem("vp23_theme") === "light"
+      ? "light"
+      : "dark";
+  });
 
   useEffect(() => {
-    const savedTheme = window.localStorage.getItem("vp23_theme");
-    const initialTheme = savedTheme === "light" ? "light" : "dark";
-    setTheme(initialTheme);
-    document.documentElement.dataset.theme = initialTheme;
-  }, []);
+    document.documentElement.dataset.theme = theme;
+  }, [theme]);
 
   function toggleTheme() {
     const nextTheme = theme === "dark" ? "light" : "dark";

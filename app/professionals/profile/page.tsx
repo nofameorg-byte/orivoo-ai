@@ -1,4 +1,4 @@
-import { FileText, Image, MessageSquare, ShieldCheck } from "lucide-react";
+import { FileText, Image as ImageIcon, MessageSquare, ShieldCheck } from "lucide-react";
 import { Checklist, PageHero } from "@/components/page-primitives";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -39,7 +39,7 @@ export default async function ProfessionalProfilePage() {
           </div>
           <div className="grid gap-4 md:grid-cols-2">
             <div className="rounded-[2rem] border border-border bg-panel p-6">
-              <Image className="mb-5 size-7 text-gold" aria-hidden />
+              <ImageIcon className="mb-5 size-7 text-gold" aria-hidden />
               <h2 className="text-xl font-black text-foreground">
                 {t(dictionary, "profile.portfolioTitle")}
               </h2>
