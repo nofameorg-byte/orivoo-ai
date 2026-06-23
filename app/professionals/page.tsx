@@ -257,7 +257,7 @@ export default async function ProfessionalsPage({
             </label>
             <button
               type="submit"
-              className="rounded-full bg-foreground px-4 py-3 text-sm font-black text-background"
+              className="vp23-primary-action rounded-full px-4 py-3 text-sm font-black"
             >
               {t(dictionary, "common.search")}
             </button>
@@ -318,13 +318,13 @@ export default async function ProfessionalsPage({
           <div className="mt-8 flex items-center justify-center gap-3">
             <a
               href={makePageHref(Math.max(currentPage - 1, 1))}
-              className="rounded-full border border-border px-4 py-2 text-sm font-bold text-muted"
+              className="vp23-secondary-action rounded-full px-4 py-2 text-sm font-bold"
             >
               {t(dictionary, "marketplace.previousPage")}
             </a>
             <a
               href={makePageHref(Math.min(currentPage + 1, totalPages))}
-              className="rounded-full border border-border px-4 py-2 text-sm font-bold text-muted"
+              className="vp23-secondary-action rounded-full px-4 py-2 text-sm font-bold"
             >
               {t(dictionary, "marketplace.nextPage")}
             </a>

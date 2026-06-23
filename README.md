@@ -108,6 +108,9 @@ Admin accounts cannot be selected during signup. See `SECURITY.md` for the
 direct database bootstrap process used to promote the first trusted admin and
 for the current VP23 role, review, and verification security rules.
 
+Auth redirects and Supabase email templates must use VP23 URLs only. See
+`docs/auth-redirects.md` before configuring Supabase Auth in production.
+
 ## Scripts
 
 ```bash

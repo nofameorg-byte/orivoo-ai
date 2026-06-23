@@ -50,7 +50,7 @@ export default async function InviteAcceptPage({ params }: InviteAcceptPageProps
               <input type="hidden" name="token" value={token} />
               <button
                 type="submit"
-                className="w-full rounded-full bg-foreground px-5 py-3 text-sm font-black text-background"
+                className="vp23-primary-action w-full rounded-full px-5 py-3 text-sm font-black"
               >
                 {t(dictionary, "transaction.acceptInvite")}
               </button>
@@ -58,7 +58,7 @@ export default async function InviteAcceptPage({ params }: InviteAcceptPageProps
           ) : (
             <a
               href={`/signup?invite=${token}`}
-              className="mt-6 inline-flex w-full justify-center rounded-full bg-foreground px-5 py-3 text-sm font-black text-background"
+              className="vp23-primary-action mt-6 inline-flex w-full justify-center rounded-full px-5 py-3 text-sm font-black"
             >
               {t(dictionary, "nav.signup")}
             </a>

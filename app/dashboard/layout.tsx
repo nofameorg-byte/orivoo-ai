@@ -151,7 +151,7 @@ export default async function DashboardLayout({
           <form action={signOut} className="mt-4">
             <button
               type="submit"
-              className="flex w-full items-center justify-center gap-2 rounded-full border border-border px-3 py-2 text-sm text-muted transition hover:border-gold/40 hover:text-foreground"
+              className="vp23-secondary-action flex w-full items-center justify-center gap-2 rounded-full px-3 py-2 text-sm transition"
             >
               <LogOut className="size-4" aria-hidden />
               {t(dictionary, "common.signOut")}
@@ -175,7 +175,7 @@ export default async function DashboardLayout({
               <button
                 type="submit"
                 aria-label={t(dictionary, "common.signOut")}
-                className="rounded-full border border-border p-2 text-muted"
+                className="vp23-secondary-action rounded-full p-2"
               >
                 <LogOut className="size-4" aria-hidden />
               </button>
@@ -186,7 +186,7 @@ export default async function DashboardLayout({
               <Link
                 key={item.href}
                 href={item.href}
-                className="shrink-0 rounded-full border border-border px-3 py-2 text-xs text-muted"
+                className="vp23-secondary-action shrink-0 rounded-full px-3 py-2 text-xs"
               >
                 {t(dictionary, item.labelKey)}
               </Link>

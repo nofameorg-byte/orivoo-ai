@@ -95,7 +95,7 @@ export default async function DashboardQuotesPage({
                         type="submit"
                         name="decision"
                         value="accepted"
-                        className="rounded-full border border-border px-4 py-2 text-sm font-bold text-foreground"
+                        className="vp23-secondary-action rounded-full px-4 py-2 text-sm font-bold"
                       >
                         {t(dictionary, "transaction.acceptQuote")}
                       </button>
@@ -103,7 +103,7 @@ export default async function DashboardQuotesPage({
                         type="submit"
                         name="decision"
                         value="declined"
-                        className="rounded-full border border-border px-4 py-2 text-sm font-bold text-foreground"
+                        className="vp23-secondary-action rounded-full px-4 py-2 text-sm font-bold"
                       >
                         {t(dictionary, "transaction.declineQuote")}
                       </button>
@@ -119,7 +119,7 @@ export default async function DashboardQuotesPage({
                         />
                         <button
                           type="submit"
-                          className="rounded-full bg-foreground px-4 py-2 text-sm font-black text-background"
+                          className="vp23-primary-action rounded-full px-4 py-2 text-sm font-black"
                         >
                           {t(dictionary, "transaction.convertToJob")}
                         </button>

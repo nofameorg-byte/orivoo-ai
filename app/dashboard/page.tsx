@@ -144,7 +144,7 @@ export default async function DashboardPage() {
           </div>
           <Link
             href="/professionals/profile"
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-foreground px-5 py-3 text-sm font-black text-background transition hover:bg-gold-bright"
+            className="vp23-primary-action inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-black transition"
           >
             {t(dictionary, "professionalDashboard.companyProfile")}
             <ArrowRight className="size-4" aria-hidden />

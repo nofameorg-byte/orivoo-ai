@@ -89,6 +89,27 @@ a {
   padding-inline: 1rem;
 }
 
+.vp23-primary-action {
+  background: linear-gradient(135deg, #f7df8e 0%, #d8b45a 45%, #a98534 100%);
+  color: #050505;
+  box-shadow: 0 12px 30px rgba(216, 180, 90, 0.2);
+}
+
+.vp23-primary-action:hover {
+  filter: brightness(1.06);
+}
+
+.vp23-secondary-action {
+  border: 1px solid rgba(216, 180, 90, 0.5);
+  background: #050505;
+  color: var(--gold-bright);
+}
+
+.vp23-secondary-action:hover {
+  border-color: var(--gold-bright);
+  background: rgba(216, 180, 90, 0.1);
+}
+
 @media (min-width: 640px) {
   .section-shell {
     padding-inline: 1.5rem;

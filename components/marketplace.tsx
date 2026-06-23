@@ -175,13 +175,13 @@ export function MarketplaceSearch({
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
           <button
             type="submit"
-            className="inline-flex items-center justify-center rounded-2xl bg-foreground px-6 py-4 text-sm font-black text-background transition hover:bg-gold-bright"
+            className="vp23-primary-action inline-flex items-center justify-center rounded-2xl px-6 py-4 text-sm font-black transition"
           >
             {primaryCta}
           </button>
           <Link
             href="/signup"
-            className="inline-flex items-center justify-center rounded-2xl border border-border px-6 py-4 text-sm font-black text-foreground transition hover:border-gold/50"
+            className="vp23-secondary-action inline-flex items-center justify-center rounded-2xl px-6 py-4 text-sm font-black transition"
           >
             {secondaryCta}
           </Link>
@@ -193,7 +193,7 @@ export function MarketplaceSearch({
           <Link
             href="/professionals"
             key={example}
-            className="rounded-full border border-border bg-panel-soft px-3 py-1.5 font-medium text-foreground transition hover:border-gold/50"
+            className="vp23-secondary-action rounded-full px-3 py-1.5 font-medium transition"
           >
             {example}
           </Link>
@@ -303,13 +303,13 @@ export function DirectoryCompanyCard({
         <div className="mt-5 grid gap-2 sm:grid-cols-2">
           <Link
             href={profileHref}
-            className="inline-flex items-center justify-center rounded-full border border-border px-4 py-2.5 text-sm font-bold text-foreground transition hover:border-gold/50"
+            className="vp23-secondary-action inline-flex items-center justify-center rounded-full px-4 py-2.5 text-sm font-bold transition"
           >
             {labels.viewProfile}
           </Link>
           <Link
             href={quoteHref}
-            className="inline-flex items-center justify-center rounded-full bg-foreground px-4 py-2.5 text-sm font-bold text-background transition hover:bg-gold-bright"
+            className="vp23-primary-action inline-flex items-center justify-center rounded-full px-4 py-2.5 text-sm font-bold transition"
           >
             {labels.requestQuote}
           </Link>
@@ -352,7 +352,7 @@ export function ReviewSystemPanel({ labels, queueItems }: ReviewSystemPanelProps
               {labels.uploadVideos}
             </div>
           </div>
-          <div className="mt-4 rounded-full bg-foreground px-4 py-3 text-center text-sm font-black text-background">
+          <div className="vp23-primary-action mt-4 rounded-full px-4 py-3 text-center text-sm font-black">
             {labels.submitReview}
           </div>
         </div>

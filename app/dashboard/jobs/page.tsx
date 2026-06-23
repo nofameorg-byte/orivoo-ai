@@ -83,7 +83,7 @@ export default async function DashboardJobsPage({
                       <input type="hidden" name="jobId" value={job.id} />
                       <button
                         type="submit"
-                        className="w-full rounded-full bg-foreground px-4 py-2 text-sm font-black text-background"
+                        className="vp23-primary-action w-full rounded-full px-4 py-2 text-sm font-black"
                       >
                         {t(dictionary, "transaction.acceptJob")}
                       </button>
@@ -112,7 +112,7 @@ export default async function DashboardJobsPage({
                       </select>
                       <button
                         type="submit"
-                        className="rounded-full border border-border px-4 py-2 text-sm font-bold text-foreground"
+                        className="vp23-secondary-action rounded-full px-4 py-2 text-sm font-bold"
                       >
                         {t(dictionary, "transaction.updateStatus")}
                       </button>

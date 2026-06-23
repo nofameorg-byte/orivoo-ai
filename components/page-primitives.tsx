@@ -41,7 +41,7 @@ export function PageHero({ badge, title, body, primaryAction }: PageHeroProps) {
           {primaryAction ? (
             <Link
               href={primaryAction.href}
-              className="mt-8 inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-3 text-sm font-bold text-background transition hover:bg-gold-bright"
+              className="vp23-primary-action mt-8 inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-bold transition"
             >
               {primaryAction.label}
               <ArrowRight className="size-4" aria-hidden />

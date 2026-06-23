@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { defaultLocale, isLocale } from "@/lib/i18n/config";
 import { sanitizeSignupRole } from "@/lib/auth-rules";
 import { createClient } from "@/lib/supabase/server";
-import { getSiteUrl } from "@/lib/env";
+import { getAuthRedirectUrl } from "@/lib/env";
 
 function getFormValue(formData: FormData, key: string) {
   const value = formData.get(key);
@@ -67,7 +67,7 @@ export async function signUp(formData: FormData) {
         preferred_language: preferredLanguage,
         role,
       },
-      emailRedirectTo: `${getSiteUrl()}/auth/callback`,
+      emailRedirectTo: getAuthRedirectUrl(),
     },
   });
 

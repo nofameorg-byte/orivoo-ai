@@ -142,7 +142,7 @@ export default async function QuotesPage({ searchParams }: QuotesPageProps) {
             <input type="hidden" name="preferredLanguage" value={locale} />
             <button
               type="submit"
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-foreground px-5 py-3 text-sm font-black text-background"
+              className="vp23-primary-action inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-black"
             >
               <Send className="size-4" aria-hidden />
               {t(dictionary, "quotes.sendRequest")}

@@ -123,7 +123,7 @@ export default async function LoginPage({ searchParams }: AuthPageProps) {
             </label>
             <button
               type="submit"
-              className="group flex w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 py-3 font-bold text-background transition hover:bg-gold-bright"
+              className="vp23-primary-action group flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 font-bold transition"
             >
               {t(dictionary, "auth.loginSubmit")}
               <ArrowRight className="size-4 transition group-hover:translate-x-0.5" />

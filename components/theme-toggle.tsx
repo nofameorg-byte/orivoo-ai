@@ -42,7 +42,7 @@ export function ThemeToggle({
       type="button"
       onClick={toggleTheme}
       aria-label={label}
-      className="inline-flex items-center gap-2 rounded-full border border-border bg-panel-soft px-3 py-2 text-xs font-medium text-muted transition hover:border-gold/60 hover:text-foreground"
+      className="vp23-secondary-action inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs font-medium transition"
     >
       <Icon className="size-4 text-gold" aria-hidden />
       <span className="hidden sm:inline">

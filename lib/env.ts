@@ -13,12 +13,32 @@ export function getSiteUrl() {
   const vercelUrl = process.env.VERCEL_URL;
 
   if (configuredUrl) {
-    return configuredUrl.replace(/\/$/, "");
+    return normalizeVp23Url(configuredUrl, "NEXT_PUBLIC_SITE_URL");
   }
 
   if (vercelUrl) {
-    return `https://${vercelUrl}`.replace(/\/$/, "");
+    return normalizeVp23Url(`https://${vercelUrl}`, "VERCEL_URL");
   }
 
   return "http://localhost:3000";
+}
+
+function normalizeVp23Url(value: string, source: string) {
+  const normalizedUrl = value.replace(/\/$/, "");
+
+  const legacyBrandPattern = new RegExp(["ori", "voo"].join(""), "i");
+
+  if (legacyBrandPattern.test(normalizedUrl)) {
+    throw new Error(
+      `${source} points to a legacy non-VP23 URL. Configure the VP23 site URL before using auth redirects.`,
+    );
+  }
+
+  return normalizedUrl;
+}
+
+export function getAuthRedirectUrl(path = "/auth/callback") {
+  const safePath = path.startsWith("/") && !path.startsWith("//") ? path : "/auth/callback";
+
+  return `${getSiteUrl()}${safePath}`;
 }

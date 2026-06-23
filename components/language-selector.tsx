@@ -27,7 +27,7 @@ export function LanguageSelector({
         name="locale"
         defaultValue={currentLocale}
         aria-label={label}
-        className="rounded-full border border-border bg-panel-soft px-3 py-2 text-xs font-medium text-foreground outline-none transition focus:border-gold/70"
+        className="vp23-secondary-action rounded-full px-3 py-2 text-xs font-medium outline-none transition focus:border-gold/70"
         onChange={(event) => event.currentTarget.form?.requestSubmit()}
       >
         {locales.map((locale) => (

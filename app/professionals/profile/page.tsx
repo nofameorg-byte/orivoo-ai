@@ -334,21 +334,21 @@ export default async function ProfessionalProfilePage({
               <div className="grid gap-2 sm:grid-cols-3">
                 <Link
                   href={`/quotes?companyId=${companyId}`}
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-foreground px-4 py-2.5 text-sm font-black text-background transition hover:bg-gold-bright"
+                  className="vp23-primary-action inline-flex items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-black transition"
                 >
                   <Send className="size-4" aria-hidden />
                   {t(dictionary, "profile.quoteCta")}
                 </Link>
                 <a
                   href={company?.phone ? `tel:${company.phone}` : "#"}
-                  className="inline-flex items-center justify-center gap-2 rounded-full border border-border px-4 py-2.5 text-sm font-black text-foreground transition hover:border-gold/50"
+                  className="vp23-secondary-action inline-flex items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-black transition"
                 >
                   <Phone className="size-4" aria-hidden />
                   {t(dictionary, "profileV2.call")}
                 </a>
                 <Link
                   href="/signup"
-                  className="inline-flex items-center justify-center gap-2 rounded-full border border-border px-4 py-2.5 text-sm font-black text-foreground transition hover:border-gold/50"
+                  className="vp23-secondary-action inline-flex items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-black transition"
                 >
                   <ShieldCheck className="size-4" aria-hidden />
                   {t(dictionary, "profileV2.save")}
@@ -575,7 +575,7 @@ export default async function ProfessionalProfilePage({
                 </div>
                 <button
                   type="submit"
-                  className="rounded-full bg-foreground px-5 py-3 text-sm font-black text-background"
+                  className="vp23-primary-action rounded-full px-5 py-3 text-sm font-black"
                 >
                   {t(dictionary, "trustEngine.saveCompany")}
                 </button>
@@ -705,7 +705,7 @@ export default async function ProfessionalProfilePage({
                     </div>
                     <button
                       type="submit"
-                      className="rounded-full bg-foreground px-4 py-3 text-sm font-black text-background"
+                      className="vp23-primary-action rounded-full px-4 py-3 text-sm font-black"
                     >
                       {t(dictionary, "reviewsV2.submitReview")}
                     </button>
@@ -753,7 +753,7 @@ export default async function ProfessionalProfilePage({
                       <input type="hidden" name="reviewId" value={review.id} />
                       <button
                         type="submit"
-                        className="w-full rounded-full border border-border px-3 py-2 text-sm font-bold text-muted"
+                        className="vp23-secondary-action w-full rounded-full px-3 py-2 text-sm font-bold"
                       >
                         {t(dictionary, "trustEngine.helpfulVote")} (
                         {helpfulCounts.get(review.id) ?? 0})
@@ -768,7 +768,7 @@ export default async function ProfessionalProfilePage({
                       />
                       <button
                         type="submit"
-                        className="rounded-full border border-border px-3 py-2 text-sm font-bold text-muted"
+                        className="vp23-secondary-action rounded-full px-3 py-2 text-sm font-bold"
                       >
                         {t(dictionary, "reviewsV2.flagReview")}
                       </button>
@@ -783,7 +783,7 @@ export default async function ProfessionalProfilePage({
                         />
                         <button
                           type="submit"
-                          className="rounded-full border border-border px-3 py-2 text-sm font-bold text-muted"
+                          className="vp23-secondary-action rounded-full px-3 py-2 text-sm font-bold"
                         >
                           {t(dictionary, "reviewsV2.responseTitle")}
                         </button>
@@ -813,7 +813,7 @@ export default async function ProfessionalProfilePage({
                       />
                       <button
                         type="submit"
-                        className="rounded-full bg-foreground px-3 py-2 text-sm font-black text-background"
+                        className="vp23-primary-action rounded-full px-3 py-2 text-sm font-black"
                       >
                         {t(dictionary, "trustEngine.editReview")}
                       </button>
@@ -905,7 +905,7 @@ export default async function ProfessionalProfilePage({
                 />
                 <button
                   type="submit"
-                  className="rounded-full bg-foreground px-4 py-3 text-sm font-black text-background"
+                  className="vp23-primary-action rounded-full px-4 py-3 text-sm font-black"
                 >
                   {t(dictionary, "trustEngine.submitLicense")}
                 </button>
@@ -966,7 +966,7 @@ export default async function ProfessionalProfilePage({
                 />
                 <button
                   type="submit"
-                  className="rounded-full bg-foreground px-4 py-3 text-sm font-black text-background"
+                  className="vp23-primary-action rounded-full px-4 py-3 text-sm font-black"
                 >
                   {t(dictionary, "trustEngine.submitInsurance")}
                 </button>

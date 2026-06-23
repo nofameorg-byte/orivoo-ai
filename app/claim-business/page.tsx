@@ -147,7 +147,7 @@ export default async function ClaimBusinessPage({ searchParams }: ClaimPageProps
             </label>
             <button
               type="submit"
-              className="rounded-full bg-foreground px-5 py-3 text-sm font-black text-background"
+              className="vp23-primary-action rounded-full px-5 py-3 text-sm font-black"
             >
               {t(dictionary, "beta.submitClaim")}
             </button>

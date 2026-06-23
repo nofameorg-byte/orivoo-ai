@@ -225,7 +225,7 @@ export default async function AdminBetaPage() {
                       type="submit"
                       name="decision"
                       value="approved"
-                      className="rounded-full border border-border px-3 py-2 text-sm font-bold text-foreground"
+                      className="vp23-secondary-action rounded-full px-3 py-2 text-sm font-bold"
                     >
                       {t(dictionary, "beta.approveClaim")}
                     </button>
@@ -233,7 +233,7 @@ export default async function AdminBetaPage() {
                       type="submit"
                       name="decision"
                       value="rejected"
-                      className="rounded-full border border-border px-3 py-2 text-sm font-bold text-foreground"
+                      className="vp23-secondary-action rounded-full px-3 py-2 text-sm font-bold"
                     >
                       {t(dictionary, "beta.rejectClaim")}
                     </button>
@@ -307,7 +307,7 @@ export default async function AdminBetaPage() {
                 />
                 <button
                   type="submit"
-                  className="rounded-full bg-foreground px-3 py-2 text-sm font-black text-background"
+                  className="vp23-primary-action rounded-full px-3 py-2 text-sm font-black"
                 >
                   {t(dictionary, "beta.updateFeatured")}
                 </button>

@@ -75,7 +75,7 @@ export function SiteHeader({ dictionary, locale, currentPath }: SiteHeaderProps)
           </Link>
           <Link
             href="/signup"
-            className="hidden items-center gap-2 rounded-full bg-foreground px-4 py-2 text-sm font-bold text-background transition hover:bg-gold-bright sm:inline-flex"
+            className="vp23-primary-action hidden items-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition sm:inline-flex"
           >
             <ShieldCheck className="size-4" aria-hidden />
             {t(dictionary, "nav.signup")}
@@ -87,7 +87,7 @@ export function SiteHeader({ dictionary, locale, currentPath }: SiteHeaderProps)
           <Link
             key={item.href}
             href={item.href}
-            className="shrink-0 rounded-full border border-border bg-panel-soft px-3 py-2 text-xs text-muted"
+            className="vp23-secondary-action shrink-0 rounded-full px-3 py-2 text-xs"
           >
             {t(dictionary, item.labelKey)}
           </Link>

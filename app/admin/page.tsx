@@ -162,7 +162,7 @@ export default async function AdminPage() {
                             type="submit"
                             name="decision"
                             value={value}
-                            className="rounded-full border border-border px-3 py-2 text-sm font-bold text-foreground"
+                            className="vp23-secondary-action rounded-full px-3 py-2 text-sm font-bold"
                           >
                             {label}
                           </button>
@@ -199,7 +199,7 @@ export default async function AdminPage() {
                         type="submit"
                         name="decision"
                         value="remove"
-                        className="rounded-full border border-border px-3 py-2 text-sm font-bold text-foreground"
+                        className="vp23-secondary-action rounded-full px-3 py-2 text-sm font-bold"
                       >
                         {t(dictionary, "trustEngine.removeReview")}
                       </button>
@@ -207,7 +207,7 @@ export default async function AdminPage() {
                         type="submit"
                         name="decision"
                         value="keep"
-                        className="rounded-full border border-border px-3 py-2 text-sm font-bold text-foreground"
+                        className="vp23-secondary-action rounded-full px-3 py-2 text-sm font-bold"
                       >
                         {t(dictionary, "trustEngine.keepReview")}
                       </button>
