@@ -1,119 +1,193 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Building2, ShieldCheck } from "lucide-react";
 import { signUp } from "@/app/actions/auth";
+import { LanguageSelector } from "@/components/language-selector";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { locales } from "@/lib/i18n/config";
+import { getDictionary, getLocale, t } from "@/lib/i18n/server";
 
-export const metadata: Metadata = {
-  title: "Signup",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  const dictionary = await getDictionary(locale);
+
+  return {
+    title: t(dictionary, "auth.signupTitle"),
+  };
+}
 
 type AuthPageProps = {
   searchParams: Promise<{
     message?: string;
+    messageKey?: string;
   }>;
 };
 
 export default async function SignupPage({ searchParams }: AuthPageProps) {
-  const { message } = await searchParams;
+  const { message, messageKey } = await searchParams;
+  const locale = await getLocale();
+  const dictionary = await getDictionary(locale);
+  const alertMessage = messageKey ? t(dictionary, messageKey) : message;
+  const roleOptions = [
+    { value: "customer", label: t(dictionary, "common.customer") },
+    { value: "professional", label: t(dictionary, "common.professional") },
+    { value: "admin", label: t(dictionary, "common.admin") },
+  ];
 
   return (
-    <main className="flex min-h-screen items-center justify-center px-6 py-12">
-      <div className="grid w-full max-w-5xl overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.03] shadow-2xl shadow-black/50 md:grid-cols-[0.9fr_1fr]">
+    <main className="flex min-h-screen items-center justify-center bg-background px-4 py-10 sm:px-6">
+      <div className="grid w-full max-w-5xl overflow-hidden rounded-[2rem] border border-border bg-panel shadow-2xl shadow-black/30 md:grid-cols-[0.95fr_1fr]">
         <section className="p-8 sm:p-10">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="gold-gradient flex size-10 items-center justify-center rounded-2xl text-black">
-              <Sparkles className="size-5" aria-hidden />
+          <div className="mb-8 flex items-center justify-between gap-3">
+            <Link href="/" className="flex items-center gap-3">
+              <div className="gold-gradient flex size-10 items-center justify-center rounded-2xl text-black">
+                <Building2 className="size-5" aria-hidden />
+              </div>
+              <span className="font-black tracking-[0.22em] text-foreground">
+                {t(dictionary, "brand.name")}
+              </span>
+            </Link>
+            <div className="flex items-center gap-2">
+              <ThemeToggle
+                label={t(dictionary, "common.theme")}
+                lightLabel={t(dictionary, "common.light")}
+                darkLabel={t(dictionary, "common.dark")}
+              />
+              <LanguageSelector
+                currentLocale={locale}
+                redirectTo="/signup"
+                label={t(dictionary, "common.language")}
+                names={{
+                  en: t(dictionary, "common.english"),
+                  es: t(dictionary, "common.spanish"),
+                }}
+              />
             </div>
-            <span className="font-semibold tracking-[0.2em] text-white">
-              ORIVOO AI
-            </span>
-          </Link>
+          </div>
 
-          <h1 className="mt-12 text-3xl font-semibold text-white">
-            Create your workspace
+          <h1 className="text-3xl font-black text-foreground">
+            {t(dictionary, "auth.signupTitle")}
           </h1>
           <p className="mt-3 text-sm text-muted">
-            Launch an ORIVOO AI account with Supabase-secured authentication.
+            {t(dictionary, "auth.signupBody")}
           </p>
 
-          {message ? (
+          {alertMessage ? (
             <div className="mt-6 rounded-2xl border border-gold/25 bg-gold/10 p-4 text-sm text-gold-bright">
-              {message}
+              {alertMessage}
             </div>
           ) : null}
 
           <form action={signUp} className="mt-8 space-y-5">
             <label className="block">
-              <span className="text-sm font-medium text-white">
-                Display name
+              <span className="text-sm font-medium text-foreground">
+                {t(dictionary, "common.displayName")}
               </span>
               <input
                 name="displayName"
                 type="text"
                 autoComplete="name"
-                placeholder="Alex Morgan"
-                className="mt-2 w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-white outline-none transition placeholder:text-muted/60 focus:border-gold/60"
+                placeholder={t(dictionary, "auth.displayNamePlaceholder")}
+                className="mt-2 w-full rounded-2xl border border-border bg-background px-4 py-3 text-foreground outline-none transition placeholder:text-muted/60 focus:border-gold/60"
               />
             </label>
             <label className="block">
-              <span className="text-sm font-medium text-white">Email</span>
+              <span className="text-sm font-medium text-foreground">
+                {t(dictionary, "common.email")}
+              </span>
               <input
                 required
                 name="email"
                 type="email"
                 autoComplete="email"
-                placeholder="you@company.com"
-                className="mt-2 w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-white outline-none transition placeholder:text-muted/60 focus:border-gold/60"
+                placeholder={t(dictionary, "auth.emailPlaceholder")}
+                className="mt-2 w-full rounded-2xl border border-border bg-background px-4 py-3 text-foreground outline-none transition placeholder:text-muted/60 focus:border-gold/60"
               />
             </label>
             <label className="block">
-              <span className="text-sm font-medium text-white">Password</span>
+              <span className="text-sm font-medium text-foreground">
+                {t(dictionary, "common.password")}
+              </span>
               <input
                 required
                 minLength={8}
                 name="password"
                 type="password"
                 autoComplete="new-password"
-                placeholder="At least 8 characters"
-                className="mt-2 w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-white outline-none transition placeholder:text-muted/60 focus:border-gold/60"
+                placeholder={t(dictionary, "auth.passwordPlaceholder")}
+                className="mt-2 w-full rounded-2xl border border-border bg-background px-4 py-3 text-foreground outline-none transition placeholder:text-muted/60 focus:border-gold/60"
               />
+            </label>
+            <label className="block">
+              <span className="text-sm font-medium text-foreground">
+                {t(dictionary, "common.role")}
+              </span>
+              <select
+                name="role"
+                defaultValue="customer"
+                className="mt-2 w-full rounded-2xl border border-border bg-background px-4 py-3 text-foreground outline-none transition focus:border-gold/60"
+              >
+                {roleOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="block">
+              <span className="text-sm font-medium text-foreground">
+                {t(dictionary, "common.language")}
+              </span>
+              <select
+                name="preferredLanguage"
+                defaultValue={locale}
+                className="mt-2 w-full rounded-2xl border border-border bg-background px-4 py-3 text-foreground outline-none transition focus:border-gold/60"
+              >
+                {locales.map((optionLocale) => (
+                  <option key={optionLocale} value={optionLocale}>
+                    {optionLocale === "en"
+                      ? t(dictionary, "common.english")
+                      : t(dictionary, "common.spanish")}
+                  </option>
+                ))}
+              </select>
             </label>
             <button
               type="submit"
-              className="group flex w-full items-center justify-center gap-2 rounded-full bg-white px-5 py-3 font-semibold text-black transition hover:bg-gold-bright"
+              className="group flex w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 py-3 font-bold text-background transition hover:bg-gold-bright"
             >
-              Create ORIVOO AI account
+              {t(dictionary, "auth.signupSubmit")}
               <ArrowRight className="size-4 transition group-hover:translate-x-0.5" />
             </button>
           </form>
 
           <p className="mt-6 text-center text-sm text-muted">
-            Already have an account?{" "}
-            <Link href="/login" className="font-semibold text-gold-bright">
-              Login
+            {t(dictionary, "auth.signupHelp")}{" "}
+            <Link href="/login" className="font-bold text-gold-bright">
+              {t(dictionary, "auth.loginLink")}
             </Link>
           </p>
         </section>
 
-        <section className="hidden bg-black/70 p-10 md:block">
+        <section className="hidden bg-panel-soft p-10 md:block">
           <div className="surface-card mt-12 rounded-[2rem] p-6">
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-gold">
-              Your stack
+            <p className="text-sm font-bold uppercase tracking-[0.3em] text-gold">
+              {t(dictionary, "auth.signupEyebrow")}
             </p>
-            <h2 className="mt-4 text-4xl font-semibold text-white">
-              Next.js 16, Supabase, Tailwind, Vercel.
+            <h2 className="mt-4 text-4xl font-black text-foreground">
+              {t(dictionary, "auth.signupHeadline")}
             </h2>
             <p className="mt-5 leading-7 text-muted">
-              ORIVOO AI starts from a production-friendly foundation for
-              authentication, database access, protected routing, and deployment.
+              {t(dictionary, "auth.signupBody")}
             </p>
             <div className="mt-8 grid gap-3">
-              {["Assistant", "Research Studio", "Code Studio"].map((item) => (
+              {roleOptions.map((role) => (
                 <div
-                  key={item}
-                  className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-white"
+                  key={role.value}
+                  className="flex items-center gap-3 rounded-2xl border border-border bg-panel p-4 text-foreground"
                 >
-                  {item}
+                  <ShieldCheck className="size-5 text-gold" aria-hidden />
+                  {role.label}
                 </div>
               ))}
             </div>

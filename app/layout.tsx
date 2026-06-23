@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
+import { getDictionary, getLocale, t } from "@/lib/i18n/server";
 import "./globals.css";
 
 const geist = Geist({
@@ -7,33 +8,40 @@ const geist = Geist({
   variable: "--font-geist-sans",
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: "ORIVOO AI - Build with intelligent studios",
-    template: "%s | ORIVOO AI",
-  },
-  description:
-    "ORIVOO AI is a modern AI operating system for documents, research, websites, code, business, design, and specialized studios.",
-  applicationName: "ORIVOO AI",
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
-  ),
-  openGraph: {
-    title: "ORIVOO AI",
-    description:
-      "A modern SaaS workspace for AI-assisted creation, research, and business operations.",
-    siteName: "ORIVOO AI",
-    type: "website",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  const dictionary = await getDictionary(locale);
+  const title = `${t(dictionary, "brand.name")} - ${t(dictionary, "brand.tagline")}`;
+  const description = t(dictionary, "landing.body");
 
-export default function RootLayout({
+  return {
+    title: {
+      default: title,
+      template: `%s | ${t(dictionary, "brand.name")}`,
+    },
+    description,
+    applicationName: t(dictionary, "brand.name"),
+    metadataBase: new URL(
+      process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+    ),
+    openGraph: {
+      title,
+      description,
+      siteName: t(dictionary, "brand.name"),
+      type: "website",
+    },
+  };
+}
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+
   return (
-    <html lang="en">
+    <html lang={locale} data-theme="dark">
       <body className={`${geist.variable} antialiased`}>{children}</body>
     </html>
   );

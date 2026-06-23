@@ -1,8 +1,8 @@
 {
-  "name": "orivoo-ai",
+  "name": "vp23",
   "version": "1.0.0",
   "private": true,
-  "description": "ORIVOO AI production-ready SaaS application.",
+  "description": "VP23 production-ready marketplace and operating system for professionals.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -12,11 +12,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nofameorg-byte/orivoo-ai.git"
+    "url": "git+https://github.com/nofameorg-byte/vp23.git"
   },
   "keywords": [
-    "orivoo",
-    "ai",
+    "vp23",
+    "marketplace",
+    "professionals",
     "nextjs",
     "supabase",
     "saas"
@@ -24,9 +25,9 @@
   "author": "",
   "license": "UNLICENSED",
   "bugs": {
-    "url": "https://github.com/nofameorg-byte/orivoo-ai/issues"
+    "url": "https://github.com/nofameorg-byte/vp23/issues"
   },
-  "homepage": "https://github.com/nofameorg-byte/orivoo-ai#readme",
+  "homepage": "https://github.com/nofameorg-byte/vp23#readme",
   "dependencies": {
     "@supabase/ssr": "^0.12.0",
     "@supabase/supabase-js": "^2.108.2",

@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.redirect(
     new URL(
-      "/login?message=We could not confirm your session. Please try again.",
+      "/login?messageKey=auth.messageSessionFailed",
       requestUrl.origin,
     ),
   );
