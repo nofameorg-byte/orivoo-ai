@@ -54,7 +54,7 @@ export default async function DashboardQuotesPage({
           {t(dictionary, "transaction.quoteInbox")}
         </h1>
         <div className="mt-6 grid gap-4">
-          {quotes.map((quote) => {
+          {quotes.length ? quotes.map((quote) => {
             const isProfessional = quote.companies?.owner_id === user?.id;
             return (
               <article
@@ -129,7 +129,13 @@ export default async function DashboardQuotesPage({
                 ) : null}
               </article>
             );
-          })}
+          }) : (
+            <div className="rounded-3xl border border-border bg-panel-soft p-8 text-center">
+              <p className="font-bold text-foreground">
+                {t(dictionary, "transaction.noQuotes")}
+              </p>
+            </div>
+          )}
         </div>
       </section>
     </div>

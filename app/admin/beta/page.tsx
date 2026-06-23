@@ -94,6 +94,31 @@ export default async function AdminBetaPage() {
     .select("id", { count: "exact", head: true })
     .eq("is_flagged", true)
     .eq("is_removed", false);
+  const { count: newProfessionals } = await supabase
+    .from("profiles")
+    .select("id", { count: "exact", head: true })
+    .eq("role", "professional");
+  const { count: newCustomers } = await supabase
+    .from("profiles")
+    .select("id", { count: "exact", head: true })
+    .eq("role", "customer");
+  const { count: quoteRequests } = await supabase
+    .from("quote_requests")
+    .select("id", { count: "exact", head: true });
+  const { count: jobsCreated } = await supabase
+    .from("jobs")
+    .select("id", { count: "exact", head: true });
+  const { count: jobsCompleted } = await supabase
+    .from("jobs")
+    .select("id", { count: "exact", head: true })
+    .eq("status", "completed");
+  const { count: reviewsSubmitted } = await supabase
+    .from("reviews")
+    .select("id", { count: "exact", head: true });
+  const { count: verificationApprovals } = await supabase
+    .from("verification_requests")
+    .select("id", { count: "exact", head: true })
+    .eq("status", "approved");
   const { data: claimsData } = await supabase
     .from("company_claims")
     .select("id, claimant_name, claimant_email, status, documents(storage_path), companies(company_name)")
@@ -138,6 +163,13 @@ export default async function AdminBetaPage() {
     { label: t(dictionary, "beta.pendingVerifications"), value: pendingVerifications ?? 0 },
     { label: t(dictionary, "beta.pendingReviews"), value: pendingReviews ?? 0 },
     { label: t(dictionary, "beta.profileCompletionStats"), value: `${averageCompletion}%` },
+    { label: t(dictionary, "beta.newProfessionals"), value: newProfessionals ?? 0 },
+    { label: t(dictionary, "beta.newCustomers"), value: newCustomers ?? 0 },
+    { label: t(dictionary, "beta.quoteRequests"), value: quoteRequests ?? 0 },
+    { label: t(dictionary, "beta.jobsCreated"), value: jobsCreated ?? 0 },
+    { label: t(dictionary, "beta.jobsCompleted"), value: jobsCompleted ?? 0 },
+    { label: t(dictionary, "beta.reviewsSubmitted"), value: reviewsSubmitted ?? 0 },
+    { label: t(dictionary, "beta.verificationApprovals"), value: verificationApprovals ?? 0 },
   ];
 
   return (
@@ -149,7 +181,7 @@ export default async function AdminBetaPage() {
         body={t(dictionary, "beta.featuredBody")}
       />
       <section className="section-shell space-y-6 pb-16">
-        <div className="grid gap-4 md:grid-cols-5">
+        <div className="grid gap-4 md:grid-cols-4 xl:grid-cols-6">
           {cards.map((card) => (
             <div
               key={card.label}

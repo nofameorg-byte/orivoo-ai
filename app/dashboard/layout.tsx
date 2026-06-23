@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
   BadgeCheck,
+  Bell,
   Building2,
   ClipboardList,
   FileText,
@@ -38,6 +39,7 @@ const navigation = [
   { href: "/document-center", labelKey: "professionalDashboard.insurance", icon: ShieldCheck },
   { href: "/dashboard/quotes", labelKey: "professionalDashboard.quotes", icon: ClipboardList },
   { href: "/dashboard/jobs", labelKey: "professionalDashboard.jobs", icon: FileText },
+  { href: "/dashboard/notifications", labelKey: "notifications.title", icon: Bell },
   { href: "/document-center", labelKey: "professionalDashboard.documents", icon: FileText },
   { href: "/partners", labelKey: "professionalDashboard.partners", icon: Handshake },
   { href: "/dashboard", labelKey: "professionalDashboard.settings", icon: Settings },

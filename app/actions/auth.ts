@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { defaultLocale, isLocale } from "@/lib/i18n/config";
+import { sanitizeSignupRole } from "@/lib/auth-rules";
 import { createClient } from "@/lib/supabase/server";
 import { getSiteUrl } from "@/lib/env";
 
@@ -42,7 +43,7 @@ export async function signUp(formData: FormData) {
   const password = getFormValue(formData, "password");
   const displayName = getFormValue(formData, "displayName");
   const requestedRole = getFormValue(formData, "role");
-  const role = requestedRole === "professional" ? "professional" : "customer";
+  const role = sanitizeSignupRole(requestedRole);
   const requestedLocale = getFormValue(formData, "preferredLanguage");
   const preferredLanguage = isLocale(requestedLocale)
     ? requestedLocale

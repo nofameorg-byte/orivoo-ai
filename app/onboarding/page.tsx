@@ -6,6 +6,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { getDictionary, getLocale, list, t } from "@/lib/i18n/server";
 import { profileCompletionScore } from "@/lib/profile-completion";
+import { nextOnboardingAction } from "@/lib/workflow-rules";
 import { createClient } from "@/lib/supabase/server";
 
 type CompanyRow = {
@@ -69,6 +70,7 @@ export default async function OnboardingPage() {
   });
   const steps = list(dictionary.beta.steps);
   const scoreItems = list(dictionary.beta.scoreItems);
+  const nextAction = nextOnboardingAction(completion.checks, scoreItems);
 
   return (
     <main className="min-h-screen bg-background">
@@ -107,6 +109,11 @@ export default async function OnboardingPage() {
               {completion.score}%
             </p>
           </div>
+          {nextAction ? (
+            <div className="mt-4 rounded-2xl border border-gold/30 bg-gold/10 p-4 text-sm font-bold text-gold-deep">
+              {nextAction}
+            </div>
+          ) : null}
           <div className="mt-5 grid gap-2">
             {scoreItems.map((item, index) => (
               <div

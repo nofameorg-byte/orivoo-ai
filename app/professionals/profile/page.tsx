@@ -622,6 +622,11 @@ export default async function ProfessionalProfilePage({
                     {item.provider_name} - {item.verification_status}
                   </a>
                 ))}
+                {!licenseLinks.length && !insuranceLinks.length ? (
+                  <div className="rounded-2xl border border-border bg-panel-soft p-3 text-sm font-semibold text-muted">
+                    {t(dictionary, "documents.badge")}
+                  </div>
+                ) : null}
               </div>
             </div>
           </section>
@@ -816,6 +821,13 @@ export default async function ProfessionalProfilePage({
                   ) : null}
                 </article>
               ))}
+              {!reviews.length ? (
+                <div className="rounded-3xl border border-border bg-panel-soft p-8 text-center">
+                  <p className="font-bold text-foreground">
+                    {t(dictionary, "reviews.title")}
+                  </p>
+                </div>
+              ) : null}
             </div>
           </section>
         </div>

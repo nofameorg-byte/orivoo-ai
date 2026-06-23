@@ -2,6 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { createWorkflowNotification } from "@/lib/notifications";
+import {
+  canConvertQuoteToJob,
+  canCustomerAcceptJob,
+  canProfessionalSetJobStatus,
+  canRespondToQuote,
+} from "@/lib/workflow-rules";
 import { createClient } from "@/lib/supabase/server";
 
 function formString(formData: FormData, key: string) {
@@ -67,6 +74,15 @@ export async function requestQuote(formData: FormData) {
     redirectWithMessage("/quotes", "Company, title, and project details are required.");
   }
 
+  const { data: company } = await supabase
+    .from("companies")
+    .select("owner_id, company_name")
+    .eq("id", companyId)
+    .maybeSingle();
+  const companyRow = company as {
+    owner_id?: string | null;
+    company_name?: string | null;
+  } | null;
   const { error } = await supabase.from("quote_requests").insert({
     customer_id: user.id,
     company_id: companyId,
@@ -84,6 +100,15 @@ export async function requestQuote(formData: FormData) {
     redirectWithMessage("/quotes", error.message);
   }
 
+  await createWorkflowNotification(supabase, {
+    recipientId: companyRow?.owner_id,
+    actorId: user.id,
+    title: "New quote request",
+    body: title,
+    type: "quote_received",
+    data: { companyId, title },
+  });
+
   revalidatePath("/dashboard/quotes");
   redirect("/dashboard/quotes?message=Quote request submitted.");
 }
@@ -96,13 +121,22 @@ export async function respondToQuote(formData: FormData) {
   const status = decision === "accepted" ? "accepted" : "declined";
   const { data: quote } = await supabase
     .from("quote_requests")
-    .select("id, companies(owner_id)")
+    .select("id, customer_id, status, title, companies(owner_id)")
     .eq("id", quoteId)
     .single();
-  const quoteRow = quote as { companies?: { owner_id?: string | null } | null } | null;
+  const quoteRow = quote as {
+    customer_id?: string | null;
+    status?: string | null;
+    title?: string | null;
+    companies?: { owner_id?: string | null } | null;
+  } | null;
 
   if (quoteRow?.companies?.owner_id !== user.id) {
     redirectWithMessage("/dashboard/quotes", "Only the company owner can respond to quotes.");
+  }
+
+  if (!canRespondToQuote(quoteRow.status)) {
+    redirectWithMessage("/dashboard/quotes", "This quote has already been answered.");
   }
 
   const { error } = await supabase
@@ -118,6 +152,15 @@ export async function respondToQuote(formData: FormData) {
     redirectWithMessage("/dashboard/quotes", error.message);
   }
 
+  await createWorkflowNotification(supabase, {
+    recipientId: quoteRow.customer_id,
+    actorId: user.id,
+    title: status === "accepted" ? "Quote accepted" : "Quote declined",
+    body: quoteRow.title ?? "Quote request updated",
+    type: status === "accepted" ? "quote_accepted" : "quote_declined",
+    data: { quoteId },
+  });
+
   revalidatePath("/dashboard/quotes");
   redirect("/dashboard/quotes?message=Quote response saved.");
 }
@@ -128,7 +171,7 @@ export async function convertQuoteToJob(formData: FormData) {
   const scheduledStart = formString(formData, "scheduledStart") || null;
   const { data: quote, error: quoteError } = await supabase
     .from("quote_requests")
-    .select("id, company_id, customer_id, title, project_details, location, companies(owner_id)")
+    .select("id, company_id, customer_id, title, project_details, location, status, companies(owner_id)")
     .eq("id", quoteId)
     .single();
 
@@ -143,11 +186,16 @@ export async function convertQuoteToJob(formData: FormData) {
     title: string;
     project_details: string;
     location?: string | null;
+    status?: string | null;
     companies?: { owner_id?: string | null } | null;
   };
 
   if (row.companies?.owner_id !== user.id) {
     redirectWithMessage("/dashboard/quotes", "Only the company owner can convert quotes.");
+  }
+
+  if (!canConvertQuoteToJob(row.status)) {
+    redirectWithMessage("/dashboard/quotes", "Only accepted quotes can become jobs.");
   }
   const { data: job, error: jobError } = await supabase
     .from("jobs")
@@ -182,6 +230,14 @@ export async function convertQuoteToJob(formData: FormData) {
 
   revalidatePath("/dashboard/quotes");
   revalidatePath("/dashboard/jobs");
+  await createWorkflowNotification(supabase, {
+    recipientId: row.customer_id,
+    actorId: user.id,
+    title: "Job created",
+    body: row.title,
+    type: "job_created",
+    data: { quoteId, jobId: jobRow.id },
+  });
   redirect("/dashboard/jobs?message=Quote converted to job.");
 }
 
@@ -190,13 +246,22 @@ export async function acceptJob(formData: FormData) {
   const jobId = formString(formData, "jobId");
   const { data: job } = await supabase
     .from("jobs")
-    .select("customer_id")
+    .select("customer_id, status, title, companies(owner_id)")
     .eq("id", jobId)
     .single();
-  const jobRow = job as { customer_id?: string | null } | null;
+  const jobRow = job as {
+    customer_id?: string | null;
+    status?: string | null;
+    title?: string | null;
+    companies?: { owner_id?: string | null } | null;
+  } | null;
 
   if (jobRow?.customer_id !== user.id) {
     redirectWithMessage("/dashboard/jobs", "Only the customer can accept this job.");
+  }
+
+  if (!canCustomerAcceptJob(jobRow.status)) {
+    redirectWithMessage("/dashboard/jobs", "Only pending jobs can be accepted.");
   }
 
   const { error } = await supabase
@@ -211,6 +276,15 @@ export async function acceptJob(formData: FormData) {
     redirectWithMessage("/dashboard/jobs", error.message);
   }
 
+  await createWorkflowNotification(supabase, {
+    recipientId: jobRow.companies?.owner_id,
+    actorId: user.id,
+    title: "Job accepted",
+    body: jobRow.title ?? "Job accepted by customer",
+    type: "job_accepted",
+    data: { jobId },
+  });
+
   revalidatePath("/dashboard/jobs");
   redirect("/dashboard/jobs?message=Job accepted.");
 }
@@ -221,16 +295,20 @@ export async function updateJobStatus(formData: FormData) {
   const status = formString(formData, "status");
   const allowed = ["scheduled", "in_progress", "completed", "cancelled"];
 
-  if (!allowed.includes(status)) {
+  if (!allowed.includes(status) || !canProfessionalSetJobStatus(status)) {
     redirectWithMessage("/dashboard/jobs", "Invalid job status.");
   }
 
   const { data: job } = await supabase
     .from("jobs")
-    .select("companies(owner_id)")
+    .select("customer_id, title, companies(owner_id)")
     .eq("id", jobId)
     .single();
-  const jobRow = job as { companies?: { owner_id?: string | null } | null } | null;
+  const jobRow = job as {
+    customer_id?: string | null;
+    title?: string | null;
+    companies?: { owner_id?: string | null } | null;
+  } | null;
 
   if (jobRow?.companies?.owner_id !== user.id) {
     redirectWithMessage("/dashboard/jobs", "Only the company owner can update this job.");
@@ -246,6 +324,17 @@ export async function updateJobStatus(formData: FormData) {
 
   if (error) {
     redirectWithMessage("/dashboard/jobs", error.message);
+  }
+
+  if (status === "completed") {
+    await createWorkflowNotification(supabase, {
+      recipientId: jobRow.customer_id,
+      actorId: user.id,
+      title: "Job completed",
+      body: jobRow.title ?? "Your job was marked complete",
+      type: "job_completed",
+      data: { jobId },
+    });
   }
 
   revalidatePath("/dashboard/jobs");

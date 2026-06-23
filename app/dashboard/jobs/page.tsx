@@ -53,7 +53,7 @@ export default async function DashboardJobsPage({
           {t(dictionary, "transaction.jobs")}
         </h1>
         <div className="mt-6 grid gap-4">
-          {jobs.map((job) => {
+          {jobs.length ? jobs.map((job) => {
             const isProfessional = job.companies?.owner_id === user?.id;
             const isCustomer = job.customer_id === user?.id;
             return (
@@ -121,7 +121,13 @@ export default async function DashboardJobsPage({
                 </div>
               </article>
             );
-          })}
+          }) : (
+            <div className="rounded-3xl border border-border bg-panel-soft p-8 text-center">
+              <p className="font-bold text-foreground">
+                {t(dictionary, "transaction.noJobs")}
+              </p>
+            </div>
+          )}
         </div>
       </section>
     </div>

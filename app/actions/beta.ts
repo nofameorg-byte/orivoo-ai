@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getSiteUrl } from "@/lib/env";
+import { createWorkflowNotification } from "@/lib/notifications";
 import { createClient } from "@/lib/supabase/server";
 
 function formString(formData: FormData, key: string) {
@@ -232,6 +233,15 @@ export async function decideBusinessClaim(formData: FormData) {
       reviewed_by: user.id,
       reviewed_at: new Date().toISOString(),
       notes: "Approved through business claim workflow.",
+    });
+
+    await createWorkflowNotification(supabase, {
+      recipientId: claimRow.claimant_id,
+      actorId: user.id,
+      title: "Claim approved",
+      body: "Your business claim was approved.",
+      type: "claim_approved",
+      data: { companyId: claimRow.company_id },
     });
   }
 

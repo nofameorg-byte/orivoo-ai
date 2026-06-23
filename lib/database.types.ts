@@ -169,6 +169,17 @@ export type Database = {
         };
         Returns: undefined;
       };
+      create_notification: {
+        Args: {
+          recipient_uuid: string;
+          actor_uuid: string | null;
+          notification_title: string;
+          notification_body: string;
+          notification_kind: string;
+          notification_data?: Json;
+        };
+        Returns: string;
+      };
     };
     Enums: {
       profile_role: ProfileRole;

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { createWorkflowNotification } from "@/lib/notifications";
 import { createClient } from "@/lib/supabase/server";
 
 type DocumentType = "license" | "insurance_document" | "photo" | "other";
@@ -336,7 +337,7 @@ export async function decideVerificationRequest(formData: FormData) {
 
   const { data: request, error: requestError } = await supabase
     .from("verification_requests")
-    .select("id, verification_type, evidence_document_id, expires_at, notes")
+    .select("id, company_id, submitted_by, verification_type, evidence_document_id, expires_at, notes, companies(owner_id)")
     .eq("id", requestId)
     .single();
 
@@ -344,13 +345,22 @@ export async function decideVerificationRequest(formData: FormData) {
     redirectWithMessage("/admin", "Verification request not found.");
   }
 
+  const requestRow = request as {
+    company_id?: string | null;
+    submitted_by?: string | null;
+    verification_type?: string | null;
+    evidence_document_id?: string | null;
+    notes?: string | null;
+    companies?: { owner_id?: string | null } | null;
+  };
+
   const { error } = await supabase
     .from("verification_requests")
     .update({
       status: decision,
       reviewed_by: user.id,
       reviewed_at: new Date().toISOString(),
-      notes: notes || request.notes || null,
+      notes: notes || requestRow.notes || null,
     })
     .eq("id", requestId);
 
@@ -358,18 +368,29 @@ export async function decideVerificationRequest(formData: FormData) {
     redirectWithMessage("/admin", error.message);
   }
 
-  if (request.evidence_document_id && request.verification_type === "license") {
+  if (requestRow.evidence_document_id && requestRow.verification_type === "license") {
     await supabase
       .from("licenses")
       .update({ verification_status: decision })
-      .eq("document_id", request.evidence_document_id);
+      .eq("document_id", requestRow.evidence_document_id);
   }
 
-  if (request.evidence_document_id && request.verification_type === "insurance") {
+  if (requestRow.evidence_document_id && requestRow.verification_type === "insurance") {
     await supabase
       .from("insurance_policies")
       .update({ verification_status: decision })
-      .eq("document_id", request.evidence_document_id);
+      .eq("document_id", requestRow.evidence_document_id);
+  }
+
+  if (decision === "approved") {
+    await createWorkflowNotification(supabase, {
+      recipientId: requestRow.companies?.owner_id ?? requestRow.submitted_by,
+      actorId: user.id,
+      title: "Verification approved",
+      body: requestRow.verification_type ?? "Verification request approved",
+      type: "verification_approved",
+      data: { requestId },
+    });
   }
 
   revalidatePath("/admin");
@@ -386,6 +407,15 @@ export async function createReview(formData: FormData) {
   const title = formString(formData, "title");
   const body = formString(formData, "body");
 
+  const { data: company } = await supabase
+    .from("companies")
+    .select("owner_id, company_name")
+    .eq("id", companyId)
+    .maybeSingle();
+  const companyRow = company as {
+    owner_id?: string | null;
+    company_name?: string | null;
+  } | null;
   const { data: review, error } = await supabase
     .from("reviews")
     .insert({
@@ -421,6 +451,14 @@ export async function createReview(formData: FormData) {
   }
 
   revalidatePath("/professionals/profile");
+  await createWorkflowNotification(supabase, {
+    recipientId: companyRow?.owner_id,
+    actorId: user.id,
+    title: "Review received",
+    body: title || companyRow?.company_name || "New verified customer review",
+    type: "review_received",
+    data: { companyId, reviewId: String(review.id) },
+  });
   redirect("/professionals/profile?message=Review submitted.");
 }
 
