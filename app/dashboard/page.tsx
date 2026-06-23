@@ -2,27 +2,31 @@ import Link from "next/link";
 import {
   ArrowRight,
   BadgeCheck,
-  Bot,
   Building2,
   ClipboardList,
   FileText,
   Handshake,
-  Search,
+  MessageSquare,
   ShieldCheck,
-  Truck,
+  Star,
 } from "lucide-react";
+import {
+  ProfessionalDashboardPanel,
+  TrustBadgeGrid,
+  type VerificationBadge,
+} from "@/components/marketplace";
 import { isLocale } from "@/lib/i18n/config";
 import { getDictionary, getLocale, list, t } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 
 const operatingAreas = [
-  { href: "/professionals", labelKey: "routes.directory", icon: Search },
-  { href: "/quotes", labelKey: "routes.quotes", icon: ClipboardList },
-  { href: "/business-tools", labelKey: "routes.tools", icon: Building2 },
-  { href: "/document-center", labelKey: "routes.documents", icon: FileText },
-  { href: "/partners", labelKey: "routes.partners", icon: Handshake },
-  { href: "/equipment", labelKey: "routes.equipment", icon: Truck },
-  { href: "/ai", labelKey: "routes.ai", icon: Bot },
+  { href: "/professionals/profile", labelKey: "professionalDashboard.companyProfile", icon: Building2 },
+  { href: "/professionals/profile", labelKey: "professionalDashboard.reviews", icon: MessageSquare },
+  { href: "/document-center", labelKey: "professionalDashboard.licenses", icon: BadgeCheck },
+  { href: "/document-center", labelKey: "professionalDashboard.insurance", icon: ShieldCheck },
+  { href: "/quotes", labelKey: "professionalDashboard.quotes", icon: ClipboardList },
+  { href: "/business-tools", labelKey: "professionalDashboard.jobs", icon: FileText },
+  { href: "/partners", labelKey: "professionalDashboard.partners", icon: Handshake },
 ];
 
 export default async function DashboardPage() {
@@ -46,46 +50,70 @@ export default async function DashboardPage() {
     (typeof user?.user_metadata.display_name === "string"
       ? user.user_metadata.display_name
       : user?.email?.split("@")[0] ?? t(dictionary, "common.professional"));
-  const metrics = list(dictionary.dashboard.metrics);
-  const badges = list(dictionary.verification.badges);
-  const quickActions = list(dictionary.dashboard.quickActions);
+  const cards = list(dictionary.professionalDashboard.cards);
+  const checklist = list(dictionary.professionalDashboard.checklist);
+  const dashboardNav = [
+    t(dictionary, "professionalDashboard.overview"),
+    t(dictionary, "professionalDashboard.companyProfile"),
+    t(dictionary, "professionalDashboard.reviews"),
+    t(dictionary, "professionalDashboard.licenses"),
+    t(dictionary, "professionalDashboard.insurance"),
+    t(dictionary, "professionalDashboard.verification"),
+    t(dictionary, "professionalDashboard.quotes"),
+    t(dictionary, "professionalDashboard.jobs"),
+    t(dictionary, "professionalDashboard.documents"),
+    t(dictionary, "professionalDashboard.partners"),
+    t(dictionary, "professionalDashboard.settings"),
+  ];
+  const statusLabels = {
+    approved: t(dictionary, "trustV2.approvedStatus"),
+    pending: t(dictionary, "trustV2.pendingStatus"),
+    expired: t(dictionary, "trustV2.expiredStatus"),
+    missing: t(dictionary, "trustV2.missingStatus"),
+    expires: t(dictionary, "trustV2.expires"),
+  };
+  const verificationBadges: VerificationBadge[] = list(dictionary.trustV2.badges).map(
+    (label) => ({
+      label,
+      status: "missing",
+    }),
+  );
 
   return (
     <div className="space-y-8">
-      <section className="surface-card relative overflow-hidden rounded-[2rem] p-6 sm:p-8 lg:p-10">
-        <div className="absolute right-0 top-0 h-64 w-64 rounded-full bg-gold/10 blur-3xl" />
-        <div className="relative grid gap-8 lg:grid-cols-[1fr_0.75fr] lg:items-end">
+      <section className="rounded-[2rem] border border-border bg-panel p-6 shadow-xl sm:p-8">
+        <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
           <div>
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-gold/25 bg-gold/10 px-4 py-2 text-sm text-gold-bright">
-              <ShieldCheck className="size-4" aria-hidden />
-              {t(dictionary, "dashboard.badge")}
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-gold/25 bg-gold/10 px-4 py-2 text-sm font-bold text-gold-bright">
+              <Star className="size-4" aria-hidden />
+              {t(dictionary, "professionalDashboard.overview")}
             </div>
             <h1 className="max-w-4xl text-4xl font-black tracking-tight text-foreground sm:text-5xl">
               {t(dictionary, "dashboard.welcome", { name: displayName })}
             </h1>
             <p className="mt-5 max-w-2xl leading-7 text-muted">
-              {t(dictionary, "dashboard.body")}
+              {t(dictionary, "professionalDashboard.subtitle")}
             </p>
           </div>
-          <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
-            {metrics.map((metric) => (
-              <div
-                key={metric.label}
-                className="rounded-2xl border border-border bg-background/50 p-4"
-              >
-                <p className="text-xs uppercase tracking-[0.24em] text-muted">
-                  {metric.label}
-                </p>
-                <p className="mt-2 text-2xl font-black text-foreground">
-                  {metric.value}
-                </p>
-              </div>
-            ))}
-          </div>
+          <Link
+            href="/professionals/profile"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-foreground px-5 py-3 text-sm font-black text-background transition hover:bg-gold-bright"
+          >
+            {t(dictionary, "professionalDashboard.companyProfile")}
+            <ArrowRight className="size-4" aria-hidden />
+          </Link>
         </div>
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
+      <ProfessionalDashboardPanel
+        title={t(dictionary, "professionalDashboard.title")}
+        subtitle={t(dictionary, "professionalDashboard.subtitle")}
+        navItems={dashboardNav}
+        cards={cards}
+        checklist={checklist}
+      />
+
+      <section className="grid gap-6 xl:grid-cols-[1fr_0.8fr]">
         <div className="rounded-[2rem] border border-border bg-panel p-6">
           <h2 className="text-2xl font-black text-foreground">
             {t(dictionary, "dashboard.sectionsTitle")}
@@ -93,7 +121,7 @@ export default async function DashboardPage() {
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             {operatingAreas.map((area) => (
               <Link
-                key={area.href}
+                key={area.labelKey}
                 href={area.href}
                 className="group rounded-3xl border border-border bg-panel-soft p-5 transition hover:-translate-y-1 hover:border-gold/50"
               >
@@ -109,41 +137,19 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        <div className="grid gap-4">
-          <div className="rounded-[2rem] border border-border bg-panel p-6">
-            <h2 className="text-2xl font-black text-foreground">
-              {t(dictionary, "verification.title")}
-            </h2>
-            <p className="mt-3 text-sm leading-6 text-muted">
-              {t(dictionary, "verification.body")}
-            </p>
-            <div className="mt-6 grid gap-2">
-              {badges.map((badge) => (
-                <div
-                  key={badge}
-                  className="flex items-center gap-3 rounded-2xl border border-border bg-gold/10 p-3 text-sm font-medium text-foreground"
-                >
-                  <BadgeCheck className="size-5 text-gold" aria-hidden />
-                  {badge}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="rounded-[2rem] border border-border bg-panel p-6">
-            <h2 className="text-2xl font-black text-foreground">
-              {t(dictionary, "dashboard.quickActionsTitle")}
-            </h2>
-            <div className="mt-5 grid gap-2">
-              {quickActions.map((action) => (
-                <div
-                  key={action}
-                  className="rounded-2xl border border-border bg-panel-soft p-3 text-sm text-muted"
-                >
-                  {action}
-                </div>
-              ))}
-            </div>
+        <div className="rounded-[2rem] border border-border bg-panel p-6">
+          <h2 className="text-2xl font-black text-foreground">
+            {t(dictionary, "trustV2.badgeSystemTitle")}
+          </h2>
+          <p className="mt-3 text-sm leading-6 text-muted">
+            {t(dictionary, "trustV2.body")}
+          </p>
+          <div className="mt-6">
+            <TrustBadgeGrid
+              badges={verificationBadges}
+              statusLabels={statusLabels}
+              compact
+            />
           </div>
         </div>
       </section>

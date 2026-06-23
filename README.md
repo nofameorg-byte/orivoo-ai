@@ -45,7 +45,7 @@ be translated consistently.
 - `/partners` - Partnership marketplace
 - `/capital` - VP23 Capital partner marketplace framework only
 - `/equipment` - Equipment rental marketplace framework
-- `/ai` - ORIVOO AI integration placeholders
+- `/ai` - Future automation integration placeholders
 - `/admin` - Protected admin framework
 
 ## Database

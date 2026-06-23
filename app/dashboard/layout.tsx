@@ -2,16 +2,16 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
-  Bot,
+  BadgeCheck,
   Building2,
   ClipboardList,
   FileText,
   Handshake,
   LayoutDashboard,
   LogOut,
-  Search,
+  MessageSquare,
+  Settings,
   ShieldCheck,
-  Truck,
   Users,
 } from "lucide-react";
 import { signOut } from "@/app/actions/auth";
@@ -31,15 +31,16 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const navigation = [
-  { href: "/dashboard", labelKey: "common.dashboard", icon: LayoutDashboard },
-  { href: "/professionals", labelKey: "routes.directory", icon: Search },
-  { href: "/quotes", labelKey: "routes.quotes", icon: ClipboardList },
-  { href: "/business-tools", labelKey: "routes.tools", icon: Building2 },
-  { href: "/document-center", labelKey: "routes.documents", icon: FileText },
-  { href: "/partners", labelKey: "routes.partners", icon: Handshake },
-  { href: "/capital", labelKey: "routes.capital", icon: ShieldCheck },
-  { href: "/equipment", labelKey: "routes.equipment", icon: Truck },
-  { href: "/ai", labelKey: "routes.ai", icon: Bot },
+  { href: "/dashboard", labelKey: "professionalDashboard.overview", icon: LayoutDashboard },
+  { href: "/professionals/profile", labelKey: "professionalDashboard.companyProfile", icon: Building2 },
+  { href: "/professionals/profile", labelKey: "professionalDashboard.reviews", icon: MessageSquare },
+  { href: "/document-center", labelKey: "professionalDashboard.licenses", icon: BadgeCheck },
+  { href: "/document-center", labelKey: "professionalDashboard.insurance", icon: ShieldCheck },
+  { href: "/quotes", labelKey: "professionalDashboard.quotes", icon: ClipboardList },
+  { href: "/business-tools", labelKey: "professionalDashboard.jobs", icon: FileText },
+  { href: "/document-center", labelKey: "professionalDashboard.documents", icon: FileText },
+  { href: "/partners", labelKey: "professionalDashboard.partners", icon: Handshake },
+  { href: "/dashboard", labelKey: "professionalDashboard.settings", icon: Settings },
   { href: "/admin", labelKey: "routes.admin", icon: Users },
 ];
 
