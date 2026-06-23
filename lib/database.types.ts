@@ -19,8 +19,13 @@ type VerificationType =
   | "vp23_elite";
 type JobStatus =
   | "draft"
+  | "pending"
   | "requested"
+  | "accepted"
+  | "declined"
+  | "converted_to_job"
   | "scheduled"
+  | "in_progress"
   | "active"
   | "completed"
   | "cancelled";

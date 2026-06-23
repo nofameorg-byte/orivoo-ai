@@ -71,6 +71,7 @@ type DirectoryCompanyCardProps = {
   };
   statusLabels: StatusLabels;
   profileHref?: string;
+  quoteHref?: string;
 };
 
 type ReviewSystemPanelProps = {
@@ -239,6 +240,7 @@ export function DirectoryCompanyCard({
   labels,
   statusLabels,
   profileHref = "/professionals/profile",
+  quoteHref = "/quotes",
 }: DirectoryCompanyCardProps) {
   const approvedBadges = company.badges.filter(
     (badge) => badge.status === "approved",
@@ -306,7 +308,7 @@ export function DirectoryCompanyCard({
             {labels.viewProfile}
           </Link>
           <Link
-            href="/quotes"
+            href={quoteHref}
             className="inline-flex items-center justify-center rounded-full bg-foreground px-4 py-2.5 text-sm font-bold text-background transition hover:bg-gold-bright"
           >
             {labels.requestQuote}

@@ -86,6 +86,7 @@ export default async function FeaturedProfessionalsPage() {
             }}
             statusLabels={statusLabels}
             profileHref={`/professionals/profile?id=${company.id}`}
+            quoteHref={`/quotes?companyId=${company.id}`}
           />
         ))}
       </section>

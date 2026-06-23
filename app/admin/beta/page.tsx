@@ -11,6 +11,7 @@ import { isLocale } from "@/lib/i18n/config";
 import { getDictionary, getLocale, t } from "@/lib/i18n/server";
 import { profileCompletionScore } from "@/lib/profile-completion";
 import { createClient } from "@/lib/supabase/server";
+import { signedStorageUrl } from "@/lib/storage";
 
 type CompanyRow = {
   id: string;
@@ -35,6 +36,9 @@ type ClaimRow = {
   claimant_name: string;
   claimant_email: string;
   status: string;
+  documents?: {
+    storage_path?: string | null;
+  } | null;
   companies?: {
     company_name?: string | null;
   } | null;
@@ -92,10 +96,16 @@ export default async function AdminBetaPage() {
     .eq("is_removed", false);
   const { data: claimsData } = await supabase
     .from("company_claims")
-    .select("id, claimant_name, claimant_email, status, companies(company_name)")
+    .select("id, claimant_name, claimant_email, status, documents(storage_path), companies(company_name)")
     .eq("status", "pending")
     .order("created_at", { ascending: true });
   const claims = (claimsData ?? []) as unknown as ClaimRow[];
+  const claimLinks = await Promise.all(
+    claims.map(async (claim) => ({
+      ...claim,
+      href: await signedStorageUrl(claim.documents?.storage_path),
+    })),
+  );
   const { data: viewsData } = await supabase
     .from("company_views")
     .select("company_id")
@@ -158,7 +168,7 @@ export default async function AdminBetaPage() {
               {t(dictionary, "beta.claimQueue")}
             </h2>
             <div className="mt-5 grid gap-3">
-              {claims.map((claim) => (
+              {claimLinks.map((claim) => (
                 <div
                   key={claim.id}
                   className="rounded-2xl border border-border bg-panel-soft p-4"
@@ -169,6 +179,14 @@ export default async function AdminBetaPage() {
                   <p className="mt-1 text-sm text-muted">
                     {claim.claimant_name} - {claim.claimant_email}
                   </p>
+                  {claim.href ? (
+                    <a
+                      href={claim.href}
+                      className="mt-2 inline-flex text-sm font-bold text-gold"
+                    >
+                      {t(dictionary, "beta.ownershipDocument")}
+                    </a>
+                  ) : null}
                   <form action={decideBusinessClaim} className="mt-4 grid gap-2 sm:grid-cols-2">
                     <input type="hidden" name="claimId" value={claim.id} />
                     <button

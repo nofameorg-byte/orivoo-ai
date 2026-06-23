@@ -10,6 +10,7 @@ import { SiteHeader } from "@/components/site-header";
 import { isLocale } from "@/lib/i18n/config";
 import { getDictionary, getLocale, list, t } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
+import { signedStorageUrl } from "@/lib/storage";
 
 type VerificationQueueItem = {
   id: string;
@@ -17,6 +18,9 @@ type VerificationQueueItem = {
   status: string;
   notes?: string | null;
   expires_at?: string | null;
+  documents?: {
+    storage_path?: string | null;
+  } | null;
   companies?: {
     company_name?: string | null;
   } | null;
@@ -24,11 +28,18 @@ type VerificationQueueItem = {
 
 type FlaggedReview = {
   id: string;
+  review_id: string;
+  reason?: string | null;
   title?: string | null;
   body?: string | null;
   rating?: number | null;
-  companies?: {
-    company_name?: string | null;
+  reviews?: {
+    title?: string | null;
+    body?: string | null;
+    rating?: number | null;
+    companies?: {
+      company_name?: string | null;
+    } | null;
   } | null;
 };
 
@@ -62,16 +73,21 @@ export default async function AdminPage() {
   }));
   const { data: verificationData } = await supabase
     .from("verification_requests")
-    .select("id, verification_type, status, notes, expires_at, companies(company_name)")
+    .select("id, verification_type, status, notes, expires_at, documents(storage_path), companies(company_name)")
     .in("status", ["pending", "expired"])
     .order("created_at", { ascending: true });
   const verificationQueue =
     (verificationData ?? []) as unknown as VerificationQueueItem[];
+  const verificationQueueWithLinks = await Promise.all(
+    verificationQueue.map(async (item) => ({
+      ...item,
+      href: await signedStorageUrl(item.documents?.storage_path),
+    })),
+  );
   const { data: reviewData } = await supabase
-    .from("reviews")
-    .select("id, title, body, rating, companies(company_name)")
-    .eq("is_flagged", true)
-    .eq("is_removed", false)
+    .from("review_flags")
+    .select("id, review_id, reason, reviews(title, body, rating, companies(company_name))")
+    .eq("status", "pending")
     .order("updated_at", { ascending: false });
   const flaggedReviews = (reviewData ?? []) as unknown as FlaggedReview[];
 
@@ -96,7 +112,7 @@ export default async function AdminPage() {
                 {t(dictionary, "trustV2.adminQueueTitle")}
               </h2>
               <div className="mt-5 grid gap-3">
-                {verificationQueue.map((item) => (
+                {verificationQueueWithLinks.map((item) => (
                   <div
                     key={item.id}
                     className="rounded-2xl border border-border bg-panel-soft p-4"
@@ -113,6 +129,14 @@ export default async function AdminPage() {
                           <p className="mt-1 text-xs text-muted">
                             {t(dictionary, "trustV2.expires")}: {item.expires_at}
                           </p>
+                        ) : null}
+                        {item.href ? (
+                          <a
+                            href={item.href}
+                            className="mt-2 inline-flex text-sm font-bold text-gold"
+                          >
+                            {t(dictionary, "profileV2.documents")}
+                          </a>
                         ) : null}
                       </div>
                       <span className="inline-flex h-fit items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-3 py-1 text-xs font-bold text-gold-deep">
@@ -161,11 +185,16 @@ export default async function AdminPage() {
                     className="rounded-2xl border border-border bg-panel-soft p-4"
                   >
                     <h3 className="font-bold text-foreground">
-                      {review.title ?? review.companies?.company_name}
+                      {review.reviews?.title ?? review.reviews?.companies?.company_name}
                     </h3>
-                    <p className="mt-2 text-sm text-muted">{review.body}</p>
+                    <p className="mt-2 text-sm text-muted">{review.reviews?.body}</p>
+                    {review.reason ? (
+                      <p className="mt-2 text-xs font-semibold text-muted">
+                        {review.reason}
+                      </p>
+                    ) : null}
                     <form action={moderateReview} className="mt-4 grid gap-2 sm:grid-cols-2">
-                      <input type="hidden" name="reviewId" value={review.id} />
+                      <input type="hidden" name="flagId" value={review.id} />
                       <button
                         type="submit"
                         name="decision"

@@ -165,7 +165,7 @@ export async function createProfessionalInvitation(formData: FormData) {
 
   revalidatePath("/invite-professionals");
   redirect(
-    `/invite-professionals?message=${encodeURIComponent(`${getSiteUrl()}/signup?invite=${token}`)}`,
+    `/invite-professionals?message=${encodeURIComponent(`${getSiteUrl()}/invite/${token}`)}`,
   );
 }
 
@@ -187,6 +187,18 @@ export async function decideBusinessClaim(formData: FormData) {
     company_id: string;
     claimant_id: string;
   };
+  const { data: claimantProfile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", claimRow.claimant_id)
+    .maybeSingle();
+
+  if (status === "approved" && claimantProfile?.role !== "professional") {
+    redirectWithMessage(
+      "/admin/beta",
+      "Only professional accounts can be approved for company ownership.",
+    );
+  }
 
   const { error } = await supabase
     .from("company_claims")
@@ -211,11 +223,67 @@ export async function decideBusinessClaim(formData: FormData) {
         is_business_verified: true,
       })
       .eq("id", claimRow.company_id);
+
+    await supabase.from("verification_requests").insert({
+      company_id: claimRow.company_id,
+      verification_type: "business",
+      status: "approved",
+      submitted_by: claimRow.claimant_id,
+      reviewed_by: user.id,
+      reviewed_at: new Date().toISOString(),
+      notes: "Approved through business claim workflow.",
+    });
   }
 
   revalidatePath("/admin/beta");
   revalidatePath("/professionals");
   redirect("/admin/beta?message=Business claim updated.");
+}
+
+export async function acceptProfessionalInvitation(formData: FormData) {
+  const { supabase, user } = await requireUser();
+  const token = formString(formData, "token");
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (profile?.role !== "professional") {
+    redirectWithMessage("/invite-professionals", "Only professional accounts can accept invitations.");
+  }
+
+  const { data: invitation, error } = await supabase
+    .from("professional_invitations")
+    .select("id, expires_at")
+    .eq("invite_token", token)
+    .eq("status", "pending")
+    .maybeSingle();
+
+  if (error || !invitation) {
+    redirectWithMessage("/invite-professionals", "Invitation not found.");
+  }
+
+  const inviteRow = invitation as { id: string; expires_at: string };
+  if (new Date(inviteRow.expires_at) < new Date()) {
+    await supabase
+      .from("professional_invitations")
+      .update({ status: "expired" })
+      .eq("id", inviteRow.id);
+    redirectWithMessage("/invite-professionals", "Invitation expired.");
+  }
+
+  await supabase
+    .from("professional_invitations")
+    .update({
+      status: "approved",
+      accepted_by: user.id,
+      accepted_at: new Date().toISOString(),
+    })
+    .eq("id", inviteRow.id);
+
+  revalidatePath("/invite-professionals");
+  redirect("/onboarding?message=Invitation accepted.");
 }
 
 export async function updateFeaturedPlacement(formData: FormData) {

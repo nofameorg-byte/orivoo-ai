@@ -31,6 +31,9 @@ type CompanyRow = {
   id: string;
   company_name: string;
   location?: string | null;
+  city?: string | null;
+  state?: string | null;
+  postal_code?: string | null;
   service_areas?: string[] | null;
   years_in_business?: number | null;
   rating_average?: number | null;
@@ -112,7 +115,10 @@ export default async function ProfessionalsPage({
   }
 
   if (location) {
-    query = query.contains("service_areas", [location]);
+    const term = safeSearch(location);
+    query = query.or(
+      `city.ilike.%${term}%,state.ilike.%${term}%,postal_code.ilike.%${term}%`,
+    );
   }
 
   if (selectedCategory) {
@@ -283,7 +289,12 @@ export default async function ProfessionalsPage({
                     locale === "es"
                       ? company.categories?.name_es ?? ""
                       : company.categories?.name_en ?? "",
-                  location: company.service_areas?.[0] ?? "",
+                  location:
+                    [company.city, company.state, company.postal_code]
+                      .filter(Boolean)
+                      .join(", ") ||
+                    company.service_areas?.[0] ||
+                    "",
                   rating: String(company.rating_average ?? 0),
                   reviewCount: String(company.rating_count ?? 0),
                   years: String(company.years_in_business ?? 0),
@@ -300,6 +311,7 @@ export default async function ProfessionalsPage({
                 }}
                 statusLabels={statusLabels}
                 profileHref={`/professionals/profile?id=${company.id}`}
+                quoteHref={`/quotes?companyId=${company.id}`}
               />
             ))}
           </div>

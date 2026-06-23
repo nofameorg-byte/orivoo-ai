@@ -25,6 +25,7 @@ import { SiteHeader } from "@/components/site-header";
 import { getDictionary, getLocale, list, t } from "@/lib/i18n/server";
 import { profileCompletionScore } from "@/lib/profile-completion";
 import { createClient } from "@/lib/supabase/server";
+import { signedStorageUrl } from "@/lib/storage";
 import { companyTrustBadges } from "@/lib/trust";
 
 type ProfilePageProps = {
@@ -52,6 +53,9 @@ type CompanyRow = {
   website?: string | null;
   phone?: string | null;
   email?: string | null;
+  city?: string | null;
+  state?: string | null;
+  postal_code?: string | null;
   social_media?: Record<string, string> | null;
   languages?: string[] | null;
   rating_average?: number | null;
@@ -76,6 +80,9 @@ type LicenseRow = {
   license_type?: string | null;
   expires_at?: string | null;
   verification_status?: string | null;
+  documents?: {
+    storage_path?: string | null;
+  } | null;
 };
 
 type InsuranceRow = {
@@ -84,6 +91,9 @@ type InsuranceRow = {
   policy_number?: string | null;
   expires_at?: string | null;
   verification_status?: string | null;
+  documents?: {
+    storage_path?: string | null;
+  } | null;
 };
 
 type ReviewRow = {
@@ -96,6 +106,11 @@ type ReviewRow = {
   professional_response?: string | null;
   is_flagged?: boolean | null;
   created_at: string;
+};
+
+type JobRow = {
+  id: string;
+  title: string;
 };
 
 function textAreaValue(items?: string[] | null) {
@@ -168,22 +183,36 @@ export default async function ProfessionalProfilePage({
     missing: t(dictionary, "trustV2.missingStatus"),
     expires: t(dictionary, "trustV2.expires"),
   };
+  const logoUrl = await signedStorageUrl(company?.logo_url);
+  const coverUrl = await signedStorageUrl(company?.cover_image_url);
   const { data: licensesData } = companyId
     ? await supabase
         .from("licenses")
-        .select("id, license_number, license_type, expires_at, verification_status")
+        .select("id, license_number, license_type, expires_at, verification_status, documents(storage_path)")
         .eq("company_id", companyId)
         .order("created_at", { ascending: false })
     : { data: [] };
   const licenses = (licensesData ?? []) as unknown as LicenseRow[];
+  const licenseLinks = await Promise.all(
+    licenses.map(async (license) => ({
+      ...license,
+      href: await signedStorageUrl(license.documents?.storage_path),
+    })),
+  );
   const { data: insuranceData } = companyId
     ? await supabase
         .from("insurance_policies")
-        .select("id, provider_name, policy_number, expires_at, verification_status")
+        .select("id, provider_name, policy_number, expires_at, verification_status, documents(storage_path)")
         .eq("company_id", companyId)
         .order("created_at", { ascending: false })
     : { data: [] };
   const insurancePolicies = (insuranceData ?? []) as unknown as InsuranceRow[];
+  const insuranceLinks = await Promise.all(
+    insurancePolicies.map(async (policy) => ({
+      ...policy,
+      href: await signedStorageUrl(policy.documents?.storage_path),
+    })),
+  );
   const { data: reviewsData } = companyId
     ? await supabase
         .from("reviews")
@@ -193,6 +222,23 @@ export default async function ProfessionalProfilePage({
         .order("created_at", { ascending: false })
     : { data: [] };
   const reviews = (reviewsData ?? []) as unknown as ReviewRow[];
+  const { data: completedJobsData } =
+    companyId && user
+      ? await supabase
+          .from("jobs")
+          .select("id, title")
+          .eq("company_id", companyId)
+          .eq("customer_id", user.id)
+          .eq("status", "completed")
+      : { data: [] };
+  const reviewedJobIds = new Set(
+    reviews
+      .filter((review) => review.customer_id === user?.id && review.job_id)
+      .map((review) => review.job_id),
+  );
+  const eligibleReviewJobs = ((completedJobsData ?? []) as unknown as JobRow[]).filter(
+    (job) => !reviewedJobIds.has(job.id),
+  );
   const { data: helpfulVotesData } = reviews.length
     ? await supabase
         .from("review_helpful_votes")
@@ -233,7 +279,12 @@ export default async function ProfessionalProfilePage({
           <div
             role="img"
             aria-label={t(dictionary, "profileV2.coverAlt")}
-            className="h-44 bg-gradient-to-r from-gold/35 via-panel-soft to-background sm:h-56"
+            className="h-44 bg-cover bg-center sm:h-56"
+            style={{
+              backgroundImage: coverUrl
+                ? `url(${coverUrl})`
+                : "linear-gradient(to right, rgb(216 180 90 / 0.35), var(--panel-soft), var(--background))",
+            }}
           />
           <div className="-mt-14 px-5 pb-6 sm:px-8">
             <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
@@ -241,9 +292,20 @@ export default async function ProfessionalProfilePage({
                 <div
                   role="img"
                   aria-label={t(dictionary, "profileV2.logoAlt")}
-                  className="flex size-28 items-center justify-center rounded-[2rem] border border-border bg-background shadow-xl"
+                  className="flex size-28 items-center justify-center overflow-hidden rounded-[2rem] border border-border bg-background shadow-xl"
+                  style={
+                    logoUrl
+                      ? {
+                          backgroundImage: `url(${logoUrl})`,
+                          backgroundPosition: "center",
+                          backgroundSize: "cover",
+                        }
+                      : undefined
+                  }
                 >
-                  <Building2 className="size-12 text-gold" aria-hidden />
+                  {!logoUrl ? (
+                    <Building2 className="size-12 text-gold" aria-hidden />
+                  ) : null}
                 </div>
                 <div className="pb-2">
                   <p className="text-sm font-bold uppercase tracking-[0.24em] text-gold">
@@ -271,7 +333,7 @@ export default async function ProfessionalProfilePage({
               </div>
               <div className="grid gap-2 sm:grid-cols-3">
                 <Link
-                  href="/quotes"
+                  href={`/quotes?companyId=${companyId}`}
                   className="inline-flex items-center justify-center gap-2 rounded-full bg-foreground px-4 py-2.5 text-sm font-black text-background transition hover:bg-gold-bright"
                 >
                   <Send className="size-4" aria-hidden />
@@ -308,7 +370,7 @@ export default async function ProfessionalProfilePage({
             </p>
           </section>
 
-          {user ? (
+          {user && (isOwner || !company) ? (
             <section className="rounded-[2rem] border border-border bg-panel p-6">
               <h2 className="text-2xl font-black text-foreground">
                 {t(dictionary, "trustEngine.profileEditor")}
@@ -398,6 +460,36 @@ export default async function ProfessionalProfilePage({
                     <input
                       name="website"
                       defaultValue={company?.website ?? ""}
+                      className="mt-2 w-full rounded-2xl border border-border bg-background p-3 text-foreground"
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="text-sm font-bold text-foreground">
+                      {t(dictionary, "marketplace.filterLocation")}
+                    </span>
+                    <input
+                      name="city"
+                      defaultValue={company?.city ?? ""}
+                      className="mt-2 w-full rounded-2xl border border-border bg-background p-3 text-foreground"
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="text-sm font-bold text-foreground">
+                      {t(dictionary, "trustEngine.state")}
+                    </span>
+                    <input
+                      name="state"
+                      defaultValue={company?.state ?? ""}
+                      className="mt-2 w-full rounded-2xl border border-border bg-background p-3 text-foreground"
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="text-sm font-bold text-foreground">
+                      {t(dictionary, "trustEngine.postalCode")}
+                    </span>
+                    <input
+                      name="postalCode"
+                      defaultValue={company?.postal_code ?? ""}
                       className="mt-2 w-full rounded-2xl border border-border bg-background p-3 text-foreground"
                     />
                   </label>
@@ -512,21 +604,23 @@ export default async function ProfessionalProfilePage({
                 {t(dictionary, "profileV2.documents")}
               </h2>
               <div className="mt-5 grid gap-2">
-                {licenses.map((item) => (
-                  <div
+                {licenseLinks.map((item) => (
+                  <a
                     key={item.id}
+                    href={item.href ?? "#"}
                     className="rounded-2xl border border-border bg-panel-soft p-3 text-sm font-semibold text-muted"
                   >
                     {item.license_number} - {item.verification_status}
-                  </div>
+                  </a>
                 ))}
-                {insurancePolicies.map((item) => (
-                  <div
+                {insuranceLinks.map((item) => (
+                  <a
                     key={item.id}
+                    href={item.href ?? "#"}
                     className="rounded-2xl border border-border bg-panel-soft p-3 text-sm font-semibold text-muted"
                   >
                     {item.provider_name} - {item.verification_status}
-                  </div>
+                  </a>
                 ))}
               </div>
             </div>
@@ -557,59 +651,67 @@ export default async function ProfessionalProfilePage({
             <h2 className="text-2xl font-black text-foreground">
               {t(dictionary, "reviewsV2.title")}
             </h2>
-            {companyId && user ? (
-              <form
-                action={createReview}
-                className="mt-5 grid gap-3 rounded-3xl border border-border bg-panel-soft p-4"
-                encType="multipart/form-data"
-              >
-                <input type="hidden" name="companyId" value={companyId} />
-                <input
-                  name="jobId"
-                  placeholder={t(dictionary, "trustEngine.completedJobId")}
-                  className="rounded-2xl border border-border bg-background p-3 text-foreground"
-                />
-                <input
-                  required
-                  name="rating"
-                  type="number"
-                  min="1"
-                  max="5"
-                  placeholder={t(dictionary, "reviewsV2.ratingLabel")}
-                  className="rounded-2xl border border-border bg-background p-3 text-foreground"
-                />
-                <input
-                  name="title"
-                  placeholder={t(dictionary, "reviewsV2.reviewTitleLabel")}
-                  className="rounded-2xl border border-border bg-background p-3 text-foreground"
-                />
-                <textarea
-                  name="body"
-                  placeholder={t(dictionary, "reviewsV2.reviewBodyLabel")}
-                  className="min-h-24 rounded-2xl border border-border bg-background p-3 text-foreground"
-                />
-                <div className="grid gap-3 md:grid-cols-2">
-                  <input
-                    name="photo"
-                    type="file"
-                    accept="image/*"
-                    className="rounded-2xl border border-border bg-background p-3 text-foreground"
-                  />
-                  <input
-                    name="video"
-                    type="file"
-                    accept="video/*"
-                    className="rounded-2xl border border-border bg-background p-3 text-foreground"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="rounded-full bg-foreground px-4 py-3 text-sm font-black text-background"
-                >
-                  {t(dictionary, "reviewsV2.submitReview")}
-                </button>
-              </form>
-            ) : null}
+            {eligibleReviewJobs.length ? (
+              <div className="mt-5 grid gap-3">
+                {eligibleReviewJobs.map((job) => (
+                  <form
+                    key={job.id}
+                    action={createReview}
+                    className="grid gap-3 rounded-3xl border border-border bg-panel-soft p-4"
+                    encType="multipart/form-data"
+                  >
+                    <input type="hidden" name="companyId" value={companyId} />
+                    <input type="hidden" name="jobId" value={job.id} />
+                    <p className="font-bold text-foreground">
+                      {t(dictionary, "transaction.leaveReview")}: {job.title}
+                    </p>
+                    <input
+                      required
+                      name="rating"
+                      type="number"
+                      min="1"
+                      max="5"
+                      placeholder={t(dictionary, "reviewsV2.ratingLabel")}
+                      className="rounded-2xl border border-border bg-background p-3 text-foreground"
+                    />
+                    <input
+                      name="title"
+                      placeholder={t(dictionary, "reviewsV2.reviewTitleLabel")}
+                      className="rounded-2xl border border-border bg-background p-3 text-foreground"
+                    />
+                    <textarea
+                      name="body"
+                      placeholder={t(dictionary, "reviewsV2.reviewBodyLabel")}
+                      className="min-h-24 rounded-2xl border border-border bg-background p-3 text-foreground"
+                    />
+                    <div className="grid gap-3 md:grid-cols-2">
+                      <input
+                        name="photo"
+                        type="file"
+                        accept="image/*"
+                        className="rounded-2xl border border-border bg-background p-3 text-foreground"
+                      />
+                      <input
+                        name="video"
+                        type="file"
+                        accept="video/*"
+                        className="rounded-2xl border border-border bg-background p-3 text-foreground"
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      className="rounded-full bg-foreground px-4 py-3 text-sm font-black text-background"
+                    >
+                      {t(dictionary, "reviewsV2.submitReview")}
+                    </button>
+                  </form>
+                ))}
+              </div>
+            ) : (
+              <p className="mt-4 rounded-2xl border border-border bg-panel-soft p-4 text-sm text-muted">
+                {t(dictionary, "transaction.noEligibleReviews")}
+              </p>
+            )}
             <div className="mt-6 grid gap-4">
               {reviews.map((review) => (
                 <article

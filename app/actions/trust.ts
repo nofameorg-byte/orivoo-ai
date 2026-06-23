@@ -122,6 +122,9 @@ export async function saveCompanyProfile(formData: FormData) {
   const website = formString(formData, "website");
   const phone = formString(formData, "phone");
   const email = formString(formData, "email");
+  const city = formString(formData, "city");
+  const state = formString(formData, "state");
+  const postalCode = formString(formData, "postalCode");
   const yearsInBusiness = Number(formString(formData, "yearsInBusiness")) || null;
   const serviceAreas = splitList(formString(formData, "serviceAreas"));
   const languages = splitList(formString(formData, "languages")).filter(
@@ -150,6 +153,9 @@ export async function saveCompanyProfile(formData: FormData) {
     website: website || null,
     phone: phone || null,
     email: email || null,
+    city: city || null,
+    state: state || null,
+    postal_code: postalCode || null,
     social_media: socialMedia,
     languages: languages.length ? languages : ["en"],
     ...(logoPath ? { logo_url: logoPath } : {}),
@@ -442,13 +448,16 @@ export async function flagReview(formData: FormData) {
   const reviewId = formString(formData, "reviewId");
   const reason = formString(formData, "reason");
 
-  await supabase.from("review_flags").upsert({
+  const { error } = await supabase.from("review_flags").upsert({
     review_id: reviewId,
     flagged_by: user.id,
     reason,
     status: "pending",
   });
-  await supabase.from("reviews").update({ is_flagged: true }).eq("id", reviewId);
+
+  if (error) {
+    redirectWithMessage("/professionals/profile", error.message);
+  }
 
   revalidatePath("/professionals/profile");
   revalidatePath("/admin");
@@ -499,16 +508,27 @@ export async function moderateReview(formData: FormData) {
     redirect("/dashboard");
   }
 
-  const reviewId = formString(formData, "reviewId");
+  const flagId = formString(formData, "flagId");
   const decision = formString(formData, "decision");
   const removeReview = decision === "remove";
+  const { data: flag, error: flagError } = await supabase
+    .from("review_flags")
+    .select("id, review_id")
+    .eq("id", flagId)
+    .single();
+
+  if (flagError || !flag) {
+    redirectWithMessage("/admin", "Review flag not found.");
+  }
+
+  const flagRow = flag as { review_id: string };
   const { error } = await supabase
     .from("reviews")
     .update({
       is_removed: removeReview,
       is_flagged: false,
     })
-    .eq("id", reviewId);
+    .eq("id", flagRow.review_id);
 
   if (error) {
     redirectWithMessage("/admin", error.message);
@@ -521,7 +541,7 @@ export async function moderateReview(formData: FormData) {
       reviewed_by: user.id,
       reviewed_at: new Date().toISOString(),
     })
-    .eq("review_id", reviewId);
+    .eq("id", flagId);
 
   revalidatePath("/admin");
   revalidatePath("/professionals/profile");
