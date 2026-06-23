@@ -1,11 +1,36 @@
 import { redirect } from "next/navigation";
-import { Clock, ShieldCheck } from "lucide-react";
+import { Clock, MessageSquare, ShieldCheck } from "lucide-react";
+import {
+  decideVerificationRequest,
+  moderateReview,
+} from "@/app/actions/trust";
 import { CardGrid, PageHero } from "@/components/page-primitives";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { isLocale } from "@/lib/i18n/config";
 import { getDictionary, getLocale, list, t } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
+
+type VerificationQueueItem = {
+  id: string;
+  verification_type: string;
+  status: string;
+  notes?: string | null;
+  expires_at?: string | null;
+  companies?: {
+    company_name?: string | null;
+  } | null;
+};
+
+type FlaggedReview = {
+  id: string;
+  title?: string | null;
+  body?: string | null;
+  rating?: number | null;
+  companies?: {
+    company_name?: string | null;
+  } | null;
+};
 
 export default async function AdminPage() {
   const supabase = await createClient();
@@ -35,8 +60,20 @@ export default async function AdminPage() {
     title: section,
     body: t(dictionary, "common.ready"),
   }));
-  const queueItems = list(dictionary.trustV2.queueItems);
-  const reviewQueue = list(dictionary.reviewsV2.queueItems);
+  const { data: verificationData } = await supabase
+    .from("verification_requests")
+    .select("id, verification_type, status, notes, expires_at, companies(company_name)")
+    .in("status", ["pending", "expired"])
+    .order("created_at", { ascending: true });
+  const verificationQueue =
+    (verificationData ?? []) as unknown as VerificationQueueItem[];
+  const { data: reviewData } = await supabase
+    .from("reviews")
+    .select("id, title, body, rating, companies(company_name)")
+    .eq("is_flagged", true)
+    .eq("is_removed", false)
+    .order("updated_at", { ascending: false });
+  const flaggedReviews = (reviewData ?? []) as unknown as FlaggedReview[];
 
   return (
     <main className="min-h-screen bg-background">
@@ -55,36 +92,93 @@ export default async function AdminPage() {
                 {t(dictionary, "trustV2.adminQueueTitle")}
               </h2>
               <div className="mt-5 grid gap-3">
-                {queueItems.map((item) => (
+                {verificationQueue.map((item) => (
                   <div
-                    key={item.title}
+                    key={item.id}
                     className="rounded-2xl border border-border bg-panel-soft p-4"
                   >
-                    <div className="flex items-start justify-between gap-3">
+                    <div className="flex flex-col justify-between gap-4 md:flex-row">
                       <div>
-                        <h3 className="font-bold text-foreground">{item.title}</h3>
-                        <p className="mt-1 text-sm text-muted">{item.company}</p>
+                        <h3 className="font-bold text-foreground">
+                          {item.verification_type}
+                        </h3>
+                        <p className="mt-1 text-sm text-muted">
+                          {item.companies?.company_name ?? item.notes}
+                        </p>
+                        {item.expires_at ? (
+                          <p className="mt-1 text-xs text-muted">
+                            {t(dictionary, "trustV2.expires")}: {item.expires_at}
+                          </p>
+                        ) : null}
                       </div>
-                      <span className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-3 py-1 text-xs font-bold text-gold-deep">
+                      <span className="inline-flex h-fit items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-3 py-1 text-xs font-bold text-gold-deep">
                         <Clock className="size-3" aria-hidden />
                         {item.status}
                       </span>
                     </div>
+                    <form action={decideVerificationRequest} className="mt-4 grid gap-3">
+                      <input type="hidden" name="requestId" value={item.id} />
+                      <textarea
+                        name="notes"
+                        placeholder={t(dictionary, "trustEngine.adminDecisionNotes")}
+                        className="min-h-20 rounded-2xl border border-border bg-background p-3 text-sm text-foreground"
+                      />
+                      <div className="grid gap-2 sm:grid-cols-3">
+                        {[
+                          ["approved", t(dictionary, "trustEngine.approve")],
+                          ["rejected", t(dictionary, "trustEngine.reject")],
+                          ["expired", t(dictionary, "trustEngine.markExpired")],
+                        ].map(([value, label]) => (
+                          <button
+                            key={value}
+                            type="submit"
+                            name="decision"
+                            value={value}
+                            className="rounded-full border border-border px-3 py-2 text-sm font-bold text-foreground"
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                    </form>
                   </div>
                 ))}
               </div>
             </div>
             <div className="rounded-[2rem] border border-border bg-panel p-6">
-              <h2 className="text-2xl font-black text-foreground">
+              <h2 className="flex items-center gap-3 text-2xl font-black text-foreground">
+                <MessageSquare className="size-6 text-gold" aria-hidden />
                 {t(dictionary, "reviewsV2.moderationQueue")}
               </h2>
               <div className="mt-5 grid gap-3">
-                {reviewQueue.map((item) => (
+                {flaggedReviews.map((review) => (
                   <div
-                    key={item}
-                    className="rounded-2xl border border-border bg-panel-soft p-4 text-sm font-semibold text-muted"
+                    key={review.id}
+                    className="rounded-2xl border border-border bg-panel-soft p-4"
                   >
-                    {item}
+                    <h3 className="font-bold text-foreground">
+                      {review.title ?? review.companies?.company_name}
+                    </h3>
+                    <p className="mt-2 text-sm text-muted">{review.body}</p>
+                    <form action={moderateReview} className="mt-4 grid gap-2 sm:grid-cols-2">
+                      <input type="hidden" name="reviewId" value={review.id} />
+                      <button
+                        type="submit"
+                        name="decision"
+                        value="remove"
+                        className="rounded-full border border-border px-3 py-2 text-sm font-bold text-foreground"
+                      >
+                        {t(dictionary, "trustEngine.removeReview")}
+                      </button>
+                      <button
+                        type="submit"
+                        name="decision"
+                        value="keep"
+                        className="rounded-full border border-border px-3 py-2 text-sm font-bold text-foreground"
+                      >
+                        {t(dictionary, "trustEngine.keepReview")}
+                      </button>
+                    </form>
                   </div>
                 ))}
               </div>

@@ -38,6 +38,9 @@ type MarketplaceSearchProps = {
   secondaryCta: string;
   examplesLabel: string;
   examples: string[];
+  action?: string;
+  defaultService?: string;
+  defaultLocation?: string;
 };
 
 type TrustBadgeGridProps = {
@@ -127,21 +130,29 @@ export function MarketplaceSearch({
   secondaryCta,
   examplesLabel,
   examples,
+  action = "/professionals",
+  defaultService = "",
+  defaultLocation = "",
 }: MarketplaceSearchProps) {
   return (
     <div className="rounded-[2rem] border border-border bg-panel p-4 shadow-2xl shadow-black/20 sm:p-5">
       <h1 className="px-2 pt-2 text-4xl font-black tracking-tight text-foreground sm:text-5xl lg:text-6xl">
         {question}
       </h1>
-      <div className="mt-8 grid gap-3 rounded-[1.5rem] border border-border bg-background p-3 lg:grid-cols-[1fr_0.85fr_auto]">
+      <form
+        action={action}
+        className="mt-8 grid gap-3 rounded-[1.5rem] border border-border bg-background p-3 lg:grid-cols-[1fr_0.85fr_auto]"
+      >
         <label className="block rounded-2xl bg-panel-soft p-4">
           <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-muted">
             <Search className="size-4 text-gold" aria-hidden />
             {serviceLabel}
           </span>
           <input
+            name="service"
             type="search"
             placeholder={servicePlaceholder}
+            defaultValue={defaultService}
             className="mt-3 w-full bg-transparent text-lg font-semibold text-foreground outline-none placeholder:text-muted/70"
           />
         </label>
@@ -151,18 +162,20 @@ export function MarketplaceSearch({
             {locationLabel}
           </span>
           <input
+            name="location"
             type="search"
             placeholder={locationPlaceholder}
+            defaultValue={defaultLocation}
             className="mt-3 w-full bg-transparent text-lg font-semibold text-foreground outline-none placeholder:text-muted/70"
           />
         </label>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-          <Link
-            href="/professionals"
+          <button
+            type="submit"
             className="inline-flex items-center justify-center rounded-2xl bg-foreground px-6 py-4 text-sm font-black text-background transition hover:bg-gold-bright"
           >
             {primaryCta}
-          </Link>
+          </button>
           <Link
             href="/signup"
             className="inline-flex items-center justify-center rounded-2xl border border-border px-6 py-4 text-sm font-black text-foreground transition hover:border-gold/50"
@@ -170,7 +183,7 @@ export function MarketplaceSearch({
             {secondaryCta}
           </Link>
         </div>
-      </div>
+      </form>
       <div className="mt-5 flex flex-wrap items-center gap-2 px-2 text-sm">
         <span className="font-semibold text-muted">{examplesLabel}</span>
         {examples.map((example) => (

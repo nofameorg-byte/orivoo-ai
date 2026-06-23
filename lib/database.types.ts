@@ -101,6 +101,8 @@ export type Database = {
       verification_requests: GenericTable;
       reviews: GenericTable;
       review_media: GenericTable;
+      review_helpful_votes: GenericTable;
+      review_flags: GenericTable;
       partner_companies: GenericTable;
       equipment_listings: GenericTable;
       notifications: GenericTable;
@@ -146,6 +148,18 @@ export type Database = {
           company_uuid: string;
         };
         Returns: boolean;
+      };
+      has_profile_role: {
+        Args: {
+          required_role: ProfileRole;
+        };
+        Returns: boolean;
+      };
+      refresh_company_verification_flags: {
+        Args: {
+          company_uuid: string;
+        };
+        Returns: undefined;
       };
     };
     Enums: {
