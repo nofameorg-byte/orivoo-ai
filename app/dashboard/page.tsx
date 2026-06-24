@@ -42,7 +42,7 @@ export default async function DashboardPage() {
             </h1>
             <p className="mt-5 max-w-2xl leading-7 text-muted">
               TODO: Complete production KYB/KYC, risk controls, and compliance
-              approvals before enabling live funds movement.
+              approvals before enabling partner-approved funds movement.
             </p>
           </div>
           <div className="metal-card rounded-[1.5rem] p-5">

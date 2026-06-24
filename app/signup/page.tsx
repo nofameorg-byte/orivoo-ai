@@ -101,7 +101,7 @@ export default async function SignupPage({ searchParams }: AuthPageProps) {
             </h2>
             <p className="mt-5 leading-7 text-muted">
               TODO: Add production KYB/KYC, beneficial owner collection, and
-              compliance approval before live banking access.
+              compliance approval before partner-approved banking access.
             </p>
             <div className="mt-8 grid gap-3">
               {[

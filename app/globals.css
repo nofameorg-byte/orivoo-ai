@@ -130,3 +130,34 @@ a {
   background-size: 46px 46px;
   mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.78), transparent);
 }
+
+@media print {
+  body {
+    background: #ffffff;
+    color: #111111;
+  }
+
+  .print-page {
+    background: #ffffff !important;
+    color: #111111 !important;
+  }
+
+  .print-page * {
+    box-shadow: none !important;
+  }
+
+  .print-card {
+    break-inside: avoid;
+    border: 1px solid #d1d5db !important;
+    background: #ffffff !important;
+    color: #111111 !important;
+  }
+
+  .print-muted {
+    color: #4b5563 !important;
+  }
+
+  .print-hidden {
+    display: none !important;
+  }
+}

@@ -57,6 +57,14 @@ const adminActions = [
   { label: "Mark document unverified", icon: ShieldAlert },
 ];
 
+const riskControls = [
+  "High transaction volume placeholder",
+  "Missing KYB documents",
+  "Incomplete beneficial owner records",
+  "Suspended customer list",
+  "Manual review queue",
+];
+
 export default function AdminPage() {
   return (
     <div className="space-y-6">
@@ -92,6 +100,22 @@ export default function AdminPage() {
             <p className="mt-2 text-sm leading-6 text-muted">{queue.body}</p>
           </article>
         ))}
+      </section>
+
+      <section className="rounded-[2rem] border border-metal-red/25 bg-metal-red/10 p-6">
+        <h2 className="text-xl font-semibold text-white">Risk controls</h2>
+        <p className="mt-2 text-sm leading-6 text-muted">
+          Internal controls for review workflows while partner-bank approval is
+          pending.
+        </p>
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          {riskControls.map((control) => (
+            <article key={control} className="rounded-2xl border border-white/10 bg-black/45 p-4">
+              <ShieldAlert className="mb-4 size-5 text-metal-red-bright" aria-hidden />
+              <p className="text-sm font-semibold text-white">{control}</p>
+            </article>
+          ))}
+        </div>
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[1fr_0.48fr]">

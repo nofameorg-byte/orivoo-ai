@@ -27,6 +27,9 @@ export const dashboardNavigation = [
   { name: "Onboarding", href: "/dashboard/onboarding", icon: ClipboardCheck },
   { name: "Documents", href: "/dashboard/documents", icon: FileText },
   { name: "Brand", href: "/dashboard/brand", icon: Palette },
+  { name: "Partner Review", href: "/dashboard/partner-review", icon: ClipboardCheck },
+  { name: "Compliance Binder", href: "/dashboard/compliance-binder", icon: FileText },
+  { name: "Pitch", href: "/dashboard/pitch", icon: ArrowUpRight },
   { name: "Business Banking", href: "/dashboard/business-banking", icon: Landmark },
   { name: "Business profile", href: "/dashboard/business-profile", icon: Building2 },
   { name: "Accounts", href: "/dashboard/accounts", icon: Landmark },
@@ -94,7 +97,7 @@ export const accounts = [
     routing: "121145349",
     account: "**** 2389",
     status: "Draft",
-    rail: "ACH, RTP eligible",
+    rail: "Subject to partner approval",
   },
   {
     name: "VP23 Tax Reserve",
@@ -112,14 +115,14 @@ export const accounts = [
     routing: "121145349",
     account: "**** 6054",
     status: "Draft",
-    rail: "ACH transfer eligible",
+    rail: "Subject to partner approval",
   },
 ];
 
 export const transfers = [
   { id: "trf_9001", destination: "Tax Reserve", amount: "$6,000.00", status: "Prepared", date: "Jun 24" },
   { id: "trf_9000", destination: "Contractor payout", amount: "$2,125.20", status: "Pending", date: "Jun 23" },
-  { id: "trf_8998", destination: "Payroll funding", amount: "$11,450.00", status: "Completed", date: "Jun 21" },
+  { id: "trf_8998", destination: "Payroll funding", amount: "$11,450.00", status: "Reviewed", date: "Jun 21" },
 ];
 
 export const customers = [
@@ -167,7 +170,7 @@ export const notifications = [
   { id: "ntf_001", title: "Application update", body: "Business checking application moved to internal review.", unread: true, type: "Application" },
   { id: "ntf_002", title: "Compliance request", body: "Upload an operating agreement to complete KYB review.", unread: true, type: "Compliance" },
   { id: "ntf_003", title: "Invoice paid", body: "Invoice VP23-1042 was marked paid in the receivables workflow.", unread: false, type: "Invoice" },
-  { id: "ntf_004", title: "Transfer completed", body: "Prepared transfer record was marked complete after internal review.", unread: false, type: "Transfer" },
+  { id: "ntf_004", title: "Transfer reviewed", body: "Prepared transfer record was marked reviewed after internal review.", unread: false, type: "Transfer" },
 ];
 
 export const phase4AdminQueues = [
@@ -196,7 +199,7 @@ export const quickActions = [
 
 export const balanceMetrics = [
   { label: "Total Balance", value: "$179,070.90", detail: "Across checking, reserves, and payroll" },
-  { label: "Available Balance", value: "$128,430.18", detail: "Ready for ACH, wire, RTP, and invoices" },
+  { label: "Available Balance", value: "$128,430.18", detail: "Displayed for planning; movement is subject to partner approval" },
   { label: "Pending Activity", value: "$10,575.20", detail: "3 payment items awaiting review" },
 ];
 
@@ -216,7 +219,7 @@ export const bankingProducts = [
   {
     title: "Account Details",
     status: "Available",
-    body: "Routing number, account mask, ledger balance, available balance, and Column entity mapping.",
+    body: "Routing number, account mask, ledger balance display, and Column entity mapping.",
     icon: ShieldCheck,
   },
 ];
@@ -238,7 +241,7 @@ export const paymentRails = [
   },
   {
     name: "Real-Time Payments",
-    speed: "Instant eligible transfers",
+    speed: "Future rapid transfers",
     status: "Future rail",
     limit: "$10,000 pilot limit",
     icon: Zap,
@@ -295,7 +298,7 @@ export const securityHighlights = [
 ];
 
 export const complianceTodos = [
-  "TODO: Add production KYB/KYC onboarding and beneficial owner collection before live money movement.",
+  "TODO: Add production KYB/KYC onboarding and beneficial owner collection before partner-approved money movement.",
   "TODO: Add compliance review, OFAC screening, and audit retention before enabling production Column transfers.",
   "TODO: Replace integration placeholders with signed webhooks, idempotency keys, and reconciliation workflows.",
 ];
