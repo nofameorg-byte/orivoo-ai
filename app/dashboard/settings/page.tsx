@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { KeyRound, ShieldCheck } from "lucide-react";
 import { settingsCards } from "@/lib/vp23/data";
 
@@ -35,6 +36,20 @@ export default function SettingsPage() {
             <p className="mt-3 leading-7 text-muted">{card.body}</p>
           </article>
         ))}
+      </section>
+
+      <section className="rounded-[2rem] border border-electric-blue/25 bg-electric-blue/10 p-6">
+        <h2 className="text-xl font-semibold text-white">Legal and account</h2>
+        <p className="mt-3 max-w-3xl leading-7 text-muted">
+          Review policies, company information, contact details, and account
+          management controls.
+        </p>
+        <Link
+          href="/dashboard/settings/legal"
+          className="mt-5 inline-flex rounded-full bg-white px-5 py-3 text-sm font-semibold text-black transition hover:bg-gold-bright"
+        >
+          Open legal settings
+        </Link>
       </section>
 
       <section className="rounded-[2rem] border border-gold/20 bg-gold/10 p-6">

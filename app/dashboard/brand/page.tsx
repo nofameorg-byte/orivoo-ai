@@ -26,7 +26,7 @@ export default function BrandGuidePage() {
           </span>
         </div>
         <h1 className="mt-4 text-3xl font-semibold text-white sm:text-4xl">
-          Official brand system for Versatile Partners 23, LLC.
+          Official brand system for VP23.
         </h1>
         <p className="mt-3 max-w-3xl leading-7 text-muted">
           Use the official logo asset directly from <code>public/vp23-logo.png</code>.
@@ -165,9 +165,7 @@ export default function BrandGuidePage() {
           <div className="mt-6 grid gap-5 sm:grid-cols-2">
             <div>
               <p className="text-sm text-muted">Bill from</p>
-              <p className="mt-2 font-semibold text-white">
-                Versatile Partners 23, LLC
-              </p>
+              <p className="mt-2 font-semibold text-white">VP23</p>
               <p className="mt-1 text-sm leading-6 text-muted">
                 106 Sparrow Circle
                 <br />

@@ -26,7 +26,7 @@ export function VP23Logo({
         src="/vp23-logo.png"
         width={1024}
         height={1024}
-        alt="VP23 Financial"
+        alt="VP23"
         priority={size === "lg"}
         className={`${sizeClasses[size]} rounded-xl object-contain shadow-lg shadow-metal-red/20`}
       />
@@ -34,9 +34,6 @@ export function VP23Logo({
         <span className="hidden leading-tight sm:block">
           <span className="block text-sm font-semibold uppercase tracking-[0.28em] text-white">
             VP23
-          </span>
-          <span className="block text-[0.65rem] uppercase tracking-[0.24em] text-muted">
-            Financial
           </span>
         </span>
       ) : null}

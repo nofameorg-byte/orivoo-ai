@@ -87,9 +87,9 @@ export default function LandingPage() {
             <span className="text-vp23-gradient">Control like VP23.</span>
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-muted">
-            VP23 Financial is a black-card fintech MVP with Supabase-secured
-            identity, protected dashboard routes, invoices, customers,
-            transactions, transfers, and server-only banking integration prep.
+            VP23 is a premium fintech platform with Supabase-secured identity,
+            protected dashboard routes, invoices, customers, transactions,
+            transfers, and server-only banking integration prep.
           </p>
           <div className="mt-10 flex flex-col gap-4 sm:flex-row">
             <Link
@@ -145,7 +145,7 @@ export default function LandingPage() {
                   ["Available", "$128,430.18"],
                   ["Routing", "121145349"],
                   ["Invoices", "$23,350"],
-                  ["Transfers", "Simulated"],
+                  ["Transfers", "Prepared"],
                 ].map(([label, value]) => (
                   <div
                     key={label}
@@ -283,10 +283,9 @@ export default function LandingPage() {
       <footer className="relative z-10 mx-auto flex w-full max-w-7xl flex-col gap-4 border-t border-white/10 px-6 py-8 text-sm text-muted sm:flex-row sm:items-center sm:justify-between lg:px-8">
         <VP23Logo size="sm" />
         <p className="max-w-3xl text-xs leading-5">
-          VP23 is a financial technology platform operated by Versatile
-          Partners 23, LLC. Banking services are subject to approval by
-          regulated banking partners. Features shown may be in development and
-          are not available until partner approval.
+          VP23 is a financial technology platform. Banking services are not
+          currently available. Features shown may be under development and
+          subject to future partner bank approval.
         </p>
       </footer>
     </main>

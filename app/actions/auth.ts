@@ -81,7 +81,7 @@ export async function signUp(formData: FormData) {
 
   revalidatePath("/", "layout");
   redirect(
-    "/login?message=Account created. Check your email to confirm your VP23 Financial workspace.",
+    "/login?message=Account created. Check your email to confirm your VP23 workspace.",
   );
 }
 

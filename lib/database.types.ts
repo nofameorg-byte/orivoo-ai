@@ -456,6 +456,7 @@ export type Database = {
         Row: {
           avatar_url: string | null;
           created_at: string;
+          deleted_at: string | null;
           display_name: string | null;
           id: string;
           role: "user" | "admin";
@@ -464,6 +465,7 @@ export type Database = {
         Insert: {
           avatar_url?: string | null;
           created_at?: string;
+          deleted_at?: string | null;
           display_name?: string | null;
           id: string;
           role?: "user" | "admin";
@@ -472,6 +474,7 @@ export type Database = {
         Update: {
           avatar_url?: string | null;
           created_at?: string;
+          deleted_at?: string | null;
           display_name?: string | null;
           id?: string;
           role?: "user" | "admin";
@@ -482,6 +485,7 @@ export type Database = {
       workspaces: {
         Row: {
           created_at: string;
+          deleted_at: string | null;
           id: string;
           name: string;
           owner_id: string;
@@ -489,6 +493,7 @@ export type Database = {
         };
         Insert: {
           created_at?: string;
+          deleted_at?: string | null;
           id?: string;
           name?: string;
           owner_id: string;
@@ -496,6 +501,7 @@ export type Database = {
         };
         Update: {
           created_at?: string;
+          deleted_at?: string | null;
           id?: string;
           name?: string;
           owner_id?: string;

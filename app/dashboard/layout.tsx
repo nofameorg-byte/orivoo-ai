@@ -22,7 +22,7 @@ export default async function DashboardLayout({
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login?message=Login to access your VP23 Financial dashboard.");
+    redirect("/login?message=Login to access your VP23 dashboard.");
   }
 
   const displayName =
@@ -84,7 +84,7 @@ export default async function DashboardLayout({
               className="flex w-full items-center justify-center gap-2 rounded-full border border-white/10 px-3 py-2 text-sm text-muted transition hover:border-gold/40 hover:text-white"
             >
               <LogOut className="size-4" aria-hidden />
-              Sign out
+              Logout
             </button>
           </form>
         </div>
@@ -97,7 +97,7 @@ export default async function DashboardLayout({
             <form action={signOut}>
               <button
                 type="submit"
-                aria-label="Sign out"
+                aria-label="Logout"
                 className="rounded-full border border-white/10 p-2 text-muted"
               >
                 <LogOut className="size-4" aria-hidden />
@@ -120,10 +120,8 @@ export default async function DashboardLayout({
         <main className="min-h-screen px-5 py-6 sm:px-8 lg:px-10 lg:py-10">
           <div className="mx-auto max-w-7xl">{children}</div>
           <footer className="mx-auto mt-10 max-w-7xl border-t border-white/10 pt-6 text-xs leading-5 text-muted">
-            VP23 is a financial technology platform operated by Versatile
-            Partners 23, LLC. Banking services are subject to approval by
-            regulated banking partners. Features shown may be in development and
-            are not available until partner approval.
+            © VP23
+            <br />A product of Versatile Partners 23, LLC
           </footer>
         </main>
       </div>

@@ -47,7 +47,7 @@ export default async function LoginPage({ searchParams }: AuthPageProps) {
           </div>
           <h2 className="mt-5 text-3xl font-semibold text-white">Login</h2>
           <p className="mt-3 text-sm text-muted">
-            Access your VP23 Financial workspace with Supabase authentication.
+            Access your VP23 workspace with Supabase authentication.
           </p>
 
           {message ? (
@@ -90,7 +90,7 @@ export default async function LoginPage({ searchParams }: AuthPageProps) {
           </form>
 
           <p className="mt-6 text-center text-sm text-muted">
-            New to VP23 Financial?{" "}
+            New to VP23?{" "}
             <Link href="/signup" className="font-semibold text-gold-bright">
               Create an account
             </Link>

@@ -60,7 +60,7 @@ export default function OnboardingPage() {
           </span>
         </div>
         <h1 className="mt-4 text-3xl font-semibold text-white sm:text-4xl">
-          Business account application for Versatile Partners 23, LLC.
+          Business account application for VP23.
         </h1>
         <p className="mt-3 max-w-3xl leading-7 text-muted">
           Complete the business profile, beneficial owner details, documents,

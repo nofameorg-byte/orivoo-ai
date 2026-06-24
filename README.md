@@ -1,4 +1,4 @@
-# VP23 Financial
+# VP23
 
 Premium fintech MVP built with Next.js 16, TypeScript, App Router, Tailwind CSS,
 Supabase Auth/Database, KYB onboarding, private document storage, and

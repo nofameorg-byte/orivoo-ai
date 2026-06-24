@@ -2,7 +2,7 @@
   "name": "vp23-financial",
   "version": "1.0.0",
   "private": true,
-  "description": "VP23 Financial premium fintech MVP.",
+  "description": "VP23 premium fintech MVP.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
