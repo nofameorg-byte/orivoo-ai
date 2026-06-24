@@ -40,18 +40,36 @@ const platformCards = [
 const pricingTiers = [
   {
     name: "Starter",
-    price: "$0",
-    body: "Business workspace, invoices, customer records, and document organization.",
+    price: "$0/mo",
+    body: "Get started with core tools for solo operators.",
+    features: ["5 invoices/month", "25 customers", "Document vault", "Basic ledger"],
+    recommended: false,
   },
   {
-    name: "Business",
-    price: "Custom",
-    body: "Multi-business tools, ledger exports, application tracking, and customer workflows.",
+    name: "Growth",
+    price: "$29/mo",
+    body: "Scale your business with advanced workflows.",
+    features: [
+      "Unlimited invoices",
+      "Unlimited customers",
+      "Business account apps",
+      "Payment records",
+      "Full ledger & statements",
+    ],
+    recommended: true,
   },
   {
-    name: "Partner-ready",
+    name: "Enterprise",
     price: "Custom",
-    body: "Statements, audit logs, review package tools, and partner-readiness controls.",
+    body: "Full-featured platform for growing teams.",
+    features: [
+      "Everything in Growth",
+      "Admin dashboard",
+      "Partner review",
+      "Compliance binder",
+      "Priority support",
+    ],
+    recommended: false,
   },
 ];
 
@@ -69,26 +87,29 @@ export default function LandingPage() {
         <div className="flex items-center justify-between">
           <VP23Logo size="md" />
 
-          <nav className="hidden items-center gap-8 text-sm text-muted md:flex">
-            <a href="#features" className="transition hover:text-gold-bright">
+          <nav className="hidden items-center gap-8 text-sm font-semibold text-muted md:flex">
+            <Link href="/" className="border-b border-gold pb-2 text-white">
+              Home
+            </Link>
+            <a href="#features" className="pb-2 transition hover:text-gold-bright">
               Features
             </a>
-            <a href="#pricing" className="transition hover:text-gold-bright">
+            <a href="#pricing" className="pb-2 transition hover:text-gold-bright">
               Pricing
             </a>
-            <a href="#business-banking" className="transition hover:text-gold-bright">
+            <a href="#business-banking" className="pb-2 transition hover:text-gold-bright">
               Business Banking
             </a>
-            <a href="#payments" className="transition hover:text-gold-bright">
+            <a href="#payments" className="pb-2 transition hover:text-gold-bright">
               Payments
             </a>
-            <a href="#invoices" className="transition hover:text-gold-bright">
+            <a href="#invoices" className="pb-2 transition hover:text-gold-bright">
               Invoices
             </a>
-            <a href="#security" className="transition hover:text-gold-bright">
+            <a href="#security" className="pb-2 transition hover:text-gold-bright">
               Security
             </a>
-            <a href="#contact" className="transition hover:text-gold-bright">
+            <a href="#contact" className="pb-2 transition hover:text-gold-bright">
               Contact
             </a>
           </nav>
@@ -110,23 +131,23 @@ export default function LandingPage() {
         </div>
       </header>
 
-      <section className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-12 px-6 pb-20 pt-10 lg:grid-cols-[1.02fr_0.98fr] lg:px-8 lg:pb-28 lg:pt-16">
+      <section className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-8 px-6 pb-12 pt-8 lg:grid-cols-[0.82fr_1.18fr] lg:px-8 lg:pb-16 lg:pt-10">
         <div>
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-gold-bright">
             <Siren className="size-4" aria-hidden />
             Business Command Center
           </div>
-          <h1 className="max-w-5xl text-5xl font-black leading-[0.92] tracking-tight text-white sm:text-6xl lg:text-7xl">
+          <h1 className="max-w-[34rem] text-5xl font-black leading-[0.92] tracking-tight text-white sm:text-6xl lg:text-7xl">
             Move smarter.{" "}
             <span className="text-gold-bright">Get paid faster.</span> Run
             business with VP23.
           </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-muted">
+          <p className="mt-5 max-w-xl text-base leading-7 text-muted sm:text-lg">
             VP23 helps small businesses, contractors, and entrepreneurs organize
             customers, invoices, account applications, payment records,
             documents, and business workflows from one secure command center.
           </p>
-          <div className="mt-10 flex flex-col gap-4 sm:flex-row">
+          <div className="mt-7 flex flex-col gap-4 sm:flex-row">
             <Link
               href="/signup"
               className="gold-cta group inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-black transition hover:scale-[1.02]"
@@ -141,11 +162,11 @@ export default function LandingPage() {
               Open dashboard
             </Link>
           </div>
-          <div className="mt-10 grid gap-3 sm:grid-cols-3">
+          <div className="mt-7 grid gap-3 sm:grid-cols-3">
             {valueProps.map((item) => (
               <div
                 key={item}
-                className="rounded-2xl border border-white/10 bg-white/[0.035] p-4 text-sm text-muted"
+                className="rounded-none border-l border-white/10 bg-transparent px-4 py-2 text-xs leading-5 text-muted"
               >
                 <ShieldCheck className="mb-3 size-5 text-gold-bright" aria-hidden />
                 {item}
@@ -154,10 +175,11 @@ export default function LandingPage() {
           </div>
         </div>
 
-        <div className="relative mx-auto w-full max-w-lg">
-          <div className="absolute inset-0 rounded-[1.35rem] bg-gold/10 blur-3xl" />
-          <div className="absolute inset-0 rounded-[1.35rem] bg-metal-red/10 blur-2xl" />
-          <div className="relative overflow-hidden rounded-[1.35rem] border border-white/10 bg-[#0a0a0a] shadow-2xl shadow-black/70">
+        <div className="relative mx-auto w-full max-w-2xl lg:-mt-20">
+          <div className="absolute -left-10 top-8 h-56 w-56 rounded-full bg-metal-red/25 blur-3xl" />
+          <div className="absolute inset-x-20 -bottom-8 h-36 rounded-full bg-gold/25 blur-3xl" />
+          <div className="absolute -right-10 top-8 h-56 w-56 rounded-full bg-electric-blue/20 blur-3xl" />
+          <div className="relative overflow-hidden rounded-2xl border border-gold/20 bg-[#0a0a0a] shadow-2xl shadow-black/70">
             <div className="flex items-center justify-between border-b border-white/10 bg-[#111111] px-4 py-3">
               <div className="flex items-center gap-2">
                 <VP23Logo href="/" size="sm" showText={false} />
@@ -173,15 +195,15 @@ export default function LandingPage() {
             </div>
 
             <div className="space-y-3 p-4">
-              <div className="grid grid-cols-2 gap-2">
-                <div className="rounded-lg border border-gold/20 bg-[#111111] p-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-lg border border-gold/20 bg-[#111111] p-4">
                   <p className="mb-1 text-[0.62rem] font-bold uppercase tracking-[0.18em] text-muted">
                     Total Balance
                   </p>
                   <p className="text-lg font-black text-gold-bright">$—,——</p>
                   <p className="mt-0.5 text-[0.58rem] text-muted">Preview Mode</p>
                 </div>
-                <div className="rounded-lg border border-electric-blue/20 bg-[#111111] p-3">
+                <div className="rounded-lg border border-electric-blue/20 bg-[#111111] p-4">
                   <p className="mb-1 text-[0.62rem] font-bold uppercase tracking-[0.18em] text-muted">
                     Available
                   </p>
@@ -190,7 +212,7 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              <div className="rounded-lg border border-white/10 bg-[#111111] p-3">
+              <div className="rounded-lg border border-white/10 bg-[#111111] p-4">
                 <p className="mb-2 text-[0.62rem] font-black uppercase tracking-[0.2em] text-gold">
                   Recent Activity
                 </p>
@@ -211,11 +233,11 @@ export default function LandingPage() {
                 ))}
               </div>
 
-              <div className="grid grid-cols-3 gap-1.5">
+              <div className="grid grid-cols-3 gap-2">
                 {["Invoice", "Customer", "Document"].map((action) => (
                   <div
                     key={action}
-                    className="rounded-lg border border-white/10 bg-[#1a1a1a] p-2 text-center"
+                    className="rounded-lg border border-white/10 bg-[#1a1a1a] p-3 text-center"
                   >
                     <p className="text-[0.58rem] font-semibold text-muted">
                       {action}
@@ -228,26 +250,66 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="relative z-10 border-y border-gold/20 bg-[#080808]">
-        <div className="h-px bg-gradient-to-r from-transparent via-gold/50 to-transparent" />
-        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-6 py-8 text-center md:grid-cols-4 lg:px-8">
-          {[
-            ["1 Platform", "Unified workspace"],
-            ["100% Secure", "Data protection"],
-            ["Bilingual", "EN & ES support"],
-            ["Built for Business", "For operators"],
-          ].map(([stat, label]) => (
-            <div key={stat}>
-              <p className="text-2xl font-bold text-gold-bright md:text-3xl">
-                {stat}
+      <section
+        id="pricing"
+        className="relative z-10 mx-auto w-full max-w-6xl px-6 pb-16 pt-4 lg:px-8"
+      >
+        <div className="mb-8 text-center">
+          <p className="text-xs font-black uppercase tracking-[0.26em] text-gold">
+            Pricing
+          </p>
+          <h2 className="mt-3 text-4xl font-black text-white">
+            Simple, Transparent Pricing
+          </h2>
+          <p className="mt-2 text-sm text-muted">
+            Choose the plan that fits your operation.
+          </p>
+        </div>
+        <div className="grid gap-6 md:grid-cols-3">
+          {pricingTiers.map((tier) => (
+            <article
+              key={tier.name}
+              className={`relative rounded-xl border bg-[#0a0a0a] p-6 ${
+                tier.recommended
+                  ? "border-gold shadow-[0_0_36px_rgba(212,175,55,0.18)]"
+                  : "border-white/10"
+              }`}
+            >
+              {tier.recommended ? (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gold px-5 py-1 text-[0.65rem] font-black uppercase tracking-wide text-black">
+                  Recommended
+                </div>
+              ) : null}
+              <h3 className="text-xl font-black text-white">{tier.name}</h3>
+              <p className="mt-2 text-3xl font-black text-gold-bright">
+                {tier.price}
               </p>
-              <p className="mt-1 text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-muted">
-                {label}
+              <p className="mt-2 min-h-10 text-sm leading-6 text-muted">
+                {tier.body}
               </p>
-            </div>
+              <ul className="mt-5 space-y-2 text-sm text-muted">
+                {tier.features.map((feature) => (
+                  <li key={feature} className="flex items-center gap-2">
+                    <span className="flex size-4 items-center justify-center rounded-full border border-gold/50 text-[0.55rem] text-gold">
+                      ✓
+                    </span>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+              <Link
+                href="/signup"
+                className={`mt-8 flex justify-center rounded-lg px-4 py-3 text-sm font-black ${
+                  tier.recommended
+                    ? "gold-cta text-black"
+                    : "border border-white/10 text-white hover:border-gold/40"
+                }`}
+              >
+                {tier.name === "Enterprise" ? "Contact Sales" : "Get Started"}
+              </Link>
+            </article>
           ))}
         </div>
-        <div className="h-px bg-gradient-to-r from-transparent via-gold/50 to-transparent" />
       </section>
 
       <section
@@ -283,23 +345,6 @@ export default function LandingPage() {
             </div>
           ))}
         </div>
-      </section>
-
-      <section
-        id="pricing"
-        className="relative z-10 mx-auto grid w-full max-w-7xl gap-6 px-6 py-20 lg:grid-cols-3 lg:px-8"
-      >
-        {pricingTiers.map((tier) => (
-          <article key={tier.name} className="bank-card rounded-[2rem] p-8">
-            <p className="text-sm uppercase tracking-[0.28em] text-gold">
-              {tier.name}
-            </p>
-            <h2 className="mt-4 text-4xl font-semibold text-white">
-              {tier.price}
-            </h2>
-            <p className="mt-4 leading-7 text-muted">{tier.body}</p>
-          </article>
-        ))}
       </section>
 
       <section
