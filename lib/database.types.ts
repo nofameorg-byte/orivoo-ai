@@ -612,6 +612,8 @@ export type Database = {
       };
       profiles: {
         Row: {
+          accepted_privacy_at: string | null;
+          accepted_terms_at: string | null;
           avatar_url: string | null;
           created_at: string;
           deleted_at: string | null;
@@ -621,6 +623,8 @@ export type Database = {
           updated_at: string;
         };
         Insert: {
+          accepted_privacy_at?: string | null;
+          accepted_terms_at?: string | null;
           avatar_url?: string | null;
           created_at?: string;
           deleted_at?: string | null;
@@ -630,6 +634,8 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
+          accepted_privacy_at?: string | null;
+          accepted_terms_at?: string | null;
           avatar_url?: string | null;
           created_at?: string;
           deleted_at?: string | null;

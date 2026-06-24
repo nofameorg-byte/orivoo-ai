@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Building2, FileText, Mail, MapPin } from "lucide-react";
 import { AccountControls } from "./account-controls";
+import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   title: "Legal Settings",
@@ -35,6 +36,17 @@ export default async function LegalSettingsPage({
   searchParams,
 }: LegalSettingsPageProps) {
   const { message } = await searchParams;
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const { data: profile } = user
+    ? await supabase
+        .from("profiles")
+        .select("accepted_terms_at, accepted_privacy_at")
+        .eq("id", user.id)
+        .maybeSingle()
+    : { data: null };
 
   return (
     <div className="space-y-6">
@@ -68,6 +80,30 @@ export default async function LegalSettingsPage({
             <p className="mt-3 leading-7 text-muted">{policy.body}</p>
           </article>
         ))}
+      </section>
+
+      <section className="rounded-[2rem] border border-gold/20 bg-gold/10 p-6">
+        <h2 className="text-xl font-semibold text-white">
+          Terms acceptance placeholder
+        </h2>
+        <p className="mt-3 max-w-3xl leading-7 text-muted">
+          Acceptance fields are prepared in the database. App usage is not
+          blocked yet while final legal text is under review.
+        </p>
+        <div className="mt-5 grid gap-4 md:grid-cols-2">
+          <div className="rounded-2xl bg-black/45 p-4">
+            <p className="text-sm text-muted">Terms & Conditions</p>
+            <p className="mt-2 font-semibold text-white">
+              {profile?.accepted_terms_at ?? "Not accepted yet"}
+            </p>
+          </div>
+          <div className="rounded-2xl bg-black/45 p-4">
+            <p className="text-sm text-muted">Privacy Policy</p>
+            <p className="mt-2 font-semibold text-white">
+              {profile?.accepted_privacy_at ?? "Not accepted yet"}
+            </p>
+          </div>
+        </div>
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[1fr_0.85fr]">

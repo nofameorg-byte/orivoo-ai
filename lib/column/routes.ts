@@ -92,3 +92,10 @@ export function getAmountCentsField(body: unknown, field: string) {
 export function validationErrorResponse(error: string) {
   return NextResponse.json({ error }, { status: 400 });
 }
+
+export function safeErrorResponse() {
+  return NextResponse.json(
+    { error: "Request could not be completed safely." },
+    { status: 500 },
+  );
+}

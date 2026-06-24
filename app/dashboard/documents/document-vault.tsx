@@ -63,7 +63,7 @@ export function DocumentVault() {
         .order("updated_at", { ascending: false });
 
       if (error) {
-        setMessage(error.message);
+        setMessage("Documents could not be loaded safely.");
         return;
       }
 
@@ -80,7 +80,7 @@ export function DocumentVault() {
       .order("updated_at", { ascending: false });
 
     if (error) {
-      setMessage(error.message);
+      setMessage("Documents could not be refreshed safely.");
       return;
     }
 
@@ -129,7 +129,7 @@ export function DocumentVault() {
 
     if (upload.error) {
       setLoadingCategory("");
-      setMessage(upload.error.message);
+      setMessage("Document upload could not be completed safely.");
       return;
     }
 
@@ -149,7 +149,7 @@ export function DocumentVault() {
         .eq("id", existing.id);
 
       if (error) {
-        setMessage(error.message);
+        setMessage("Document metadata could not be updated safely.");
       } else {
         setMessage(`${category} replaced.`);
       }
@@ -165,7 +165,7 @@ export function DocumentVault() {
       });
 
       if (error) {
-        setMessage(error.message);
+        setMessage("Document metadata could not be saved safely.");
       } else {
         setMessage(`${category} uploaded.`);
       }
@@ -181,7 +181,7 @@ export function DocumentVault() {
       .createSignedUrl(document.storage_path, 60);
 
     if (error) {
-      setMessage(error.message);
+      setMessage("Document preview could not be opened safely.");
       return;
     }
 
@@ -194,7 +194,7 @@ export function DocumentVault() {
       .download(document.storage_path);
 
     if (error) {
-      setMessage(error.message);
+      setMessage("Document download could not be completed safely.");
       return;
     }
 
@@ -212,7 +212,7 @@ export function DocumentVault() {
       .remove([document.storage_path]);
 
     if (storage.error) {
-      setMessage(storage.error.message);
+      setMessage("Document file could not be deleted safely.");
       return;
     }
 
@@ -222,7 +222,7 @@ export function DocumentVault() {
       .eq("id", document.id);
 
     if (error) {
-      setMessage(error.message);
+      setMessage("Document metadata could not be deleted safely.");
       return;
     }
 

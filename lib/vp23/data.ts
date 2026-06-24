@@ -30,6 +30,7 @@ export const dashboardNavigation = [
   { name: "Partner Review", href: "/dashboard/partner-review", icon: ClipboardCheck },
   { name: "Compliance Binder", href: "/dashboard/compliance-binder", icon: FileText },
   { name: "Pitch", href: "/dashboard/pitch", icon: ArrowUpRight },
+  { name: "Security Audit", href: "/dashboard/security-audit", icon: ShieldCheck },
   { name: "Business Banking", href: "/dashboard/business-banking", icon: Landmark },
   { name: "Business profile", href: "/dashboard/business-profile", icon: Building2 },
   { name: "Accounts", href: "/dashboard/accounts", icon: Landmark },

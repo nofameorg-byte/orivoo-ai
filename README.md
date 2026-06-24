@@ -118,13 +118,28 @@ Add environment values:
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
+SUPABASE_SERVICE_ROLE_KEY=your-server-only-service-role-key
 COLUMN_API_KEY=your-column-key
 COLUMN_BASE_URL=https://api.column.com
+COLUMN_WEBHOOK_SECRET=your-column-webhook-secret
 COLUMN_ENVIRONMENT=sandbox
 COLUMN_PARTNER_BANK_ID=your-partner-bank-id
+APP_URL=http://localhost:3000
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+VP23_LEGAL_NAME=Versatile Partners 23, LLC
+VP23_BRAND_NAME=VP23
+VP23_SUPPORT_EMAIL=contact@vp-23.com
+VP23_WEBSITE_URL=https://www.vp-23.com
 SPONSOR_BANK_NAME=your-sponsor-bank-name
 ```
+
+Environment warnings:
+
+- Never expose `SUPABASE_SERVICE_ROLE_KEY` to client components or public bundles.
+- Never expose `COLUMN_API_KEY` to client components or public bundles.
+- Never commit production secrets.
+- Use separate sandbox and production environments for Supabase, Column, and app deployments.
 
 Run the development server:
 
@@ -155,6 +170,10 @@ The migration creates:
 - `business_documents`
 - `admin_review_notes`
 - `application_status_events`
+- `business_members`
+- `business_roles`
+- `business_invitations`
+- `audit_logs`
 - Private `business-documents` storage bucket
 - Row Level Security policies
 - `updated_at` triggers
