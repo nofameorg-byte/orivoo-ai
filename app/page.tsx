@@ -16,25 +16,25 @@ import {
 import { VP23Logo } from "@/components/vp23-logo";
 
 const valueProps = [
-  "Banking integration settings stay server-side",
-  "Supabase Auth and RLS-ready database foundation",
-  "Mobile-first financial command center",
+  "Customer records, invoices, and documents in one place",
+  "Account-readiness workflows for growing businesses",
+  "Built for contractors, owners, and operators",
 ];
 
 const platformCards = [
   {
     title: "Operate",
-    body: "Monitor balances, accounts, transactions, customers, and invoices from one protected cockpit.",
+    body: "Manage customers, invoices, applications, statements, and records from one business money workspace.",
     icon: Landmark,
   },
   {
     title: "Move",
-    body: "Prepare payment workflows through a secure backend layer built for partner-bank approval.",
+    body: "Prepare payment workflows and approvals without enabling live banking rails.",
     icon: ArrowDownLeft,
   },
   {
     title: "Collect",
-    body: "Create invoices, capture customer details, and print or download invoice records for MVP workflows.",
+    body: "Create branded invoices, track customer history, and keep documents organized.",
     icon: FileText,
   },
 ];
@@ -43,17 +43,17 @@ const pricingTiers = [
   {
     name: "Starter",
     price: "$0",
-    body: "Application workspace, KYB checklist, invoices, and customer records.",
+    body: "Business workspace, invoices, customer records, and document organization.",
   },
   {
     name: "Business",
     price: "Custom",
-    body: "Multi-business management, document workflows, ledger exports, and review queues.",
+    body: "Multi-business tools, ledger exports, application tracking, and customer workflows.",
   },
   {
     name: "Partner-ready",
     price: "Custom",
-    body: "Adapter preparation, audit logs, statements, and sponsor-bank readiness controls.",
+    body: "Statements, audit logs, review package tools, and partner-readiness controls.",
   },
 ];
 
@@ -100,7 +100,7 @@ export default function LandingPage() {
           </Link>
           <Link
             href="/signup"
-            className="rounded-full border border-gold/50 bg-white px-4 py-2 text-sm font-semibold text-black shadow-lg shadow-metal-red/20 transition hover:bg-gold-bright"
+            className="gold-cta rounded-full px-5 py-2.5 text-sm font-semibold text-black transition hover:scale-[1.02]"
           >
             Start application
           </Link>
@@ -111,28 +111,28 @@ export default function LandingPage() {
         <div>
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-metal-red/40 bg-metal-red/10 px-4 py-2 text-sm text-metal-red-bright">
             <Siren className="size-4" aria-hidden />
-            Premium fintech operations for high-velocity businesses
+            Business money operations for high-velocity operators
           </div>
           <h1 className="max-w-5xl text-5xl font-semibold tracking-tight text-white sm:text-6xl lg:text-7xl">
-            Operate with bank-grade discipline.{" "}
-            <span className="text-vp23-gradient">Control like VP23.</span>
+            Business-grade control.{" "}
+            <span className="text-vp23-gradient">Built with VP23 energy.</span>
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-muted">
-            VP23 is a premium fintech platform with Supabase-secured identity,
-            protected dashboard routes, invoices, customers, transactions,
-            transfers, and server-only banking integration prep.
+            VP23 helps small businesses, contractors, and entrepreneurs organize
+            customers, invoices, documents, applications, ledger records, and
+            account-readiness workflows in one premium workspace.
           </p>
           <div className="mt-10 flex flex-col gap-4 sm:flex-row">
             <Link
               href="/signup"
-              className="group inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-black shadow-xl shadow-metal-red/20 transition hover:bg-gold-bright"
+              className="gold-cta group inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-black transition hover:scale-[1.02]"
             >
               Create VP23 account
               <ArrowRight className="size-4 transition group-hover:translate-x-0.5" />
             </Link>
             <Link
               href="/login"
-              className="inline-flex items-center justify-center rounded-full border border-electric-blue/40 px-6 py-3 text-sm font-semibold text-white transition hover:border-electric-blue-bright hover:bg-electric-blue/10"
+              className="inline-flex items-center justify-center rounded-full border border-gold/35 px-6 py-3 text-sm font-semibold text-gold-bright transition hover:border-gold hover:bg-gold/10"
             >
               Open dashboard
             </Link>
@@ -150,18 +150,18 @@ export default function LandingPage() {
           </div>
         </div>
 
-        <div className="metal-card relative overflow-hidden rounded-[2rem] p-4">
+        <div className="metal-card red-glow relative overflow-hidden rounded-[2rem] p-4">
           <div className="absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-metal-red-bright via-40% to-electric-blue-bright" />
           <div className="rounded-[1.5rem] border border-white/10 bg-black/70 p-4">
             <div className="mb-4 flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted">VP23 splash screen</p>
                 <h2 className="text-xl font-semibold text-white">
-                  Financial command deck
+                  Business command center
                 </h2>
               </div>
               <div className="rounded-full border border-electric-blue/35 bg-electric-blue/10 px-3 py-1 text-xs text-electric-blue-bright">
-                Partner review
+                In development
               </div>
             </div>
             <div className="rounded-[1.25rem] border border-white/10 bg-gradient-to-br from-metal-red/20 via-black to-electric-blue/20 p-6">
@@ -222,13 +222,12 @@ export default function LandingPage() {
               Features
             </p>
             <h2 className="mt-3 text-3xl font-semibold text-white md:text-5xl">
-              Banking workflows with an aggressive premium edge.
+              Business money tools with redline speed.
             </h2>
           </div>
           <p className="max-w-xl text-muted">
-            Built mobile-first with protected App Router pages for business
-            profiles, accounts, transactions, transfers, customers, invoices,
-            and settings.
+            Organize the work that keeps cash, customers, paperwork, and
+            approvals moving without scattered spreadsheets.
           </p>
         </div>
         <div className="grid gap-4 md:grid-cols-3">
@@ -272,10 +271,10 @@ export default function LandingPage() {
         <div className="surface-card rounded-[2rem] p-8 md:p-12">
           <Building2 className="mb-6 size-8 text-gold" aria-hidden />
           <h2 className="text-3xl font-semibold text-white md:text-5xl">
-            Business Banking
+            Business Banking Tools
           </h2>
           <p className="mt-5 max-w-3xl leading-7 text-muted">
-            VP23 prepares checking and savings application workflows,
+            VP23 prepares business account application workflows,
             multi-business access, document review, and account-readiness tools
             while partner approval remains pending.
           </p>
@@ -292,8 +291,8 @@ export default function LandingPage() {
             Payments
           </h2>
           <p className="mt-5 max-w-3xl leading-7 text-muted">
-            Prepare ACH, wire, and real-time payment records behind server-side
-            abstractions. No live payment rails are enabled.
+            Prepare payment records, customer histories, and approval workflows.
+            Live payment rails are not enabled.
           </p>
         </div>
       </section>
@@ -335,15 +334,15 @@ export default function LandingPage() {
                 Secure by design
               </p>
               <h2 className="mt-4 text-3xl font-semibold text-white md:text-5xl">
-                Supabase auth, RLS, and server-only Column integration.
+                Private workspace controls for business records.
               </h2>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               {[
-                "Email/password auth flows",
-                "Protected dashboard routes",
-                "RLS-enabled financial records",
-                "COLUMN_API_KEY never reaches client components",
+                "Protected account access",
+                "Private document workflows",
+                "Review-ready business records",
+                "Partner-readiness controls",
               ].map((item) => (
                 <div
                   key={item}
@@ -376,13 +375,55 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <footer className="relative z-10 mx-auto flex w-full max-w-7xl flex-col gap-4 border-t border-white/10 px-6 py-8 text-sm text-muted sm:flex-row sm:items-center sm:justify-between lg:px-8">
-        <VP23Logo size="sm" />
-        <p className="max-w-3xl text-xs leading-5">
-          VP23 is a financial technology platform. Banking services are not
-          currently available. Features shown may be under development and
-          subject to future partner bank approval.
-        </p>
+      <footer className="relative z-10 border-t border-gold/20 bg-gradient-to-br from-black via-panel to-black px-6 py-12 lg:px-8">
+        <div className="mx-auto grid w-full max-w-7xl gap-8 md:grid-cols-[0.9fr_1.1fr] md:items-start">
+          <div>
+            <VP23Logo size="md" />
+            <p className="mt-5 max-w-md text-sm leading-6 text-muted">
+              Business money operations, customer records, invoices, documents,
+              and account-readiness workflows with premium VP23 energy.
+            </p>
+          </div>
+          <div className="grid gap-6 sm:grid-cols-3">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-gold">
+                Platform
+              </p>
+              <div className="mt-4 space-y-2 text-sm text-muted">
+                <a href="#features" className="block hover:text-white">Features</a>
+                <a href="#pricing" className="block hover:text-white">Pricing</a>
+                <a href="#invoices" className="block hover:text-white">Invoices</a>
+              </div>
+            </div>
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-gold">
+                Business
+              </p>
+              <div className="mt-4 space-y-2 text-sm text-muted">
+                <a href="#business-banking" className="block hover:text-white">Business tools</a>
+                <a href="#payments" className="block hover:text-white">Payments</a>
+                <a href="#security" className="block hover:text-white">Security</a>
+              </div>
+            </div>
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-gold">
+                Contact
+              </p>
+              <div className="mt-4 space-y-2 text-sm text-muted">
+                <a href="mailto:contact@vp-23.com" className="block hover:text-white">contact@vp-23.com</a>
+                <a href="https://www.vp-23.com" className="block hover:text-white">www.vp-23.com</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="mx-auto mt-10 flex w-full max-w-7xl flex-col gap-3 border-t border-white/10 pt-6 text-xs leading-5 text-muted md:flex-row md:items-center md:justify-between">
+          <p>
+            VP23 is a financial technology platform. Banking services are not
+            currently available and are subject to future approval by regulated
+            banking partners.
+          </p>
+          <p>© VP23 — A product of Versatile Partners 23, LLC</p>
+        </div>
       </footer>
     </main>
   );

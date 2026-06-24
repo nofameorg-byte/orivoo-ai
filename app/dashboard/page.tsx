@@ -32,17 +32,18 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <section className="surface-card relative overflow-hidden rounded-[2rem] p-6 sm:p-8 lg:p-10">
-        <div className="absolute right-0 top-0 h-64 w-64 rounded-full bg-electric-blue/10 blur-3xl" />
-        <div className="absolute bottom-0 left-0 h-72 w-72 rounded-full bg-metal-red/15 blur-3xl" />
+      <section className="surface-card red-glow relative overflow-hidden rounded-[2rem] p-6 sm:p-8 lg:p-10">
+        <div className="absolute right-0 top-0 h-64 w-64 rounded-full bg-gold/15 blur-3xl" />
+        <div className="absolute bottom-0 left-0 h-72 w-72 rounded-full bg-metal-red/25 blur-3xl" />
         <div className="relative grid gap-8 lg:grid-cols-[1fr_0.8fr] lg:items-end">
           <div>
             <h1 className="max-w-4xl text-4xl font-semibold tracking-tight text-white sm:text-5xl">
-              Welcome back, {displayName}. Your money command deck is armed.
+              Welcome back, {displayName}. Your VP23 command center is ready.
             </h1>
             <p className="mt-5 max-w-2xl leading-7 text-muted">
-              TODO: Complete production KYB/KYC, risk controls, and compliance
-              approvals before enabling partner-approved funds movement.
+              Manage customers, invoices, documents, applications, ledger
+              records, and account-readiness workflows from one secure
+              workspace.
             </p>
           </div>
           <div className="metal-card rounded-[1.5rem] p-5">
@@ -52,7 +53,7 @@ export default async function DashboardPage() {
             <p className="mt-3 text-4xl font-semibold text-white sm:text-5xl">
               $179,070.90
             </p>
-            <div className="mt-5 flex items-center justify-between rounded-2xl border border-white/10 bg-black/45 p-4">
+            <div className="mt-5 flex items-center justify-between rounded-2xl border border-gold/20 bg-black/45 p-4">
               <span className="text-sm text-muted">Application ledger preview</span>
               <span className="text-sm font-semibold text-gold-bright">
                 +18.4%
@@ -81,7 +82,7 @@ export default async function DashboardPage() {
           <Link
             key={action.label}
             href={action.href}
-            className="group rounded-3xl border border-white/10 bg-white/[0.03] p-5 transition hover:-translate-y-1 hover:border-gold/40 hover:bg-gold/10"
+            className="group bank-card rounded-3xl p-5 transition hover:-translate-y-1 hover:border-gold/40"
           >
             <div className="mb-5 flex size-12 items-center justify-center rounded-2xl border border-gold/25 bg-gold/10 text-gold">
               <action.icon className="size-5" aria-hidden />
@@ -94,7 +95,7 @@ export default async function DashboardPage() {
         ))}
       </section>
 
-      <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6">
+      <section className="rounded-[2rem] border border-gold/15 bg-gradient-to-br from-white/[0.04] via-black/30 to-metal-red/10 p-6">
         <div className="mb-5 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
           <div>
             <p className="text-sm uppercase tracking-[0.28em] text-gold">
@@ -106,14 +107,14 @@ export default async function DashboardPage() {
           </div>
           <Link
             href="/dashboard/business-banking"
-            className="text-sm font-semibold text-electric-blue-bright"
+            className="text-sm font-semibold text-gold-bright"
           >
             Manage banking
           </Link>
         </div>
         <div className="grid gap-4 lg:grid-cols-3">
           {bankingProducts.map((product) => (
-            <article key={product.title} className="rounded-3xl bg-black/45 p-5">
+            <article key={product.title} className="rounded-3xl border border-white/10 bg-black/45 p-5">
               <div className="mb-4 flex size-11 items-center justify-center rounded-2xl border border-gold/25 bg-gold/10 text-gold">
                 <product.icon className="size-5" aria-hidden />
               </div>

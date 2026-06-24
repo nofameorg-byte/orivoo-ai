@@ -18,8 +18,8 @@ export default function CustomersPage() {
           Customers
         </h1>
         <p className="mt-3 max-w-3xl leading-7 text-muted">
-          Manage customer identity and invoice balances. Customer rows are
-          modeled in Supabase with owner-scoped RLS policies.
+          Manage customer identity, notes, invoice balances, and activity
+          history from the VP23 workspace.
         </p>
       </section>
 

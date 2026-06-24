@@ -21,9 +21,8 @@ export default function InvoicesPage() {
           Create, send, download, and print invoices.
         </h1>
         <p className="mt-3 max-w-3xl leading-7 text-muted">
-          Send is a placeholder for the MVP. TODO: Add production email
-          delivery, payment links, tax treatment, audit trails, and compliance
-          review before live collections.
+          Send is a placeholder while delivery, payment links, tax treatment,
+          audit trails, and compliance review are finalized.
         </p>
       </section>
 

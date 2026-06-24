@@ -20,9 +20,9 @@ export default function DocumentsPage() {
           Upload and manage private KYB documents.
         </h1>
         <p className="mt-3 max-w-3xl leading-7 text-muted">
-          Files are uploaded to a private Supabase Storage bucket and document
-          metadata is stored with owner-scoped Row Level Security. Supported
-          files: PDF, PNG, JPG, JPEG. Maximum file size: 10MB.
+          Upload private business documents for review and account-readiness
+          workflows. Supported files: PDF, PNG, JPG, JPEG. Maximum file size:
+          10MB.
         </p>
       </section>
 

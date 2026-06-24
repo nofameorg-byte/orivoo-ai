@@ -84,7 +84,7 @@ export function InvoiceForm() {
       return;
     }
 
-    setMessage("Send invoice placeholder queued. Email delivery is a production TODO.");
+    setMessage("Send invoice placeholder queued for review.");
   }
 
   function handleDownload() {
@@ -198,8 +198,8 @@ export function InvoiceForm() {
             </span>
           </div>
           <p className="mt-4 text-sm leading-6 text-muted">
-            Browser print opens a save-as-PDF flow for MVP export. TODO: replace
-            with server-generated PDFs and immutable invoice snapshots.
+            Browser print opens a save-as-PDF flow for preview export. Final
+            PDFs and immutable invoice snapshots remain under review.
           </p>
         </div>
 

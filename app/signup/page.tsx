@@ -27,8 +27,8 @@ export default async function SignupPage({ searchParams }: AuthPageProps) {
             Create your VP23 workspace
           </h1>
           <p className="mt-3 text-sm text-muted">
-            Launch a partner-ready financial platform with Supabase-secured
-            authentication and RLS-ready business records.
+            Launch a secure VP23 workspace for customers, invoices, documents,
+            and account-readiness workflows.
           </p>
 
           {message ? (
@@ -76,7 +76,7 @@ export default async function SignupPage({ searchParams }: AuthPageProps) {
             </label>
             <button
               type="submit"
-              className="group flex w-full items-center justify-center gap-2 rounded-full bg-white px-5 py-3 font-semibold text-black transition hover:bg-gold-bright"
+              className="gold-cta group flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 font-semibold text-black transition hover:scale-[1.01]"
             >
               Create VP23 account
               <ArrowRight className="size-4 transition group-hover:translate-x-0.5" />
@@ -97,11 +97,11 @@ export default async function SignupPage({ searchParams }: AuthPageProps) {
               Application stack
             </p>
             <h2 className="mt-4 text-4xl font-semibold text-white">
-              Next.js 16, Supabase, Tailwind, Column-ready routes.
+              Customers, invoices, documents, and review workflows.
             </h2>
             <p className="mt-5 leading-7 text-muted">
-              TODO: Add production KYB/KYC, beneficial owner collection, and
-              compliance approval before partner-approved banking access.
+              Built for business owners who need organized customers, invoices,
+              documents, and account-readiness workflows in one place.
             </p>
             <div className="mt-8 grid gap-3">
               {[

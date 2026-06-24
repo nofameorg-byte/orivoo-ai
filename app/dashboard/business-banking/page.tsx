@@ -18,7 +18,7 @@ export default function BusinessBankingPage() {
         <p className="mt-3 max-w-3xl leading-7 text-muted">
           The application separates banking-product readiness from generic account cards:
           checking preparation, savings as a sponsor-bank future, and account details
-          tied to Column entity/account identifiers.
+          tied to partner-readiness identifiers.
         </p>
       </section>
 

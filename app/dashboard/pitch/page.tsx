@@ -55,7 +55,7 @@ export default function PitchPage() {
               </span>
             </div>
             <h1 className="mt-4 text-3xl font-semibold text-white sm:text-4xl">
-              VP23: business-focused fintech operations.
+              VP23: business money operations.
             </h1>
           </div>
           <VP23Logo href="/dashboard/pitch" size="lg" showText={false} />

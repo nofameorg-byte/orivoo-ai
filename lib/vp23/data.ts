@@ -220,7 +220,7 @@ export const bankingProducts = [
   {
     title: "Account Details",
     status: "Available",
-    body: "Routing number, account mask, ledger balance display, and Column entity mapping.",
+    body: "Routing number, account mask, ledger balance display, and readiness mapping.",
     icon: ShieldCheck,
   },
 ];
@@ -257,10 +257,10 @@ export const invoiceCapabilities = [
 ];
 
 export const onboardingSteps = [
-  { title: "User account", status: "Ready", body: "Supabase email/password session and protected routes." },
+  { title: "User account", status: "Ready", body: "Secure account access and protected workspace routes." },
   { title: "Business profile", status: "In progress", body: "Legal entity, EIN last four, address, and industry intake." },
   { title: "KYB/KYC verification", status: "Required", body: "Beneficial owners, control person, sanctions screening, and document checks." },
-  { title: "Column entity mapping", status: "Prepared", body: "Prepare entity/account payloads and store Column identifiers server-side after approval." },
+  { title: "Partner entity mapping", status: "Prepared", body: "Prepare entity/account payloads and store partner identifiers after approval." },
   { title: "Bank sponsor approval", status: "External dependency", body: "Partner-bank program approval before production money movement." },
 ];
 
@@ -292,20 +292,20 @@ export const adminQueues = [
 ];
 
 export const securityHighlights = [
-  "Supabase Auth protects dashboard routes",
-  "RLS policies scope data to the authenticated owner",
-  "Column API key is only read by server route handlers",
+  "Protected access guards dashboard routes",
+  "Business data is scoped to authorized users",
+  "Partner credentials stay out of customer screens",
   "Banking features remain gated until partner approval",
 ];
 
 export const complianceTodos = [
-  "TODO: Add production KYB/KYC onboarding and beneficial owner collection before partner-approved money movement.",
-  "TODO: Add compliance review, OFAC screening, and audit retention before enabling production Column transfers.",
-  "TODO: Replace integration placeholders with signed webhooks, idempotency keys, and reconciliation workflows.",
+  "Production KYB/KYC onboarding and beneficial owner collection remain under review.",
+  "Compliance review, screening, and audit retention remain under review.",
+  "Signed webhook, retry, and reconciliation workflows remain under review.",
 ];
 
 export const settingsCards = [
-  { title: "Authentication", body: "Supabase email/password sessions with server-side route protection.", icon: ShieldCheck },
+  { title: "Authentication", body: "Secure sessions with protected workspace access.", icon: ShieldCheck },
   { title: "Accounts", body: "Account application data is isolated behind backend API routes.", icon: Landmark },
-  { title: "Database", body: "Profiles, businesses, customers, and invoices are RLS-protected.", icon: Landmark },
+  { title: "Records", body: "Profiles, businesses, customers, and invoices are scoped to authorized access.", icon: Landmark },
 ];

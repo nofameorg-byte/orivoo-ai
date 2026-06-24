@@ -45,9 +45,9 @@ html {
 body {
   min-height: 100vh;
   background:
-    radial-gradient(circle at top left, rgba(217, 4, 41, 0.24), transparent 34rem),
-    radial-gradient(circle at top right, rgba(37, 99, 235, 0.2), transparent 30rem),
-    radial-gradient(circle at 50% 0%, rgba(255, 214, 10, 0.1), transparent 28rem),
+    radial-gradient(circle at top left, rgba(217, 4, 41, 0.3), transparent 34rem),
+    radial-gradient(circle at 85% 10%, rgba(212, 175, 55, 0.18), transparent 28rem),
+    radial-gradient(circle at 45% 0%, rgba(255, 214, 10, 0.1), transparent 28rem),
     var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
@@ -65,7 +65,20 @@ a {
 }
 
 .gold-gradient {
-  background: linear-gradient(135deg, #fff4a3 0%, #d4af37 42%, #7a5a12 100%);
+  background: linear-gradient(135deg, #ffd60a 0%, #d4af37 44%, #8a6418 100%);
+}
+
+.gold-cta {
+  background: linear-gradient(135deg, #ffd60a 0%, #d4af37 52%, #f2d36b 100%);
+  box-shadow:
+    0 12px 34px rgba(212, 175, 55, 0.22),
+    0 0 0 1px rgba(255, 214, 10, 0.28) inset;
+}
+
+.red-glow {
+  box-shadow:
+    0 0 60px rgba(217, 4, 41, 0.18),
+    0 24px 80px rgba(0, 0, 0, 0.52);
 }
 
 .vp23-gradient {
@@ -91,10 +104,12 @@ a {
 .surface-card {
   border: 1px solid var(--border);
   background:
-    linear-gradient(180deg, rgba(248, 249, 250, 0.07), rgba(248, 249, 250, 0.015)),
-    linear-gradient(135deg, rgba(217, 4, 41, 0.08), rgba(37, 99, 235, 0.06)),
+    linear-gradient(180deg, rgba(248, 249, 250, 0.08), rgba(248, 249, 250, 0.018)),
+    linear-gradient(135deg, rgba(217, 4, 41, 0.12), rgba(212, 175, 55, 0.08)),
     rgba(16, 16, 20, 0.92);
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.52);
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.52),
+    0 0 0 1px rgba(217, 4, 41, 0.08) inset;
 }
 
 .metal-card {
@@ -104,13 +119,16 @@ a {
     #101014;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.14),
-    0 28px 90px rgba(0, 0, 0, 0.5);
+    0 28px 90px rgba(0, 0, 0, 0.5),
+    0 0 44px rgba(217, 4, 41, 0.12);
 }
 
 .bank-card {
   border: 1px solid rgba(248, 249, 250, 0.1);
   background:
     linear-gradient(145deg, rgba(248, 249, 250, 0.08), rgba(248, 249, 250, 0.015)),
+    radial-gradient(circle at top right, rgba(212, 175, 55, 0.09), transparent 18rem),
+    radial-gradient(circle at bottom left, rgba(217, 4, 41, 0.12), transparent 18rem),
     #101014;
   box-shadow:
     inset 0 1px 0 rgba(248, 249, 250, 0.12),

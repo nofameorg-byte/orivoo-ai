@@ -18,8 +18,8 @@ export default function SettingsPage() {
           Security, partner integration, and environment controls.
         </h1>
         <p className="mt-3 max-w-3xl leading-7 text-muted">
-          Keep public Supabase values client-safe and store COLUMN_API_KEY only
-          in server-side environment variables.
+          Manage secure workspace settings, partner-readiness controls, and
+          account policies.
         </p>
       </section>
 
@@ -58,14 +58,14 @@ export default function SettingsPage() {
           <h2 className="font-semibold">Environment checklist</h2>
         </div>
         <ul className="mt-5 space-y-3 text-sm leading-6 text-muted">
-          <li>NEXT_PUBLIC_SUPABASE_URL is safe for browser use.</li>
-          <li>NEXT_PUBLIC_SUPABASE_ANON_KEY is safe for browser use with RLS.</li>
-          <li>COLUMN_API_KEY must remain server-only and never use NEXT_PUBLIC.</li>
-          <li>COLUMN_BASE_URL and COLUMN_ENVIRONMENT control integration targeting.</li>
-          <li>COLUMN_PARTNER_BANK_ID and SPONSOR_BANK_NAME model bank sponsor settings.</li>
+          <li>Public app settings must only include non-secret values.</li>
+          <li>Private service keys must remain in server environments.</li>
+          <li>Partner credentials must never appear in customer screens.</li>
+          <li>Use separate environments for development and production review.</li>
+          <li>Partner approval settings remain internal until approved.</li>
           <li>
-            TODO: Add production secrets rotation, webhook signatures, and audit
-            logging before going live.
+            Secrets rotation, webhook signatures, and audit logging remain part
+            of production readiness review.
           </li>
         </ul>
       </section>
@@ -77,8 +77,8 @@ export default function SettingsPage() {
         </div>
         <p className="mt-4 leading-7 text-muted">
           Profiles, business profiles, customers, and invoices are scoped to
-          auth.uid() in Supabase policies. Server routes re-check authentication
-          before using banking integration placeholders.
+          authorized access. Internal routes re-check access before using
+          partner-readiness placeholders.
         </p>
       </section>
     </div>

@@ -1,7 +1,7 @@
 {
   "name": "VP23",
   "short_name": "VP23",
-  "description": "VP23 fintech platform.",
+  "description": "VP23 business money operations platform.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0B0B0B",

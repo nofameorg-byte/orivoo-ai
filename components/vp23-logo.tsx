@@ -9,9 +9,9 @@ type VP23LogoProps = {
 };
 
 const sizeClasses = {
-  sm: "size-12",
-  md: "size-16",
-  lg: "size-24",
+  sm: "size-14",
+  md: "size-20",
+  lg: "size-32",
 };
 
 export function VP23Logo({
@@ -28,7 +28,7 @@ export function VP23Logo({
         height={1024}
         alt="VP23"
         priority={size === "lg"}
-        className={`${sizeClasses[size]} rounded-xl object-contain shadow-lg shadow-metal-red/20`}
+        className={`${sizeClasses[size]} rounded-2xl object-contain shadow-2xl shadow-metal-red/25`}
       />
       {showText ? (
         <span className="hidden leading-tight sm:block">

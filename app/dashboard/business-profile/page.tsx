@@ -22,9 +22,9 @@ export default function BusinessProfilePage() {
               Prepare the business record for partner-bank review.
             </h1>
             <p className="mt-4 max-w-3xl leading-7 text-muted">
-              This profile is RLS-scoped to the authenticated owner. Production
+              This profile is scoped to authorized workspace access. Production
               onboarding must verify the business, owners, control persons, and
-              permitted use case before any live Column activity.
+              permitted use case before any partner-approved activity.
             </p>
           </div>
         </div>
@@ -127,7 +127,7 @@ export default function BusinessProfilePage() {
       <section className="rounded-[2rem] border border-metal-red/25 bg-metal-red/10 p-6">
         <div className="mb-4 flex items-center gap-3 text-metal-red-bright">
           <ShieldAlert className="size-5" aria-hidden />
-          <h2 className="font-semibold">Production compliance TODOs</h2>
+          <h2 className="font-semibold">Production compliance review</h2>
         </div>
         <ul className="space-y-3 text-sm leading-6 text-muted">
           {complianceTodos.map((item) => (

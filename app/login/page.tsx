@@ -27,11 +27,11 @@ export default async function LoginPage({ searchParams }: AuthPageProps) {
               Welcome back
             </p>
             <h1 className="mt-4 text-4xl font-semibold text-white">
-              Re-enter the VP23 command deck.
+              Welcome to VP23.
             </h1>
             <p className="mt-5 leading-7 text-muted">
-              Access balances, invoices, customers, transactions, and simulated
-              payment workflows from a protected Supabase session.
+              Access customers, invoices, documents, ledger records, and
+              account-readiness workflows from one secure workspace.
             </p>
           </div>
         </section>
@@ -47,7 +47,7 @@ export default async function LoginPage({ searchParams }: AuthPageProps) {
           </div>
           <h2 className="mt-5 text-3xl font-semibold text-white">Login</h2>
           <p className="mt-3 text-sm text-muted">
-            Access your VP23 workspace with Supabase authentication.
+              Access your VP23 workspace securely.
           </p>
 
           {message ? (
@@ -82,7 +82,7 @@ export default async function LoginPage({ searchParams }: AuthPageProps) {
             </label>
             <button
               type="submit"
-              className="group flex w-full items-center justify-center gap-2 rounded-full bg-white px-5 py-3 font-semibold text-black transition hover:bg-gold-bright"
+              className="gold-cta group flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 font-semibold text-black transition hover:scale-[1.01]"
             >
               Login to dashboard
               <ArrowRight className="size-4 transition group-hover:translate-x-0.5" />

@@ -22,15 +22,15 @@ const checklist = [
   { section: "Company identity", status: "Complete", notes: "Legal entity, address, contact, website, and brand are documented." },
   { section: "KYB onboarding", status: "Complete", notes: "Protected KYB workflow captures company, address, ownership, documents, and certification." },
   { section: "Beneficial owners", status: "In progress", notes: "Beneficial owner form exists; production verification provider remains pending." },
-  { section: "Document vault", status: "Complete", notes: "Private Supabase Storage flow with metadata, type validation, and review statuses." },
+  { section: "Document vault", status: "Complete", notes: "Private document flow with metadata, type validation, and review statuses." },
   { section: "Customer onboarding", status: "In progress", notes: "Customer records and profiles are built; automated due diligence is planned." },
   { section: "Account applications", status: "Complete", notes: "Business checking and savings application tracking exists." },
   { section: "Admin review tools", status: "Complete", notes: "Admin queues, notes, document review, and risk panels are represented." },
   { section: "Audit logs", status: "In progress", notes: "Schema and helper exist; full event instrumentation is planned." },
   { section: "Privacy policy", status: "In progress", notes: "Policy placeholder exists in legal settings and compliance binder." },
   { section: "Terms & conditions", status: "In progress", notes: "Terms placeholder exists in legal settings and compliance binder." },
-  { section: "Security controls", status: "In progress", notes: "Auth, RLS, and server-only secrets are implemented; monitoring is planned." },
-  { section: "Bank partner abstraction layer", status: "Complete", notes: "Mock Column, Unit, and Treasury Prime adapters return non-live mock data." },
+  { section: "Security controls", status: "In progress", notes: "Access controls and private credentials are implemented; monitoring is planned." },
+  { section: "Bank partner abstraction layer", status: "Complete", notes: "Mock partner adapters return non-live mock data." },
 ];
 
 function statusClass(status: string) {

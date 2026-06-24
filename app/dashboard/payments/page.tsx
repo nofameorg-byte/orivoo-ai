@@ -18,8 +18,8 @@ export default function PaymentsPage() {
         </h1>
         <p className="mt-3 max-w-3xl leading-7 text-muted">
           Payment rails are presented as partner-ready application modules. ACH, wires,
-          and RTP remain gated by sponsor-bank support,
-          compliance controls, and Column production approval.
+          and RTP remain gated by partner support, compliance controls, and
+          future approval.
         </p>
       </section>
 
@@ -62,10 +62,10 @@ export default function PaymentsPage() {
           <h2 className="font-semibold">Production rail gates</h2>
         </div>
         <ul className="mt-5 space-y-3 text-sm leading-6 text-muted">
-          <li>TODO: Complete KYB/KYC before increasing ACH limits.</li>
-          <li>TODO: Add wire approvals, callbacks, dual control, and audit trails.</li>
-          <li>TODO: Confirm sponsor-bank RTP eligibility and operating rules.</li>
-          <li>TODO: Store Column transfer IDs and webhook states in RLS tables.</li>
+          <li>Complete KYB/KYC before expanding payment limits.</li>
+          <li>Add approvals, callbacks, dual control, and audit trails.</li>
+          <li>Confirm partner eligibility and operating rules.</li>
+          <li>Store transfer IDs and review states for reconciliation.</li>
         </ul>
       </section>
     </div>
