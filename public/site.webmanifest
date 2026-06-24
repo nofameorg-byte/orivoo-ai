@@ -9,19 +9,19 @@
   "icons": [
     {
       "src": "/vp23-logo.png",
-      "sizes": "any",
+      "sizes": "1024x1024",
       "type": "image/png",
       "purpose": "any"
     },
     {
       "src": "/apple-touch-icon.png",
-      "sizes": "any",
+      "sizes": "180x180",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
       "src": "/pwa-icon.png",
-      "sizes": "any",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     }

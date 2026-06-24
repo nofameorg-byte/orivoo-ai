@@ -9,9 +9,9 @@ type VP23LogoProps = {
 };
 
 const sizeClasses = {
-  sm: "h-9 w-28",
-  md: "h-12 w-36",
-  lg: "h-16 w-48",
+  sm: "size-12",
+  md: "size-16",
+  lg: "size-24",
 };
 
 export function VP23Logo({
@@ -24,8 +24,8 @@ export function VP23Logo({
     <span className={`flex items-center gap-3 ${className}`}>
       <Image
         src="/vp23-logo.png"
-        width={240}
-        height={80}
+        width={1024}
+        height={1024}
         alt="VP23 Financial"
         priority={size === "lg"}
         className={`${sizeClasses[size]} rounded-xl object-contain shadow-lg shadow-metal-red/20`}
