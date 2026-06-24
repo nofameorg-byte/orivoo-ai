@@ -1,5 +1,5 @@
 {
-  "name": "vp23-financial",
+  "name": "vp23",
   "version": "1.0.0",
   "private": true,
   "description": "VP23 premium fintech MVP.",
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nofameorg-byte/vp23-financial.git"
+    "url": "git+https://github.com/nofameorg-byte/vp23.git"
   },
   "keywords": [
     "vp23",
@@ -25,9 +25,9 @@
   "author": "",
   "license": "UNLICENSED",
   "bugs": {
-    "url": "https://github.com/nofameorg-byte/vp23-financial/issues"
+    "url": "https://github.com/nofameorg-byte/vp23/issues"
   },
-  "homepage": "https://github.com/nofameorg-byte/vp23-financial#readme",
+  "homepage": "https://github.com/nofameorg-byte/vp23#readme",
   "dependencies": {
     "@supabase/ssr": "^0.12.0",
     "@supabase/supabase-js": "^2.108.2",
