@@ -41,33 +41,33 @@ const pricingTiers = [
   {
     name: "Starter",
     price: "$0/mo",
-    body: "Get started with core tools for solo operators.",
-    features: ["5 invoices/month", "25 customers", "Document vault", "Basic ledger"],
+    body: "For early businesses organizing customers, invoices, and documents.",
+    features: ["Customer workspace", "Invoice records", "Document vault", "Basic ledger"],
     recommended: false,
   },
   {
     name: "Growth",
     price: "$29/mo",
-    body: "Scale your business with advanced workflows.",
+    body: "For growing teams managing customers, invoices, applications, and payment records.",
     features: [
       "Unlimited invoices",
       "Unlimited customers",
-      "Business account apps",
+      "Application tracking",
       "Payment records",
-      "Full ledger & statements",
+      "Ledger and statements",
     ],
     recommended: true,
   },
   {
     name: "Enterprise",
     price: "Custom",
-    body: "Full-featured platform for growing teams.",
+    body: "For partner-ready businesses needing compliance review, admin controls, and expanded workflows.",
     features: [
-      "Everything in Growth",
-      "Admin dashboard",
-      "Partner review",
+      "Growth features",
+      "Admin controls",
+      "Partner review package",
       "Compliance binder",
-      "Priority support",
+      "Expanded workflows",
     ],
     recommended: false,
   },
@@ -131,23 +131,23 @@ export default function LandingPage() {
         </div>
       </header>
 
-      <section className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-8 px-6 pb-12 pt-8 lg:grid-cols-[0.82fr_1.18fr] lg:px-8 lg:pb-16 lg:pt-10">
+      <section className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-7 px-6 pb-10 pt-8 lg:grid-cols-[0.78fr_1.22fr] lg:px-8 lg:pb-14 lg:pt-8">
         <div>
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-gold-bright">
             <Siren className="size-4" aria-hidden />
             Business Command Center
           </div>
-          <h1 className="max-w-[34rem] text-5xl font-black leading-[0.92] tracking-tight text-white sm:text-6xl lg:text-7xl">
+          <h1 className="max-w-[31rem] text-5xl font-black leading-[0.92] tracking-tight text-white sm:text-6xl lg:text-7xl">
             Move smarter.{" "}
             <span className="text-gold-bright">Get paid faster.</span> Run
             business with VP23.
           </h1>
-          <p className="mt-5 max-w-xl text-base leading-7 text-muted sm:text-lg">
-            VP23 helps small businesses, contractors, and entrepreneurs organize
-            customers, invoices, account applications, payment records,
-            documents, and business workflows from one secure command center.
+          <p className="mt-6 max-w-xl text-base leading-7 text-muted sm:text-lg">
+            VP23 helps businesses organize accounts, invoices, customers,
+            documents, and payment readiness workflows. Business account
+            activation is subject to partner-bank approval.
           </p>
-          <div className="mt-7 flex flex-col gap-4 sm:flex-row">
+          <div className="mt-8 flex flex-col gap-4 sm:flex-row">
             <Link
               href="/signup"
               className="gold-cta group inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-black transition hover:scale-[1.02]"
@@ -162,7 +162,7 @@ export default function LandingPage() {
               Open dashboard
             </Link>
           </div>
-          <div className="mt-7 grid gap-3 sm:grid-cols-3">
+          <div className="mt-8 grid gap-3 sm:grid-cols-3">
             {valueProps.map((item) => (
               <div
                 key={item}
@@ -175,7 +175,7 @@ export default function LandingPage() {
           </div>
         </div>
 
-        <div className="relative mx-auto w-full max-w-2xl lg:-mt-20">
+        <div className="relative mx-auto w-full max-w-[46rem] lg:-mt-28">
           <div className="absolute -left-10 top-8 h-56 w-56 rounded-full bg-metal-red/25 blur-3xl" />
           <div className="absolute inset-x-20 -bottom-8 h-36 rounded-full bg-gold/25 blur-3xl" />
           <div className="absolute -right-10 top-8 h-56 w-56 rounded-full bg-electric-blue/20 blur-3xl" />
@@ -184,7 +184,7 @@ export default function LandingPage() {
               <div className="flex items-center gap-2">
                 <VP23Logo href="/" size="sm" showText={false} />
                 <span className="text-xs font-medium text-muted">
-                  Command Center
+                  VP23 Business Center
                 </span>
               </div>
               <div className="flex gap-1.5">
@@ -200,15 +200,15 @@ export default function LandingPage() {
                   <p className="mb-1 text-[0.62rem] font-bold uppercase tracking-[0.18em] text-muted">
                     Total Balance
                   </p>
-                  <p className="text-lg font-black text-gold-bright">$—,——</p>
-                  <p className="mt-0.5 text-[0.58rem] text-muted">Preview Mode</p>
+                  <p className="text-lg font-black text-gold-bright">Account pending</p>
+                  <p className="mt-0.5 text-[0.58rem] text-muted">Partner approval required</p>
                 </div>
                 <div className="rounded-lg border border-electric-blue/20 bg-[#111111] p-4">
                   <p className="mb-1 text-[0.62rem] font-bold uppercase tracking-[0.18em] text-muted">
                     Available
                   </p>
-                  <p className="text-lg font-black text-electric-blue-bright">$—,——</p>
-                  <p className="mt-0.5 text-[0.58rem] text-muted">Pending Review</p>
+                  <p className="text-lg font-black text-electric-blue-bright">Awaiting activation</p>
+                  <p className="mt-0.5 text-[0.58rem] text-muted">Compliance review required</p>
                 </div>
               </div>
 
@@ -217,9 +217,9 @@ export default function LandingPage() {
                   Recent Activity
                 </p>
                 {[
-                  ["Invoice #1042 — Prepared", "+$2,400", "text-emerald-400"],
-                  ["ACH Transfer — Pending", "-$850", "text-vp-yellow"],
-                  ["Invoice #1041 — Sent", "+$1,200", "text-emerald-400"],
+                  ["Business profile created", "Complete", "text-emerald-400"],
+                  ["KYB documents requested", "Needed", "text-vp-yellow"],
+                  ["Invoice workspace ready", "Ready", "text-emerald-400"],
                 ].map(([label, amount, color]) => (
                   <div
                     key={label}
@@ -252,7 +252,7 @@ export default function LandingPage() {
 
       <section
         id="pricing"
-        className="relative z-10 mx-auto w-full max-w-6xl px-6 pb-16 pt-4 lg:px-8"
+        className="relative z-10 mx-auto w-full max-w-6xl px-6 pb-16 pt-6 lg:px-8"
       >
         <div className="mb-8 text-center">
           <p className="text-xs font-black uppercase tracking-[0.26em] text-gold">
@@ -265,18 +265,18 @@ export default function LandingPage() {
             Choose the plan that fits your operation.
           </p>
         </div>
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid items-stretch gap-8 md:grid-cols-3">
           {pricingTiers.map((tier) => (
             <article
               key={tier.name}
-              className={`relative rounded-xl border bg-[#0a0a0a] p-6 ${
+              className={`relative flex h-full min-h-[27rem] flex-col rounded-xl border bg-[#0a0a0a] p-6 ${
                 tier.recommended
-                  ? "border-gold shadow-[0_0_36px_rgba(212,175,55,0.18)]"
-                  : "border-white/10"
+                  ? "border-gold/80 shadow-[0_0_28px_rgba(212,175,55,0.14)]"
+                  : "border-gold/20 shadow-[0_0_20px_rgba(0,0,0,0.28)]"
               }`}
             >
               {tier.recommended ? (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gold px-5 py-1 text-[0.65rem] font-black uppercase tracking-wide text-black">
+                <div className="absolute -top-3 left-1/2 z-10 -translate-x-1/2 rounded-full border border-black/30 bg-gold px-5 py-1 text-[0.65rem] font-black uppercase tracking-wide text-black shadow-lg shadow-gold/20">
                   Recommended
                 </div>
               ) : null}
@@ -284,10 +284,10 @@ export default function LandingPage() {
               <p className="mt-2 text-3xl font-black text-gold-bright">
                 {tier.price}
               </p>
-              <p className="mt-2 min-h-10 text-sm leading-6 text-muted">
+              <p className="mt-2 min-h-16 text-sm leading-6 text-muted">
                 {tier.body}
               </p>
-              <ul className="mt-5 space-y-2 text-sm text-muted">
+              <ul className="mt-5 flex-1 space-y-2 text-sm text-muted">
                 {tier.features.map((feature) => (
                   <li key={feature} className="flex items-center gap-2">
                     <span className="flex size-4 items-center justify-center rounded-full border border-gold/50 text-[0.55rem] text-gold">
@@ -299,10 +299,10 @@ export default function LandingPage() {
               </ul>
               <Link
                 href="/signup"
-                className={`mt-8 flex justify-center rounded-lg px-4 py-3 text-sm font-black ${
+                className={`mt-8 flex h-12 items-center justify-center rounded-lg px-4 text-sm font-black ${
                   tier.recommended
                     ? "gold-cta text-black"
-                    : "border border-white/10 text-white hover:border-gold/40"
+                    : "border border-gold/20 text-white hover:border-gold/50 hover:bg-gold/10"
                 }`}
               >
                 {tier.name === "Enterprise" ? "Contact Sales" : "Get Started"}
