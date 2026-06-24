@@ -1,8 +1,8 @@
 {
-  "name": "orivoo-ai",
+  "name": "vp23-financial",
   "version": "1.0.0",
   "private": true,
-  "description": "ORIVOO AI production-ready SaaS application.",
+  "description": "VP23 Financial premium fintech MVP.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -12,21 +12,22 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nofameorg-byte/orivoo-ai.git"
+    "url": "git+https://github.com/nofameorg-byte/vp23-financial.git"
   },
   "keywords": [
-    "orivoo",
-    "ai",
+    "vp23",
+    "financial",
+    "fintech",
     "nextjs",
     "supabase",
-    "saas"
+    "column"
   ],
   "author": "",
   "license": "UNLICENSED",
   "bugs": {
-    "url": "https://github.com/nofameorg-byte/orivoo-ai/issues"
+    "url": "https://github.com/nofameorg-byte/vp23-financial/issues"
   },
-  "homepage": "https://github.com/nofameorg-byte/orivoo-ai#readme",
+  "homepage": "https://github.com/nofameorg-byte/vp23-financial#readme",
   "dependencies": {
     "@supabase/ssr": "^0.12.0",
     "@supabase/supabase-js": "^2.108.2",

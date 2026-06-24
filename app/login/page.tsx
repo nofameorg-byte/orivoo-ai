@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, LockKeyhole } from "lucide-react";
 import { signIn } from "@/app/actions/auth";
+import { VP23Logo } from "@/components/vp23-logo";
 
 export const metadata: Metadata = {
   title: "Login",
@@ -20,43 +21,33 @@ export default async function LoginPage({ searchParams }: AuthPageProps) {
     <main className="flex min-h-screen items-center justify-center px-6 py-12">
       <div className="grid w-full max-w-5xl overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.03] shadow-2xl shadow-black/50 md:grid-cols-[1fr_0.9fr]">
         <section className="hidden bg-black/70 p-10 md:block">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="gold-gradient flex size-10 items-center justify-center rounded-2xl text-black">
-              <Sparkles className="size-5" aria-hidden />
-            </div>
-            <span className="font-semibold tracking-[0.2em] text-white">
-              ORIVOO AI
-            </span>
-          </Link>
+          <VP23Logo size="md" />
           <div className="mt-24">
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-gold">
               Welcome back
             </p>
             <h1 className="mt-4 text-4xl font-semibold text-white">
-              Return to your AI command center.
+              Re-enter the VP23 command deck.
             </h1>
             <p className="mt-5 leading-7 text-muted">
-              Pick up your research, documents, studios, and business workflows
-              from the ORIVOO AI dashboard.
+              Access balances, invoices, customers, transactions, and simulated
+              Column sandbox transfers from a protected Supabase session.
             </p>
           </div>
         </section>
 
         <section className="p-8 sm:p-10">
           <div className="mb-10 md:hidden">
-            <Link href="/" className="flex items-center gap-3">
-              <div className="gold-gradient flex size-10 items-center justify-center rounded-2xl text-black">
-                <Sparkles className="size-5" aria-hidden />
-              </div>
-              <span className="font-semibold tracking-[0.2em] text-white">
-                ORIVOO AI
-              </span>
-            </Link>
+            <VP23Logo size="md" />
           </div>
 
-          <h2 className="text-3xl font-semibold text-white">Login</h2>
+          <div className="inline-flex items-center gap-2 rounded-full border border-electric-blue/30 bg-electric-blue/10 px-3 py-1 text-xs text-electric-blue-bright">
+            <LockKeyhole className="size-3.5" aria-hidden />
+            Secure login
+          </div>
+          <h2 className="mt-5 text-3xl font-semibold text-white">Login</h2>
           <p className="mt-3 text-sm text-muted">
-            Access your ORIVOO AI workspace with Supabase authentication.
+            Access your VP23 Financial workspace with Supabase authentication.
           </p>
 
           {message ? (
@@ -74,18 +65,19 @@ export default async function LoginPage({ searchParams }: AuthPageProps) {
                 type="email"
                 autoComplete="email"
                 placeholder="you@company.com"
-                className="mt-2 w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-white outline-none transition placeholder:text-muted/60 focus:border-gold/60"
+                className="mt-2 w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-white outline-none transition placeholder:text-muted/60 focus:border-electric-blue/60"
               />
             </label>
             <label className="block">
               <span className="text-sm font-medium text-white">Password</span>
               <input
                 required
+                minLength={8}
                 name="password"
                 type="password"
                 autoComplete="current-password"
                 placeholder="Your password"
-                className="mt-2 w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-white outline-none transition placeholder:text-muted/60 focus:border-gold/60"
+                className="mt-2 w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-white outline-none transition placeholder:text-muted/60 focus:border-electric-blue/60"
               />
             </label>
             <button
@@ -98,7 +90,7 @@ export default async function LoginPage({ searchParams }: AuthPageProps) {
           </form>
 
           <p className="mt-6 text-center text-sm text-muted">
-            New to ORIVOO AI?{" "}
+            New to VP23 Financial?{" "}
             <Link href="/signup" className="font-semibold text-gold-bright">
               Create an account
             </Link>

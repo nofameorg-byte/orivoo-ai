@@ -1,102 +1,12 @@
-import {
-  ArrowUp,
-  Bot,
-  Braces,
-  Building2,
-  FileText,
-  FlaskConical,
-  Globe2,
-  Landmark,
-  Layers3,
-  Leaf,
-  Palette,
-  Scale,
-  Search,
-  ShieldCheck,
-  Sparkles,
-  Trees,
-  Users,
-} from "lucide-react";
+import Link from "next/link";
+import { CircleDollarSign, Copy, RadioTower, ShieldCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-
-const studios = [
-  {
-    name: "Assistant",
-    description: "Ask, plan, summarize, and coordinate across every studio.",
-    icon: Bot,
-  },
-  {
-    name: "Document Studio",
-    description: "Draft, edit, and transform high-quality written assets.",
-    icon: FileText,
-  },
-  {
-    name: "Research Studio",
-    description: "Explore topics, collect evidence, and turn findings into maps.",
-    icon: Search,
-  },
-  {
-    name: "Website Builder",
-    description: "Shape landing pages, content blocks, and deployment plans.",
-    icon: Globe2,
-  },
-  {
-    name: "Code Studio",
-    description: "Create implementation plans, code, tests, and technical notes.",
-    icon: Braces,
-  },
-  {
-    name: "Business Builder",
-    description: "Model offers, operations, positioning, and growth systems.",
-    icon: Building2,
-  },
-  {
-    name: "Design Studio",
-    description: "Develop brand systems, UI direction, and visual concepts.",
-    icon: Palette,
-  },
-  {
-    name: "Land Studio",
-    description: "Organize property, planning, and land-use intelligence.",
-    icon: Trees,
-  },
-  {
-    name: "Concept Studio",
-    description: "Turn raw ideas into structured concepts and next actions.",
-    icon: Layers3,
-  },
-  {
-    name: "Legal Studio",
-    description: "Summarize legal context and prepare review-ready drafts.",
-    icon: Scale,
-  },
-  {
-    name: "Civic Studio",
-    description: "Navigate public programs, policy, and civic research.",
-    icon: Landmark,
-  },
-  {
-    name: "Botanical Studio",
-    description: "Study plants, cultivation workflows, and botanical data.",
-    icon: Leaf,
-  },
-  {
-    name: "Genealogy Studio",
-    description: "Trace family history, records, and ancestry narratives.",
-    icon: Users,
-  },
-  {
-    name: "Science Studio",
-    description: "Frame hypotheses, lab notes, and research explainers.",
-    icon: FlaskConical,
-  },
-];
-
-const metrics = [
-  { label: "Active studios", value: "14" },
-  { label: "Auth provider", value: "Supabase" },
-  { label: "Deploy target", value: "Vercel" },
-];
+import {
+  accounts,
+  quickActions,
+  recentTransactions,
+  securityHighlights,
+} from "@/lib/vp23/data";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -120,108 +30,149 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <section
-        id="workspace"
-        className="surface-card relative overflow-hidden rounded-[2rem] p-6 sm:p-8 lg:p-10"
-      >
-        <div className="absolute right-0 top-0 h-64 w-64 rounded-full bg-gold/10 blur-3xl" />
-        <div className="relative grid gap-8 lg:grid-cols-[1fr_0.75fr] lg:items-end">
+      <section className="surface-card relative overflow-hidden rounded-[2rem] p-6 sm:p-8 lg:p-10">
+        <div className="absolute right-0 top-0 h-64 w-64 rounded-full bg-electric-blue/10 blur-3xl" />
+        <div className="absolute bottom-0 left-0 h-72 w-72 rounded-full bg-metal-red/15 blur-3xl" />
+        <div className="relative grid gap-8 lg:grid-cols-[1fr_0.8fr] lg:items-end">
           <div>
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-gold/25 bg-gold/10 px-4 py-2 text-sm text-gold-bright">
-              <Sparkles className="size-4" aria-hidden />
-              ORIVOO AI Dashboard
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-electric-blue/25 bg-electric-blue/10 px-4 py-2 text-sm text-electric-blue-bright">
+              <RadioTower className="size-4" aria-hidden />
+              Sandbox mode active
             </div>
             <h1 className="max-w-4xl text-4xl font-semibold tracking-tight text-white sm:text-5xl">
-              Welcome back, {displayName}. What are we building next?
+              Welcome back, {displayName}. Your money command deck is armed.
             </h1>
             <p className="mt-5 max-w-2xl leading-7 text-muted">
-              Start with the assistant, then route the work into specialist
-              studios for documents, research, code, design, business, science,
-              and more.
+              TODO: Complete production KYB/KYC, risk controls, and compliance
+              approvals before enabling live funds movement.
             </p>
           </div>
-          <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
-            {metrics.map((metric) => (
-              <div
-                key={metric.label}
-                className="rounded-2xl border border-white/10 bg-black/40 p-4"
-              >
+          <div className="metal-card rounded-[1.5rem] p-5">
+            <p className="text-xs uppercase tracking-[0.28em] text-muted">
+              Available balance
+            </p>
+            <p className="mt-3 text-4xl font-semibold text-white sm:text-5xl">
+              $128,430.18
+            </p>
+            <div className="mt-5 flex items-center justify-between rounded-2xl border border-white/10 bg-black/45 p-4">
+              <span className="text-sm text-muted">Column sandbox ledger</span>
+              <span className="text-sm font-semibold text-gold-bright">
+                +18.4%
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {quickActions.map((action) => (
+          <Link
+            key={action.label}
+            href={action.href}
+            className="group rounded-3xl border border-white/10 bg-white/[0.03] p-5 transition hover:-translate-y-1 hover:border-gold/40 hover:bg-gold/10"
+          >
+            <div className="mb-5 flex size-12 items-center justify-center rounded-2xl border border-gold/25 bg-gold/10 text-gold">
+              <action.icon className="size-5" aria-hidden />
+            </div>
+            <h2 className="text-xl font-semibold text-white">{action.label}</h2>
+            <p className="mt-2 text-sm text-muted">
+              Launch {action.label.toLowerCase()} workflow
+            </p>
+          </Link>
+        ))}
+      </section>
+
+      <section className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+        <article className="surface-card rounded-[2rem] p-6">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="text-sm uppercase tracking-[0.28em] text-gold">
+                Account card
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold text-white">
+                {accounts[0].name}
+              </h2>
+            </div>
+            <CircleDollarSign className="size-8 text-gold-bright" aria-hidden />
+          </div>
+          <div className="mt-6 rounded-[1.5rem] border border-white/10 bg-black/55 p-5">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
                 <p className="text-xs uppercase tracking-[0.24em] text-muted">
-                  {metric.label}
+                  Routing number
                 </p>
-                <p className="mt-2 text-2xl font-semibold text-white">
-                  {metric.value}
+                <p className="mt-2 font-mono text-xl text-white">
+                  {accounts[0].routing}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-[0.24em] text-muted">
+                  Account number
+                </p>
+                <p className="mt-2 font-mono text-xl text-white">
+                  {accounts[0].account}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm text-muted transition hover:border-electric-blue/40 hover:text-white"
+            >
+              <Copy className="size-4" aria-hidden />
+              Copy sandbox details
+            </button>
+          </div>
+        </article>
+
+        <article className="surface-card rounded-[2rem] p-6">
+          <div className="mb-5 flex items-center justify-between">
+            <div>
+              <p className="text-sm uppercase tracking-[0.28em] text-gold">
+                Recent transactions
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold text-white">
+                Latest movement
+              </h2>
+            </div>
+            <Link
+              href="/dashboard/transactions"
+              className="text-sm font-semibold text-electric-blue-bright"
+            >
+              View all
+            </Link>
+          </div>
+          <div className="space-y-3">
+            {recentTransactions.map((transaction) => (
+              <div
+                key={transaction.id}
+                className="flex items-center gap-4 rounded-2xl border border-white/10 bg-black/45 p-4"
+              >
+                <div className="flex size-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04]">
+                  <transaction.icon
+                    className={`size-5 ${transaction.tone}`}
+                    aria-hidden
+                  />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-medium text-white">
+                    {transaction.name}
+                  </p>
+                  <p className="text-sm text-muted">{transaction.date}</p>
+                </div>
+                <p className={`font-semibold ${transaction.tone}`}>
+                  {transaction.amount}
                 </p>
               </div>
             ))}
           </div>
-        </div>
-
-        <div className="relative mt-8 rounded-[1.5rem] border border-white/10 bg-black/60 p-3">
-          <div className="min-h-32 rounded-2xl bg-panel-soft p-5">
-            <p className="text-sm text-muted">Assistant prompt</p>
-            <p className="mt-3 text-lg text-white">
-              Build a launch-ready brief, create a research map, and draft the
-              first landing page section for ORIVOO AI.
-            </p>
-          </div>
-          <div className="mt-3 flex items-center gap-3 rounded-full border border-white/10 bg-black/60 p-2 pl-5">
-            <span className="flex-1 text-sm text-muted">
-              Ask ORIVOO AI to plan, write, design, research, or build...
-            </span>
-            <button
-              type="button"
-              className="gold-gradient flex size-10 items-center justify-center rounded-full text-black"
-            >
-              <ArrowUp className="size-4" aria-hidden />
-              <span className="sr-only">Send prompt</span>
-            </button>
-          </div>
-        </div>
+        </article>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {studios.map((studio) => (
-          <article
-            key={studio.name}
-            className="group rounded-3xl border border-white/10 bg-white/[0.03] p-6 transition hover:-translate-y-1 hover:border-gold/40 hover:bg-gold/10"
-          >
-            <div className="mb-6 flex items-center justify-between">
-              <div className="flex size-12 items-center justify-center rounded-2xl border border-gold/25 bg-gold/10 text-gold">
-                <studio.icon className="size-5" aria-hidden />
-              </div>
-              <span className="rounded-full border border-white/10 px-3 py-1 text-xs text-muted">
-                Ready
-              </span>
-            </div>
-            <h2 className="text-xl font-semibold text-white">{studio.name}</h2>
-            <p className="mt-3 leading-6 text-muted">{studio.description}</p>
-          </article>
-        ))}
-      </section>
-
-      <section
-        id="settings"
-        className="grid gap-4 rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 lg:grid-cols-3"
-      >
-        {[
-          {
-            title: "Authentication",
-            body: "Email/password sessions are managed through Supabase Auth.",
-          },
-          {
-            title: "Database",
-            body: "Profiles and workspaces are prepared with RLS-enabled SQL.",
-          },
-          {
-            title: "Deployment",
-            body: "Environment variables are ready for Vercel project settings.",
-          },
-        ].map((item) => (
-          <div key={item.title} className="rounded-3xl bg-black/40 p-6">
-            <ShieldCheck className="mb-6 size-6 text-gold" aria-hidden />
-            <h3 className="text-lg font-semibold text-white">{item.title}</h3>
-            <p className="mt-3 leading-6 text-muted">{item.body}</p>
+      <section className="grid gap-4 rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 lg:grid-cols-4">
+        {securityHighlights.map((item) => (
+          <div key={item} className="rounded-3xl bg-black/40 p-5">
+            <ShieldCheck className="mb-5 size-6 text-electric-blue-bright" aria-hidden />
+            <p className="leading-6 text-muted">{item}</p>
           </div>
         ))}
       </section>

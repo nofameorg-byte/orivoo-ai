@@ -1,68 +1,60 @@
 import Link from "next/link";
 import {
+  ArrowDownLeft,
   ArrowRight,
-  Bot,
-  Braces,
-  Building2,
-  Compass,
+  CircleDollarSign,
   FileText,
-  FlaskConical,
-  Globe2,
   Landmark,
-  Layers3,
-  Leaf,
-  Palette,
-  Scale,
-  Search,
+  LockKeyhole,
+  RadioTower,
+  ReceiptText,
   ShieldCheck,
-  Sparkles,
-  Trees,
+  Siren,
+  TrendingUp,
   Users,
 } from "lucide-react";
-
-const studios = [
-  { name: "Assistant", icon: Bot },
-  { name: "Document Studio", icon: FileText },
-  { name: "Research Studio", icon: Search },
-  { name: "Website Builder", icon: Globe2 },
-  { name: "Code Studio", icon: Braces },
-  { name: "Business Builder", icon: Building2 },
-  { name: "Design Studio", icon: Palette },
-  { name: "Land Studio", icon: Trees },
-  { name: "Concept Studio", icon: Layers3 },
-  { name: "Legal Studio", icon: Scale },
-  { name: "Civic Studio", icon: Landmark },
-  { name: "Botanical Studio", icon: Leaf },
-  { name: "Genealogy Studio", icon: Users },
-  { name: "Science Studio", icon: FlaskConical },
-];
+import { VP23Logo } from "@/components/vp23-logo";
 
 const valueProps = [
-  "Unified AI workspace for specialized creation",
-  "Secure Supabase-backed identity and data",
-  "Designed for fast Vercel deployment",
+  "Column sandbox API access stays server-side",
+  "Supabase Auth and RLS-ready database foundation",
+  "Mobile-first financial command center",
+];
+
+const platformCards = [
+  {
+    title: "Operate",
+    body: "Monitor balances, accounts, transactions, customers, and invoices from one protected cockpit.",
+    icon: Landmark,
+  },
+  {
+    title: "Move",
+    body: "Simulate transfers through a secure backend layer built for future Column production hardening.",
+    icon: ArrowDownLeft,
+  },
+  {
+    title: "Collect",
+    body: "Create invoices, capture customer details, and print or download invoice records for MVP workflows.",
+    icon: FileText,
+  },
 ];
 
 export default function LandingPage() {
   return (
-    <main className="relative min-h-screen overflow-hidden">
+    <main className="relative min-h-screen overflow-hidden bg-black">
       <div className="grid-mask pointer-events-none absolute inset-x-0 top-0 h-[46rem]" />
+      <div className="pointer-events-none absolute -left-24 top-20 h-72 w-72 rounded-full bg-metal-red/30 blur-3xl" />
+      <div className="pointer-events-none absolute right-0 top-36 h-72 w-72 rounded-full bg-electric-blue/25 blur-3xl" />
+
       <header className="relative z-10 mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-3">
-          <div className="gold-gradient flex size-10 items-center justify-center rounded-2xl text-black shadow-lg shadow-gold/20">
-            <Sparkles className="size-5" aria-hidden />
-          </div>
-          <span className="text-lg font-semibold tracking-[0.2em] text-white">
-            ORIVOO AI
-          </span>
-        </Link>
+        <VP23Logo size="md" />
 
         <nav className="hidden items-center gap-8 text-sm text-muted md:flex">
-          <a href="#studios" className="transition hover:text-white">
-            Studios
-          </a>
           <a href="#platform" className="transition hover:text-white">
             Platform
+          </a>
+          <a href="#invoices" className="transition hover:text-white">
+            Invoices
           </a>
           <a href="#security" className="transition hover:text-white">
             Security
@@ -78,39 +70,39 @@ export default function LandingPage() {
           </Link>
           <Link
             href="/signup"
-            className="rounded-full border border-gold/40 bg-white px-4 py-2 text-sm font-semibold text-black transition hover:bg-gold-bright"
+            className="rounded-full border border-gold/50 bg-white px-4 py-2 text-sm font-semibold text-black shadow-lg shadow-metal-red/20 transition hover:bg-gold-bright"
           >
-            Start free
+            Enter sandbox
           </Link>
         </div>
       </header>
 
-      <section className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-12 px-6 pb-20 pt-14 lg:grid-cols-[1.02fr_0.98fr] lg:px-8 lg:pb-28 lg:pt-20">
+      <section className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-12 px-6 pb-20 pt-10 lg:grid-cols-[1.02fr_0.98fr] lg:px-8 lg:pb-28 lg:pt-16">
         <div>
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-gold/25 bg-gold/10 px-4 py-2 text-sm text-gold-bright">
-            <Sparkles className="size-4" aria-hidden />
-            A premium AI command center for ambitious teams
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-metal-red/40 bg-metal-red/10 px-4 py-2 text-sm text-metal-red-bright">
+            <Siren className="size-4" aria-hidden />
+            Premium sandbox banking for high-velocity operators
           </div>
           <h1 className="max-w-5xl text-5xl font-semibold tracking-tight text-white sm:text-6xl lg:text-7xl">
-            Build, research, design, and launch from one{" "}
-            <span className="text-gold-gradient">AI studio suite.</span>
+            Move like a bank.{" "}
+            <span className="text-vp23-gradient">Control like VP23.</span>
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-muted">
-            ORIVOO AI brings a ChatGPT-inspired assistant, Claude-like clarity,
-            and Cursor-style creative velocity into a focused SaaS workspace for
-            modern operators.
+            VP23 Financial is a black-card fintech MVP with Supabase-secured
+            identity, protected dashboard routes, invoices, customers,
+            transactions, transfers, and a server-only Column sandbox layer.
           </p>
           <div className="mt-10 flex flex-col gap-4 sm:flex-row">
             <Link
               href="/signup"
-              className="group inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition hover:bg-gold-bright"
+              className="group inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-black shadow-xl shadow-metal-red/20 transition hover:bg-gold-bright"
             >
-              Create your workspace
+              Create VP23 account
               <ArrowRight className="size-4 transition group-hover:translate-x-0.5" />
             </Link>
             <Link
               href="/login"
-              className="inline-flex items-center justify-center rounded-full border border-white/15 px-6 py-3 text-sm font-semibold text-white transition hover:border-gold/50 hover:bg-white/5"
+              className="inline-flex items-center justify-center rounded-full border border-electric-blue/40 px-6 py-3 text-sm font-semibold text-white transition hover:border-electric-blue-bright hover:bg-electric-blue/10"
             >
               Open dashboard
             </Link>
@@ -119,53 +111,70 @@ export default function LandingPage() {
             {valueProps.map((item) => (
               <div
                 key={item}
-                className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-sm text-muted"
+                className="rounded-2xl border border-white/10 bg-white/[0.035] p-4 text-sm text-muted"
               >
-                <ShieldCheck className="mb-3 size-5 text-gold" aria-hidden />
+                <ShieldCheck className="mb-3 size-5 text-gold-bright" aria-hidden />
                 {item}
               </div>
             ))}
           </div>
         </div>
 
-        <div className="surface-card relative overflow-hidden rounded-[2rem] p-4">
-          <div className="absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-gold to-transparent" />
+        <div className="metal-card relative overflow-hidden rounded-[2rem] p-4">
+          <div className="absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-metal-red-bright via-40% to-electric-blue-bright" />
           <div className="rounded-[1.5rem] border border-white/10 bg-black/70 p-4">
             <div className="mb-4 flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted">ORIVOO Assistant</p>
+                <p className="text-sm text-muted">VP23 splash screen</p>
                 <h2 className="text-xl font-semibold text-white">
-                  Mission Control
+                  Financial command deck
                 </h2>
               </div>
-              <div className="rounded-full border border-gold/30 bg-gold/10 px-3 py-1 text-xs text-gold-bright">
-                Live
+              <div className="rounded-full border border-electric-blue/35 bg-electric-blue/10 px-3 py-1 text-xs text-electric-blue-bright">
+                Sandbox
               </div>
             </div>
-            <div className="space-y-3">
-              <div className="rounded-2xl bg-panel-soft p-4">
-                <p className="text-sm text-muted">User</p>
-                <p className="mt-1 text-white">
-                  Turn this concept into a launch plan, landing page, and
-                  investor-ready summary.
-                </p>
-              </div>
-              <div className="rounded-2xl border border-gold/20 bg-gold/10 p-4">
-                <p className="text-sm text-gold-bright">ORIVOO AI</p>
-                <p className="mt-1 text-white">
-                  I routed your request through Concept, Document, Business,
-                  Design, and Website studios. Here is the first execution map.
-                </p>
+            <div className="rounded-[1.25rem] border border-white/10 bg-gradient-to-br from-metal-red/20 via-black to-electric-blue/20 p-6">
+              <VP23Logo
+                href="/"
+                size="lg"
+                showText={false}
+                className="justify-center"
+              />
+              <div className="mt-8 grid grid-cols-2 gap-3">
+                {[
+                  ["Available", "$128,430.18"],
+                  ["Routing", "121145349"],
+                  ["Invoices", "$23,350"],
+                  ["Transfers", "Simulated"],
+                ].map(([label, value]) => (
+                  <div
+                    key={label}
+                    className="rounded-2xl border border-white/10 bg-black/55 p-4"
+                  >
+                    <p className="text-xs uppercase tracking-[0.24em] text-muted">
+                      {label}
+                    </p>
+                    <p className="mt-2 text-lg font-semibold text-white">
+                      {value}
+                    </p>
+                  </div>
+                ))}
               </div>
             </div>
             <div className="mt-5 grid grid-cols-2 gap-3">
-              {studios.slice(0, 6).map((studio) => (
+              {[
+                { name: "Accounts", icon: Landmark },
+                { name: "Transactions", icon: ReceiptText },
+                { name: "Transfers", icon: TrendingUp },
+                { name: "Customers", icon: Users },
+              ].map((item) => (
                 <div
-                  key={studio.name}
+                  key={item.name}
                   className="rounded-2xl border border-white/10 bg-white/[0.03] p-3"
                 >
-                  <studio.icon className="mb-3 size-5 text-gold" aria-hidden />
-                  <p className="text-sm font-medium text-white">{studio.name}</p>
+                  <item.icon className="mb-3 size-5 text-gold" aria-hidden />
+                  <p className="text-sm font-medium text-white">{item.name}</p>
                 </div>
               ))}
             </div>
@@ -174,62 +183,61 @@ export default function LandingPage() {
       </section>
 
       <section
-        id="studios"
+        id="platform"
         className="relative z-10 mx-auto w-full max-w-7xl px-6 py-20 lg:px-8"
       >
         <div className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-gold">
-              Studio suite
+            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-gold-bright">
+              Core MVP
             </p>
             <h2 className="mt-3 text-3xl font-semibold text-white md:text-5xl">
-              Every workspace starts with the right specialist.
+              Banking workflows with an aggressive premium edge.
             </h2>
           </div>
           <p className="max-w-xl text-muted">
-            Choose a studio, keep context across workflows, and move from idea
-            to artifact without leaving the ORIVOO AI dashboard.
+            Built mobile-first with protected App Router pages for business
+            profiles, accounts, transactions, transfers, customers, invoices,
+            and settings.
           </p>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {studios.map((studio) => (
+        <div className="grid gap-4 md:grid-cols-3">
+          {platformCards.map((card) => (
             <div
-              key={studio.name}
-              className="group rounded-3xl border border-white/10 bg-white/[0.03] p-5 transition hover:-translate-y-1 hover:border-gold/40 hover:bg-gold/10"
+              key={card.title}
+              className="group rounded-3xl border border-white/10 bg-white/[0.03] p-6 transition hover:-translate-y-1 hover:border-gold/40 hover:bg-gold/10"
             >
-              <studio.icon
-                className="mb-5 size-6 text-gold transition group-hover:text-gold-bright"
+              <card.icon
+                className="mb-6 size-7 text-gold transition group-hover:text-gold-bright"
                 aria-hidden
               />
-              <h3 className="font-semibold text-white">{studio.name}</h3>
-              <p className="mt-2 text-sm leading-6 text-muted">
-                Create, analyze, and refine with domain-aware AI workflows.
-              </p>
+              <h3 className="text-xl font-semibold text-white">{card.title}</h3>
+              <p className="mt-3 leading-7 text-muted">{card.body}</p>
             </div>
           ))}
         </div>
       </section>
 
       <section
-        id="platform"
+        id="invoices"
         className="relative z-10 mx-auto grid w-full max-w-7xl gap-6 px-6 py-20 lg:grid-cols-3 lg:px-8"
       >
         {[
           {
-            title: "Focused interface",
-            body: "A low-noise black canvas with crisp white hierarchy and gold moments for high-value actions.",
+            title: "Create invoice",
+            body: "Collect customer name, email, job description, amount, and due date with validation.",
           },
           {
-            title: "Production foundation",
-            body: "Next.js 16 App Router, strict TypeScript, Tailwind CSS, Supabase auth, and Vercel-friendly defaults.",
+            title: "Send placeholder",
+            body: "Sandbox action reserves room for email delivery after compliance and vendor setup.",
           },
           {
-            title: "Operator velocity",
-            body: "Start with chat, move into specialized studios, and maintain a single command center for decisions.",
+            title: "Download or print",
+            body: "Invoice previews can be printed or saved by the browser for MVP billing records.",
           },
         ].map((item) => (
           <div key={item.title} className="surface-card rounded-3xl p-8">
-            <Compass className="mb-8 size-7 text-gold" aria-hidden />
+            <CircleDollarSign className="mb-8 size-7 text-gold" aria-hidden />
             <h3 className="text-2xl font-semibold text-white">{item.title}</h3>
             <p className="mt-4 leading-7 text-muted">{item.body}</p>
           </div>
@@ -247,21 +255,24 @@ export default function LandingPage() {
                 Secure by design
               </p>
               <h2 className="mt-4 text-3xl font-semibold text-white md:text-5xl">
-                Supabase authentication and database-ready architecture.
+                Supabase auth, RLS, and server-only Column integration.
               </h2>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               {[
-                "Email and password auth flows",
+                "Email/password auth flows",
                 "Protected dashboard routes",
-                "RLS-ready database migration",
-                "Environment template for Vercel",
+                "RLS-enabled financial records",
+                "COLUMN_API_KEY never reaches client components",
               ].map((item) => (
                 <div
                   key={item}
                   className="rounded-2xl border border-white/10 bg-black/40 p-5 text-sm text-muted"
                 >
-                  <ShieldCheck className="mb-3 size-5 text-gold" aria-hidden />
+                  <LockKeyhole
+                    className="mb-3 size-5 text-electric-blue-bright"
+                    aria-hidden
+                  />
                   {item}
                 </div>
               ))}
@@ -269,6 +280,14 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      <footer className="relative z-10 mx-auto flex w-full max-w-7xl flex-col gap-4 border-t border-white/10 px-6 py-8 text-sm text-muted sm:flex-row sm:items-center sm:justify-between lg:px-8">
+        <VP23Logo size="sm" />
+        <div className="flex items-center gap-2">
+          <RadioTower className="size-4 text-metal-red-bright" aria-hidden />
+          Column sandbox integration is server-route only.
+        </div>
+      </footer>
     </main>
   );
 }

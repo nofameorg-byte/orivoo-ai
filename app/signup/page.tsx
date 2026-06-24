@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Building2, ShieldCheck } from "lucide-react";
 import { signUp } from "@/app/actions/auth";
+import { VP23Logo } from "@/components/vp23-logo";
 
 export const metadata: Metadata = {
-  title: "Signup",
+  title: "Sign up",
 };
 
 type AuthPageProps = {
@@ -20,20 +21,14 @@ export default async function SignupPage({ searchParams }: AuthPageProps) {
     <main className="flex min-h-screen items-center justify-center px-6 py-12">
       <div className="grid w-full max-w-5xl overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.03] shadow-2xl shadow-black/50 md:grid-cols-[0.9fr_1fr]">
         <section className="p-8 sm:p-10">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="gold-gradient flex size-10 items-center justify-center rounded-2xl text-black">
-              <Sparkles className="size-5" aria-hidden />
-            </div>
-            <span className="font-semibold tracking-[0.2em] text-white">
-              ORIVOO AI
-            </span>
-          </Link>
+          <VP23Logo size="md" />
 
           <h1 className="mt-12 text-3xl font-semibold text-white">
-            Create your workspace
+            Create your VP23 workspace
           </h1>
           <p className="mt-3 text-sm text-muted">
-            Launch an ORIVOO AI account with Supabase-secured authentication.
+            Launch a sandbox financial dashboard with Supabase-secured
+            authentication and RLS-ready business records.
           </p>
 
           {message ? (
@@ -51,6 +46,7 @@ export default async function SignupPage({ searchParams }: AuthPageProps) {
                 name="displayName"
                 type="text"
                 autoComplete="name"
+                maxLength={80}
                 placeholder="Alex Morgan"
                 className="mt-2 w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-white outline-none transition placeholder:text-muted/60 focus:border-gold/60"
               />
@@ -82,7 +78,7 @@ export default async function SignupPage({ searchParams }: AuthPageProps) {
               type="submit"
               className="group flex w-full items-center justify-center gap-2 rounded-full bg-white px-5 py-3 font-semibold text-black transition hover:bg-gold-bright"
             >
-              Create ORIVOO AI account
+              Create VP23 account
               <ArrowRight className="size-4 transition group-hover:translate-x-0.5" />
             </button>
           </form>
@@ -98,22 +94,27 @@ export default async function SignupPage({ searchParams }: AuthPageProps) {
         <section className="hidden bg-black/70 p-10 md:block">
           <div className="surface-card mt-12 rounded-[2rem] p-6">
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-gold">
-              Your stack
+              Sandbox stack
             </p>
             <h2 className="mt-4 text-4xl font-semibold text-white">
-              Next.js 16, Supabase, Tailwind, Vercel.
+              Next.js 16, Supabase, Tailwind, Column-ready routes.
             </h2>
             <p className="mt-5 leading-7 text-muted">
-              ORIVOO AI starts from a production-friendly foundation for
-              authentication, database access, protected routing, and deployment.
+              TODO: Add production KYB/KYC, beneficial owner collection, and
+              compliance approval before live banking access.
             </p>
             <div className="mt-8 grid gap-3">
-              {["Assistant", "Research Studio", "Code Studio"].map((item) => (
+              {[
+                { label: "Protected routes", icon: ShieldCheck },
+                { label: "Business profile", icon: Building2 },
+                { label: "Server-only API keys", icon: ShieldCheck },
+              ].map((item) => (
                 <div
-                  key={item}
-                  className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-white"
+                  key={item.label}
+                  className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-white"
                 >
-                  {item}
+                  <item.icon className="size-5 text-electric-blue-bright" />
+                  {item.label}
                 </div>
               ))}
             </div>

@@ -9,20 +9,20 @@ const geist = Geist({
 
 export const metadata: Metadata = {
   title: {
-    default: "ORIVOO AI - Build with intelligent studios",
-    template: "%s | ORIVOO AI",
+    default: "VP23 Financial - Premium sandbox banking",
+    template: "%s | VP23 Financial",
   },
   description:
-    "ORIVOO AI is a modern AI operating system for documents, research, websites, code, business, design, and specialized studios.",
-  applicationName: "ORIVOO AI",
+    "VP23 Financial is a Next.js 16 fintech MVP with Supabase auth, RLS-ready data, invoices, transfers, and secure Column sandbox backend routes.",
+  applicationName: "VP23 Financial",
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
   ),
   openGraph: {
-    title: "ORIVOO AI",
+    title: "VP23 Financial",
     description:
-      "A modern SaaS workspace for AI-assisted creation, research, and business operations.",
-    siteName: "ORIVOO AI",
+      "Aggressive premium fintech banking dashboard powered by Next.js, Supabase, and Column sandbox APIs.",
+    siteName: "VP23 Financial",
     type: "website",
   },
 };

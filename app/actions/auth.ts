@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSiteUrl } from "@/lib/env";
 
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 function getFormValue(formData: FormData, key: string) {
   const value = formData.get(key);
   return typeof value === "string" ? value.trim() : "";
@@ -20,6 +22,10 @@ export async function signIn(formData: FormData) {
 
   if (!email || !password) {
     authRedirect("/login", "Enter your email and password.");
+  }
+
+  if (!emailPattern.test(email)) {
+    authRedirect("/login", "Enter a valid email address.");
   }
 
   const supabase = await createClient();
@@ -45,8 +51,16 @@ export async function signUp(formData: FormData) {
     authRedirect("/signup", "Enter your email and password.");
   }
 
+  if (!emailPattern.test(email)) {
+    authRedirect("/signup", "Enter a valid email address.");
+  }
+
   if (password.length < 8) {
     authRedirect("/signup", "Password must be at least 8 characters.");
+  }
+
+  if (displayName.length > 80) {
+    authRedirect("/signup", "Display name must be 80 characters or fewer.");
   }
 
   const supabase = await createClient();
@@ -67,7 +81,7 @@ export async function signUp(formData: FormData) {
 
   revalidatePath("/", "layout");
   redirect(
-    "/login?message=Account created. Check your email to confirm your ORIVOO AI workspace.",
+    "/login?message=Account created. Check your email to confirm your VP23 Financial workspace.",
   );
 }
 

@@ -1,7 +1,7 @@
-# ORIVOO AI
+# VP23 Financial
 
-A production-ready Next.js 16 SaaS application for ORIVOO AI with a black,
-white, and gold interface inspired by modern AI workspaces.
+Premium fintech MVP built with Next.js 16, TypeScript, App Router, Tailwind CSS,
+Supabase Auth/Database, and server-only Column sandbox route handlers.
 
 ## Stack
 
@@ -9,35 +9,61 @@ white, and gold interface inspired by modern AI workspaces.
 - TypeScript
 - Tailwind CSS 4
 - Supabase Authentication
-- Supabase Database with RLS-ready migrations
-- Vercel deployment
+- Supabase Database with Row Level Security
+- Server route handlers under `/api/column`
+- Vercel deployment defaults
 
 ## Pages
 
-- `/` - Landing page
+- `/` - Landing page and VP23 splash panel
 - `/login` - Supabase email/password login
 - `/signup` - Supabase email/password signup
-- `/dashboard` - Protected ORIVOO AI dashboard
+- `/dashboard` - Protected dashboard
+- `/dashboard/business-profile`
+- `/dashboard/accounts`
+- `/dashboard/transactions`
+- `/dashboard/transfers`
+- `/dashboard/customers`
+- `/dashboard/invoices`
+- `/dashboard/settings`
 
-## Dashboard studios
+## Dashboard features
 
-The dashboard sidebar includes:
+- Available balance
+- Recent transactions
+- Account/routing number card
+- Quick actions: Send, Receive, Invoice, Transfer
+- Sandbox mode badge
+- Mobile-first responsive dashboard navigation
 
-- Assistant
-- Document Studio
-- Research Studio
-- Website Builder
-- Code Studio
-- Business Builder
-- Design Studio
-- Land Studio
-- Concept Studio
-- Legal Studio
-- Civic Studio
-- Botanical Studio
-- Genealogy Studio
-- Science Studio
-- Settings
+## Invoice features
+
+- Create invoice form
+- Customer name/email validation
+- Job description, amount, and due date validation
+- Send invoice placeholder
+- Download/print through browser print handling
+
+## Column sandbox API layer
+
+The Column integration lives only in server code. Keep `COLUMN_API_KEY` in
+server-side environment variables and never prefix it with `NEXT_PUBLIC_`.
+
+Routes:
+
+- `POST /api/column/entities`
+- `GET /api/column/accounts`
+- `POST /api/column/accounts`
+- `GET /api/column/transfers`
+- `POST /api/column/transfers/simulate`
+
+Service placeholders:
+
+- `createEntity`
+- `createAccount`
+- `listAccounts`
+- `listTransfers`
+- `simulateTransfer`
 
 ## Getting started
 
@@ -53,12 +79,13 @@ Copy the environment template:
 cp .env.example .env.local
 ```
 
-Add your Supabase project values:
+Add environment values:
 
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
+COLUMN_API_KEY=your-column-sandbox-key
 ```
 
 Run the development server:
@@ -72,19 +99,29 @@ Open [http://localhost:3000](http://localhost:3000).
 ## Supabase setup
 
 1. Create a Supabase project.
-2. Apply the SQL migration in `supabase/migrations/20260618223900_initial_schema.sql`.
-3. In Supabase Auth settings, add these redirect URLs:
+2. Apply `supabase/migrations/20260618223900_initial_schema.sql`.
+3. In Supabase Auth settings, add redirect URLs:
    - `http://localhost:3000/auth/callback`
    - `https://your-vercel-domain.vercel.app/auth/callback`
 4. Add the environment variables from `.env.example` locally and in Vercel.
 
-The included migration creates:
+The migration creates:
 
 - `profiles`
 - `workspaces`
+- `business_profiles`
+- `customers`
+- `invoices`
 - Row Level Security policies
 - `updated_at` triggers
 - A new-user trigger that provisions a profile and workspace
+
+## Production compliance TODOs
+
+- Add full KYB/KYC, beneficial owner collection, and control person review.
+- Add OFAC/sanctions screening, fraud controls, velocity limits, and approvals.
+- Add signed Column webhooks, idempotency keys, reconciliation, and audit logs.
+- Replace sandbox placeholders with production Column API calls after approval.
 
 ## Scripts
 
@@ -95,15 +132,3 @@ npm run start
 npm run lint
 npm run typecheck
 ```
-
-## Deploying to Vercel
-
-1. Import the repository into Vercel.
-2. Set the environment variables:
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-   - `NEXT_PUBLIC_SITE_URL`
-3. Deploy.
-
-For production, set `NEXT_PUBLIC_SITE_URL` to the final Vercel domain or custom
-domain so Supabase email confirmation links point back to the correct callback.
