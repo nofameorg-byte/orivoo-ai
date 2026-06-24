@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
+import type { Json } from "@/lib/database.types";
 
 export type AuditEventType =
   | "user_login"
@@ -15,7 +16,7 @@ type AuditLogInput = {
   businessProfileId?: string;
   entityType?: string;
   entityId?: string;
-  metadata?: Record<string, unknown>;
+  metadata?: Json;
 };
 
 export async function writeAuditLog(input: AuditLogInput) {
