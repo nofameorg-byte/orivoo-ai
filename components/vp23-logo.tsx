@@ -9,9 +9,9 @@ type VP23LogoProps = {
 };
 
 const sizeClasses = {
-  sm: "size-14",
-  md: "size-20",
-  lg: "size-32",
+  sm: "size-12",
+  md: "size-16",
+  lg: "size-24",
 };
 
 export function VP23Logo({

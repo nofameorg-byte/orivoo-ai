@@ -218,6 +218,28 @@ export default function LandingPage() {
         </div>
       </section>
 
+      <section className="relative z-10 border-y border-gold/20 bg-[#080808]">
+        <div className="h-px bg-gradient-to-r from-transparent via-gold/50 to-transparent" />
+        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-6 py-8 text-center md:grid-cols-4 lg:px-8">
+          {[
+            ["1 Platform", "Unified workspace"],
+            ["100% Secure", "Data protection"],
+            ["Bilingual", "EN & ES support"],
+            ["Built for Business", "For operators"],
+          ].map(([stat, label]) => (
+            <div key={stat}>
+              <p className="text-2xl font-bold text-gold-bright md:text-3xl">
+                {stat}
+              </p>
+              <p className="mt-1 text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-muted">
+                {label}
+              </p>
+            </div>
+          ))}
+        </div>
+        <div className="h-px bg-gradient-to-r from-transparent via-gold/50 to-transparent" />
+      </section>
+
       <section
         id="features"
         className="relative z-10 mx-auto w-full max-w-7xl px-6 py-20 lg:px-8"
