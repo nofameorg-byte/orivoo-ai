@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Landmark, RadioTower } from "lucide-react";
+import { RadioTower } from "lucide-react";
+import { VP23Logo } from "@/components/vp23-logo";
 import { accounts } from "@/lib/vp23/data";
 
 export const metadata: Metadata = {
@@ -29,9 +30,11 @@ export default function AccountsPage() {
         {accounts.map((account) => (
           <article key={account.account} className="metal-card rounded-[2rem] p-6">
             <div className="mb-6 flex items-center justify-between">
-              <div className="flex size-12 items-center justify-center rounded-2xl border border-gold/30 bg-gold/10 text-gold">
-                <Landmark className="size-6" aria-hidden />
-              </div>
+              <VP23Logo
+                href="/dashboard/accounts"
+                size="sm"
+                showText={false}
+              />
               <span className="rounded-full border border-electric-blue/30 bg-electric-blue/10 px-3 py-1 text-xs text-electric-blue-bright">
                 {account.status}
               </span>

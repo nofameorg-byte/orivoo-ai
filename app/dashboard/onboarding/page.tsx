@@ -8,6 +8,7 @@ import {
   ShieldCheck,
   Users,
 } from "lucide-react";
+import { VP23Logo } from "@/components/vp23-logo";
 
 export const metadata: Metadata = {
   title: "KYB Onboarding",
@@ -49,6 +50,9 @@ export default function OnboardingPage() {
   return (
     <div className="space-y-6">
       <section className="surface-card rounded-[2rem] p-6 sm:p-8">
+        <div className="mb-6">
+          <VP23Logo href="/dashboard/onboarding" size="md" />
+        </div>
         <div className="flex items-center gap-3 text-gold">
           <ClipboardCheck className="size-5" aria-hidden />
           <span className="text-sm font-semibold uppercase tracking-[0.24em]">
