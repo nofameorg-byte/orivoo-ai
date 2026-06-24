@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Building2, ShieldCheck } from "lucide-react";
 import { signUp } from "@/app/actions/auth";
+import { LanguageTabs } from "@/components/language-tabs";
 import { VP23Logo } from "@/components/vp23-logo";
 
 export const metadata: Metadata = {
@@ -89,6 +90,9 @@ export default async function SignupPage({ searchParams }: AuthPageProps) {
               Login
             </Link>
           </p>
+          <div className="mt-6 flex justify-center">
+            <LanguageTabs compact />
+          </div>
         </section>
 
         <section className="hidden bg-black/70 p-10 md:block">
@@ -105,9 +109,9 @@ export default async function SignupPage({ searchParams }: AuthPageProps) {
             </p>
             <div className="mt-8 grid gap-3">
               {[
-                { label: "Protected routes", icon: ShieldCheck },
+                { label: "Secure workspace", icon: ShieldCheck },
                 { label: "Business profile", icon: Building2 },
-                { label: "Server-only API keys", icon: ShieldCheck },
+                { label: "Private partner controls", icon: ShieldCheck },
               ].map((item) => (
                 <div
                   key={item.label}

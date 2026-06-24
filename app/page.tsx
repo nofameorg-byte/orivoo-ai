@@ -13,6 +13,7 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
+import { LanguageTabs } from "@/components/language-tabs";
 import { VP23Logo } from "@/components/vp23-logo";
 
 const valueProps = [
@@ -64,46 +65,51 @@ export default function LandingPage() {
       <div className="pointer-events-none absolute -left-24 top-20 h-72 w-72 rounded-full bg-metal-red/30 blur-3xl" />
       <div className="pointer-events-none absolute right-0 top-36 h-72 w-72 rounded-full bg-electric-blue/25 blur-3xl" />
 
-      <header className="relative z-10 mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-6 lg:px-8">
-        <VP23Logo size="md" />
+      <header className="relative z-10 mx-auto w-full max-w-7xl px-6 py-4 lg:px-8">
+        <div className="mb-3 flex justify-end">
+          <LanguageTabs compact />
+        </div>
+        <div className="flex items-center justify-between">
+          <VP23Logo size="md" />
 
-        <nav className="hidden items-center gap-8 text-sm text-muted md:flex">
-          <a href="#features" className="transition hover:text-white">
-            Features
-          </a>
-          <a href="#pricing" className="transition hover:text-white">
-            Pricing
-          </a>
-          <a href="#business-banking" className="transition hover:text-white">
-            Business Banking
-          </a>
-          <a href="#payments" className="transition hover:text-white">
-            Payments
-          </a>
-          <a href="#invoices" className="transition hover:text-white">
-            Invoices
-          </a>
-          <a href="#security" className="transition hover:text-white">
-            Security
-          </a>
-          <a href="#contact" className="transition hover:text-white">
-            Contact
-          </a>
-        </nav>
+          <nav className="hidden items-center gap-8 text-sm text-muted md:flex">
+            <a href="#features" className="transition hover:text-gold-bright">
+              Features
+            </a>
+            <a href="#pricing" className="transition hover:text-gold-bright">
+              Pricing
+            </a>
+            <a href="#business-banking" className="transition hover:text-gold-bright">
+              Business Banking
+            </a>
+            <a href="#payments" className="transition hover:text-gold-bright">
+              Payments
+            </a>
+            <a href="#invoices" className="transition hover:text-gold-bright">
+              Invoices
+            </a>
+            <a href="#security" className="transition hover:text-gold-bright">
+              Security
+            </a>
+            <a href="#contact" className="transition hover:text-gold-bright">
+              Contact
+            </a>
+          </nav>
 
-        <div className="flex items-center gap-3">
-          <Link
-            href="/login"
-            className="hidden rounded-full px-4 py-2 text-sm text-muted transition hover:text-white sm:inline-flex"
-          >
-            Login
-          </Link>
-          <Link
-            href="/signup"
-            className="gold-cta rounded-full px-5 py-2.5 text-sm font-semibold text-black transition hover:scale-[1.02]"
-          >
-            Start application
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/login"
+              className="hidden rounded-full border border-white/10 px-4 py-2 text-sm text-muted transition hover:border-gold/40 hover:text-white sm:inline-flex"
+            >
+              Login
+            </Link>
+            <Link
+              href="/signup"
+              className="gold-cta rounded-full px-5 py-2.5 text-sm font-semibold text-black transition hover:scale-[1.02]"
+            >
+              Start application
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -379,6 +385,9 @@ export default function LandingPage() {
         <div className="mx-auto grid w-full max-w-7xl gap-8 md:grid-cols-[0.9fr_1.1fr] md:items-start">
           <div>
             <VP23Logo size="md" />
+            <div className="mt-4">
+              <LanguageTabs />
+            </div>
             <p className="mt-5 max-w-md text-sm leading-6 text-muted">
               Business money operations, customer records, invoices, documents,
               and account-readiness workflows with premium VP23 energy.

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, LockKeyhole } from "lucide-react";
 import { signIn } from "@/app/actions/auth";
+import { LanguageTabs } from "@/components/language-tabs";
 import { VP23Logo } from "@/components/vp23-logo";
 
 export const metadata: Metadata = {
@@ -95,6 +96,9 @@ export default async function LoginPage({ searchParams }: AuthPageProps) {
               Create an account
             </Link>
           </p>
+          <div className="mt-6 flex justify-center">
+            <LanguageTabs compact />
+          </div>
         </section>
       </div>
     </main>

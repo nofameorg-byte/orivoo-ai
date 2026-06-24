@@ -31,7 +31,8 @@
   --color-vp-yellow: var(--yellow);
   --color-panel: var(--panel);
   --color-panel-soft: var(--panel-soft);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-inter);
+  --font-heading: var(--font-barlow-condensed);
 }
 
 * {
@@ -50,8 +51,18 @@ body {
     radial-gradient(circle at 45% 0%, rgba(255, 214, 10, 0.1), transparent 28rem),
     var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), Arial, Helvetica, sans-serif;
   text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-barlow-condensed), var(--font-inter), Arial, Helvetica, sans-serif;
+  letter-spacing: 0.01em;
 }
 
 a {

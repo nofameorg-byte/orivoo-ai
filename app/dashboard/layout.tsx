@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { LogOut } from "lucide-react";
 import { signOut } from "@/app/actions/auth";
+import { LanguageTabs } from "@/components/language-tabs";
 import { VP23Logo } from "@/components/vp23-logo";
 import { dashboardNavigation } from "@/lib/vp23/data";
 import { createClient } from "@/lib/supabase/server";
@@ -45,6 +46,9 @@ export default async function DashboardLayout({
           <p className="mt-3 text-xs uppercase tracking-[0.24em] text-gold">
             Business command center
           </p>
+          <div className="mt-4">
+            <LanguageTabs compact />
+          </div>
         </div>
 
         <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto pr-1">
