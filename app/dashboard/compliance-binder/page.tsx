@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Download, Eye, FileText, Printer } from "lucide-react";
+import { Download, Eye, FileText } from "lucide-react";
+import { PrintActions } from "@/components/print-actions";
 
 export const metadata: Metadata = {
   title: "Compliance Binder",
@@ -35,23 +36,7 @@ export default function ComplianceBinderPage() {
         </p>
       </section>
 
-      <div className="print-hidden flex flex-wrap gap-3">
-        <button
-          type="button"
-          onClick={() => globalThis.print()}
-          className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-black"
-        >
-          <Printer className="size-4" aria-hidden />
-          Print
-        </button>
-        <button
-          type="button"
-          className="inline-flex items-center gap-2 rounded-full border border-white/10 px-5 py-3 text-sm font-semibold text-white"
-        >
-          <Download className="size-4" aria-hidden />
-          Export PDF placeholder
-        </button>
-      </div>
+      <PrintActions />
 
       <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         {policies.map((policy) => (

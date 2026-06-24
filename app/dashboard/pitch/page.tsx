@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Download, Printer, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
+import { PrintActions } from "@/components/print-actions";
 import { VP23Logo } from "@/components/vp23-logo";
 
 export const metadata: Metadata = {
@@ -68,23 +69,7 @@ export default function PitchPage() {
         </p>
       </section>
 
-      <div className="print-hidden flex flex-wrap gap-3">
-        <button
-          type="button"
-          onClick={() => globalThis.print()}
-          className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-black"
-        >
-          <Printer className="size-4" aria-hidden />
-          Print
-        </button>
-        <button
-          type="button"
-          className="inline-flex items-center gap-2 rounded-full border border-white/10 px-5 py-3 text-sm font-semibold text-white"
-        >
-          <Download className="size-4" aria-hidden />
-          Export PDF placeholder
-        </button>
-      </div>
+      <PrintActions />
 
       <section className="grid gap-5 md:grid-cols-2">
         {pitchSections.map((section) => (

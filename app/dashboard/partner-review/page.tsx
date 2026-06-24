@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { CheckCircle2, CircleDashed, Printer, ShieldCheck } from "lucide-react";
+import { CheckCircle2, CircleDashed, ShieldCheck } from "lucide-react";
+import { PrintActions } from "@/components/print-actions";
 import { VP23Logo } from "@/components/vp23-logo";
 
 export const metadata: Metadata = {
@@ -66,22 +67,7 @@ export default function PartnerReviewPage() {
         </div>
       </section>
 
-      <div className="print-hidden flex flex-wrap gap-3">
-        <button
-          type="button"
-          onClick={() => globalThis.print()}
-          className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-black"
-        >
-          <Printer className="size-4" aria-hidden />
-          Print
-        </button>
-        <button
-          type="button"
-          className="rounded-full border border-white/10 px-5 py-3 text-sm font-semibold text-white"
-        >
-          Export PDF placeholder
-        </button>
-      </div>
+      <PrintActions />
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {overview.map(([label, value]) => (
