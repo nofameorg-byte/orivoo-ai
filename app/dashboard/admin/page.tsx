@@ -9,6 +9,7 @@ import {
   ShieldCheck,
   XCircle,
 } from "lucide-react";
+import { auditLogEvents, phase4AdminQueues } from "@/lib/vp23/data";
 
 export const metadata: Metadata = {
   title: "Admin KYB Review",
@@ -79,6 +80,16 @@ export default function AdminPage() {
             <queue.icon className="mb-5 size-6 text-gold" aria-hidden />
             <p className="text-3xl font-semibold text-white">{queue.count}</p>
             <h2 className="mt-2 text-sm leading-6 text-muted">{queue.title}</h2>
+          </article>
+        ))}
+      </section>
+
+      <section className="grid gap-5 lg:grid-cols-5">
+        {phase4AdminQueues.map((queue) => (
+          <article key={queue.title} className="bank-card rounded-3xl p-5">
+            <p className="text-3xl font-semibold text-white">{queue.count}</p>
+            <h2 className="mt-3 font-semibold text-white">{queue.title}</h2>
+            <p className="mt-2 text-sm leading-6 text-muted">{queue.body}</p>
           </article>
         ))}
       </section>
@@ -175,6 +186,21 @@ export default function AdminPage() {
             </button>
           </section>
         </aside>
+      </section>
+
+      <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6">
+        <h2 className="text-xl font-semibold text-white">Activity logs</h2>
+        <p className="mt-2 text-sm text-muted">
+          Audit categories tracked for compliance and administrative review.
+        </p>
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {auditLogEvents.map((event) => (
+            <article key={event} className="rounded-2xl bg-black/45 p-4">
+              <p className="font-medium text-white">{event}</p>
+              <p className="mt-1 text-sm text-muted">Audit event enabled</p>
+            </article>
+          ))}
+        </div>
       </section>
     </div>
   );

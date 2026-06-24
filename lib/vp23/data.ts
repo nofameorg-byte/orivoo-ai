@@ -2,6 +2,7 @@ import {
   ArrowDownLeft,
   ArrowLeftRight,
   ArrowUpRight,
+  Bell,
   Building2,
   ClipboardCheck,
   Palette,
@@ -9,6 +10,7 @@ import {
   Gauge,
   Landmark,
   LandmarkIcon,
+  ListChecks,
   Network,
   PiggyBank,
   ReceiptText,
@@ -32,6 +34,10 @@ export const dashboardNavigation = [
   { name: "Payments", href: "/dashboard/payments", icon: Zap },
   { name: "Transfers", href: "/dashboard/transfers", icon: ArrowLeftRight },
   { name: "Customers", href: "/dashboard/customers", icon: Users },
+  { name: "Applications", href: "/dashboard/applications", icon: ListChecks },
+  { name: "Ledger", href: "/dashboard/ledger", icon: ReceiptText },
+  { name: "Statements", href: "/dashboard/statements", icon: FileText },
+  { name: "Notifications", href: "/dashboard/notifications", icon: Bell },
   { name: "Invoices", href: "/dashboard/invoices", icon: FileText },
   { name: "Admin", href: "/dashboard/admin", icon: ShieldEllipsis },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
@@ -111,16 +117,74 @@ export const accounts = [
 ];
 
 export const transfers = [
-  { id: "trf_9001", destination: "Tax Reserve", amount: "$6,000.00", status: "Simulated", date: "Jun 24" },
+  { id: "trf_9001", destination: "Tax Reserve", amount: "$6,000.00", status: "Prepared", date: "Jun 24" },
   { id: "trf_9000", destination: "Contractor payout", amount: "$2,125.20", status: "Pending", date: "Jun 23" },
   { id: "trf_8998", destination: "Payroll funding", amount: "$11,450.00", status: "Completed", date: "Jun 21" },
 ];
 
 export const customers = [
-  { name: "Northstar Construction", email: "ap@northstar.example", balance: "$14,900.00", status: "Invoice open", type: "Business", history: "4 invoices · $42,800 lifetime" },
-  { name: "Redline Fabrication", email: "finance@redline.example", balance: "$0.00", status: "Paid", type: "Business", history: "9 invoices · $117,240 lifetime" },
-  { name: "Blue Arc Logistics", email: "billing@bluearc.example", balance: "$8,450.00", status: "Ready", type: "Business", history: "2 invoices · $19,100 lifetime" },
-  { name: "Maya Johnson", email: "maya.johnson@example.com", balance: "$725.00", status: "Consumer", type: "Consumer", history: "1 invoice · $725 lifetime" },
+  { id: "northstar-construction", name: "Northstar Construction", email: "ap@northstar.example", phone: "+1 803 555 0198", balance: "$14,900.00", status: "Invoice open", type: "Business", history: "4 invoices · $42,800 lifetime" },
+  { id: "redline-fabrication", name: "Redline Fabrication", email: "finance@redline.example", phone: "+1 803 555 0124", balance: "$0.00", status: "Paid", type: "Business", history: "9 invoices · $117,240 lifetime" },
+  { id: "blue-arc-logistics", name: "Blue Arc Logistics", email: "billing@bluearc.example", phone: "+1 803 555 0172", balance: "$8,450.00", status: "Ready", type: "Business", history: "2 invoices · $19,100 lifetime" },
+  { id: "maya-johnson", name: "Maya Johnson", email: "maya.johnson@example.com", phone: "+1 803 555 0159", balance: "$725.00", status: "Consumer", type: "Consumer", history: "1 invoice · $725 lifetime" },
+];
+
+export const customerActivity = [
+  { label: "Invoice VP23-1042 created", date: "Jun 22", type: "Invoice" },
+  { label: "Document request sent", date: "Jun 21", type: "Compliance" },
+  { label: "Customer profile updated", date: "Jun 20", type: "Profile" },
+  { label: "Payment workflow prepared", date: "Jun 19", type: "Transfer" },
+];
+
+export const accountApplications = [
+  { product: "Business checking application", status: "Submitted", owner: "VP23", updated: "Jun 24", detail: "Ready for internal review after KYB package completion." },
+  { product: "Business savings application", status: "Draft", owner: "VP23", updated: "Jun 23", detail: "Future product pending sponsor-bank review and disclosures." },
+  { product: "Operating account add-on", status: "Under Review", owner: "VP23", updated: "Jun 22", detail: "Internal compliance review in progress." },
+];
+
+export const applicationStatuses = [
+  "Draft",
+  "Submitted",
+  "Under Review",
+  "Approved",
+  "Rejected",
+];
+
+export const ledgerEntries = [
+  { id: "ldg_1001", date: "2026-06-24", customer: "Northstar Construction", description: "Invoice VP23-1042", type: "Invoice", status: "Posted", amount: "+$14,900.00" },
+  { id: "ldg_1002", date: "2026-06-23", customer: "Redline Fabrication", description: "Prepared transfer", type: "Transfer", status: "Review", amount: "-$2,125.20" },
+  { id: "ldg_1003", date: "2026-06-22", customer: "Blue Arc Logistics", description: "Receivable update", type: "Customer", status: "Posted", amount: "+$8,450.00" },
+  { id: "ldg_1004", date: "2026-06-21", customer: "VP23", description: "Reserve allocation", type: "Internal", status: "Pending", amount: "-$6,000.00" },
+];
+
+export const statements = [
+  { id: "stmt_2026_06", period: "June 2026", status: "Draft", generated: "Pending", totalCredits: "$26,625.84", totalDebits: "$8,125.20" },
+  { id: "stmt_2026_05", period: "May 2026", status: "Ready", generated: "Jun 1, 2026", totalCredits: "$91,400.00", totalDebits: "$44,280.35" },
+  { id: "stmt_2026_04", period: "April 2026", status: "Ready", generated: "May 1, 2026", totalCredits: "$78,900.00", totalDebits: "$31,945.18" },
+];
+
+export const notifications = [
+  { id: "ntf_001", title: "Application update", body: "Business checking application moved to internal review.", unread: true, type: "Application" },
+  { id: "ntf_002", title: "Compliance request", body: "Upload an operating agreement to complete KYB review.", unread: true, type: "Compliance" },
+  { id: "ntf_003", title: "Invoice paid", body: "Invoice VP23-1042 was marked paid in the receivables workflow.", unread: false, type: "Invoice" },
+  { id: "ntf_004", title: "Transfer completed", body: "Prepared transfer record was marked complete after internal review.", unread: false, type: "Transfer" },
+];
+
+export const phase4AdminQueues = [
+  { title: "Customer review queue", count: "9", body: "Customer profiles awaiting notes, document checks, or receivables review." },
+  { title: "Application review queue", count: "6", body: "Business checking and savings applications requiring internal action." },
+  { title: "Document review queue", count: "14", body: "Uploaded files awaiting verification, rejection, or more information requests." },
+  { title: "Risk alerts", count: "4", body: "Velocity, document, and customer activity alerts pending review." },
+  { title: "Activity logs", count: "128", body: "User, customer, invoice, document, and admin actions captured for audit review." },
+];
+
+export const auditLogEvents = [
+  "User login",
+  "Document upload",
+  "Application submission",
+  "Invoice creation",
+  "Customer creation",
+  "Admin review action",
 ];
 
 export const quickActions = [

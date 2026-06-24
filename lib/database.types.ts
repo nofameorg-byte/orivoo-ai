@@ -95,6 +95,71 @@ export type Database = {
           },
         ];
       };
+      audit_logs: {
+        Row: {
+          actor_id: string | null;
+          business_profile_id: string | null;
+          created_at: string;
+          entity_id: string | null;
+          entity_type: string | null;
+          event_type:
+            | "user_login"
+            | "document_upload"
+            | "application_submission"
+            | "invoice_creation"
+            | "customer_creation"
+            | "admin_review_action";
+          id: string;
+          ip_address: string | null;
+          metadata: Json;
+          user_agent: string | null;
+        };
+        Insert: {
+          actor_id?: string | null;
+          business_profile_id?: string | null;
+          created_at?: string;
+          entity_id?: string | null;
+          entity_type?: string | null;
+          event_type:
+            | "user_login"
+            | "document_upload"
+            | "application_submission"
+            | "invoice_creation"
+            | "customer_creation"
+            | "admin_review_action";
+          id?: string;
+          ip_address?: string | null;
+          metadata?: Json;
+          user_agent?: string | null;
+        };
+        Update: {
+          actor_id?: string | null;
+          business_profile_id?: string | null;
+          created_at?: string;
+          entity_id?: string | null;
+          entity_type?: string | null;
+          event_type?:
+            | "user_login"
+            | "document_upload"
+            | "application_submission"
+            | "invoice_creation"
+            | "customer_creation"
+            | "admin_review_action";
+          id?: string;
+          ip_address?: string | null;
+          metadata?: Json;
+          user_agent?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "audit_logs_business_profile_id_fkey";
+            columns: ["business_profile_id"];
+            isOneToOne: false;
+            referencedRelation: "business_profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       beneficial_owners: {
         Row: {
           address: string;
@@ -225,6 +290,78 @@ export type Database = {
           },
         ];
       };
+      business_invitations: {
+        Row: {
+          accepted_at: string | null;
+          business_profile_id: string;
+          created_at: string;
+          email: string;
+          expires_at: string;
+          id: string;
+          invited_by: string;
+          role_id: string;
+          status: "pending" | "accepted" | "revoked" | "expired";
+          token: string;
+          updated_at: string;
+        };
+        Insert: {
+          accepted_at?: string | null;
+          business_profile_id: string;
+          created_at?: string;
+          email: string;
+          expires_at?: string;
+          id?: string;
+          invited_by: string;
+          role_id: string;
+          status?: "pending" | "accepted" | "revoked" | "expired";
+          token?: string;
+          updated_at?: string;
+        };
+        Update: {
+          accepted_at?: string | null;
+          business_profile_id?: string;
+          created_at?: string;
+          email?: string;
+          expires_at?: string;
+          id?: string;
+          invited_by?: string;
+          role_id?: string;
+          status?: "pending" | "accepted" | "revoked" | "expired";
+          token?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      business_members: {
+        Row: {
+          business_profile_id: string;
+          created_at: string;
+          id: string;
+          invited_by: string | null;
+          role_id: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          business_profile_id: string;
+          created_at?: string;
+          id?: string;
+          invited_by?: string | null;
+          role_id: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          business_profile_id?: string;
+          created_at?: string;
+          id?: string;
+          invited_by?: string | null;
+          role_id?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       business_profiles: {
         Row: {
           address_line1: string | null;
@@ -273,6 +410,27 @@ export type Database = {
           postal_code?: string | null;
           state?: string | null;
           updated_at?: string;
+        };
+        Relationships: [];
+      };
+      business_roles: {
+        Row: {
+          created_at: string;
+          description: string | null;
+          id: string;
+          name: "owner" | "admin" | "viewer";
+        };
+        Insert: {
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          name: "owner" | "admin" | "viewer";
+        };
+        Update: {
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          name?: "owner" | "admin" | "viewer";
         };
         Relationships: [];
       };

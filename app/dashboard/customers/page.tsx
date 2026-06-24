@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Search, SlidersHorizontal, Users } from "lucide-react";
 import { customers } from "@/lib/vp23/data";
 
@@ -54,8 +55,9 @@ export default function CustomersPage() {
 
       <section className="grid gap-5 lg:grid-cols-3">
         {customers.map((customer) => (
-          <article
+          <Link
             key={customer.email}
+            href={`/dashboard/customers/${customer.id}`}
             className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6"
           >
             <div className="mb-6 flex size-12 items-center justify-center rounded-2xl border border-electric-blue/25 bg-electric-blue/10 text-electric-blue-bright">
@@ -78,7 +80,7 @@ export default function CustomersPage() {
                 {customer.status}
               </span>
             </div>
-          </article>
+          </Link>
         ))}
       </section>
     </div>

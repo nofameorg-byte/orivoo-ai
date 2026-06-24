@@ -2,6 +2,7 @@ import Link from "next/link";
 import {
   ArrowDownLeft,
   ArrowRight,
+  Building2,
   CircleDollarSign,
   FileText,
   Landmark,
@@ -38,6 +39,24 @@ const platformCards = [
   },
 ];
 
+const pricingTiers = [
+  {
+    name: "Starter",
+    price: "$0",
+    body: "Application workspace, KYB checklist, invoices, and customer records.",
+  },
+  {
+    name: "Business",
+    price: "Custom",
+    body: "Multi-business management, document workflows, ledger exports, and review queues.",
+  },
+  {
+    name: "Partner-ready",
+    price: "Custom",
+    body: "Adapter preparation, audit logs, statements, and sponsor-bank readiness controls.",
+  },
+];
+
 export default function LandingPage() {
   return (
     <main className="relative min-h-screen overflow-hidden bg-black">
@@ -49,14 +68,26 @@ export default function LandingPage() {
         <VP23Logo size="md" />
 
         <nav className="hidden items-center gap-8 text-sm text-muted md:flex">
-          <a href="#platform" className="transition hover:text-white">
-            Platform
+          <a href="#features" className="transition hover:text-white">
+            Features
+          </a>
+          <a href="#pricing" className="transition hover:text-white">
+            Pricing
+          </a>
+          <a href="#business-banking" className="transition hover:text-white">
+            Business Banking
+          </a>
+          <a href="#payments" className="transition hover:text-white">
+            Payments
           </a>
           <a href="#invoices" className="transition hover:text-white">
             Invoices
           </a>
           <a href="#security" className="transition hover:text-white">
             Security
+          </a>
+          <a href="#contact" className="transition hover:text-white">
+            Contact
           </a>
         </nav>
 
@@ -182,13 +213,13 @@ export default function LandingPage() {
       </section>
 
       <section
-        id="platform"
+        id="features"
         className="relative z-10 mx-auto w-full max-w-7xl px-6 py-20 lg:px-8"
       >
         <div className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-gold-bright">
-              Core MVP
+              Features
             </p>
             <h2 className="mt-3 text-3xl font-semibold text-white md:text-5xl">
               Banking workflows with an aggressive premium edge.
@@ -214,6 +245,56 @@ export default function LandingPage() {
               <p className="mt-3 leading-7 text-muted">{card.body}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      <section
+        id="pricing"
+        className="relative z-10 mx-auto grid w-full max-w-7xl gap-6 px-6 py-20 lg:grid-cols-3 lg:px-8"
+      >
+        {pricingTiers.map((tier) => (
+          <article key={tier.name} className="bank-card rounded-[2rem] p-8">
+            <p className="text-sm uppercase tracking-[0.28em] text-gold">
+              {tier.name}
+            </p>
+            <h2 className="mt-4 text-4xl font-semibold text-white">
+              {tier.price}
+            </h2>
+            <p className="mt-4 leading-7 text-muted">{tier.body}</p>
+          </article>
+        ))}
+      </section>
+
+      <section
+        id="business-banking"
+        className="relative z-10 mx-auto w-full max-w-7xl px-6 py-20 lg:px-8"
+      >
+        <div className="surface-card rounded-[2rem] p-8 md:p-12">
+          <Building2 className="mb-6 size-8 text-gold" aria-hidden />
+          <h2 className="text-3xl font-semibold text-white md:text-5xl">
+            Business Banking
+          </h2>
+          <p className="mt-5 max-w-3xl leading-7 text-muted">
+            VP23 prepares checking and savings application workflows,
+            multi-business access, document review, and account-readiness tools
+            while partner approval remains pending.
+          </p>
+        </div>
+      </section>
+
+      <section
+        id="payments"
+        className="relative z-10 mx-auto w-full max-w-7xl px-6 py-20 lg:px-8"
+      >
+        <div className="surface-card rounded-[2rem] p-8 md:p-12">
+          <ArrowDownLeft className="mb-6 size-8 text-electric-blue-bright" aria-hidden />
+          <h2 className="text-3xl font-semibold text-white md:text-5xl">
+            Payments
+          </h2>
+          <p className="mt-5 max-w-3xl leading-7 text-muted">
+            Prepare ACH, wire, and real-time payment records behind server-side
+            abstractions. No live payment rails are enabled.
+          </p>
         </div>
       </section>
 
@@ -277,6 +358,21 @@ export default function LandingPage() {
               ))}
             </div>
           </div>
+        </div>
+      </section>
+
+      <section
+        id="contact"
+        className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-24 pt-10 lg:px-8"
+      >
+        <div className="surface-card rounded-[2rem] p-8 md:p-12">
+          <h2 className="text-3xl font-semibold text-white md:text-5xl">
+            Contact VP23
+          </h2>
+          <p className="mt-5 max-w-3xl leading-7 text-muted">
+            Email contact@vp-23.com or visit www.vp-23.com for business
+            registration, support, and partner-readiness inquiries.
+          </p>
         </div>
       </section>
 

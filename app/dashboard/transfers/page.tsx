@@ -13,7 +13,7 @@ export default function TransfersPage() {
         <div className="flex items-center gap-3 text-electric-blue-bright">
           <RadioTower className="size-5" aria-hidden />
           <span className="text-sm font-semibold uppercase tracking-[0.24em]">
-            Simulated movement
+            Transfer preparation
           </span>
         </div>
         <h1 className="mt-4 text-3xl font-semibold text-white sm:text-4xl">
@@ -21,8 +21,8 @@ export default function TransfersPage() {
         </h1>
         <p className="mt-3 max-w-3xl leading-7 text-muted">
           The transfer form uses HTML validation for the MVP. Backend route
-          handlers also validate inputs before calling placeholder Column
-          service functions.
+          handlers also validate inputs before calling placeholder partner
+          preparation functions. No live banking rails are connected.
         </p>
       </section>
 
@@ -34,7 +34,7 @@ export default function TransfersPage() {
             </div>
             <div>
               <h2 className="text-xl font-semibold text-white">
-                Simulate transfer
+                Prepare transfer
               </h2>
               <p className="text-sm text-muted">No live funds are moved.</p>
             </div>
@@ -82,7 +82,7 @@ export default function TransfersPage() {
               type="button"
               className="w-full rounded-full bg-white px-5 py-3 text-sm font-semibold text-black transition hover:bg-gold-bright"
             >
-              Simulate transfer
+              Prepare transfer
             </button>
           </div>
         </form>
