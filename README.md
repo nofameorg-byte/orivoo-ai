@@ -19,22 +19,39 @@ Supabase Auth/Database, and server-only Column sandbox route handlers.
 - `/login` - Supabase email/password login
 - `/signup` - Supabase email/password signup
 - `/dashboard` - Protected dashboard
+- `/dashboard/onboarding`
+- `/dashboard/business-banking`
 - `/dashboard/business-profile`
 - `/dashboard/accounts`
 - `/dashboard/transactions`
+- `/dashboard/payments`
 - `/dashboard/transfers`
 - `/dashboard/customers`
 - `/dashboard/invoices`
+- `/dashboard/admin`
 - `/dashboard/settings`
 
 ## Dashboard features
 
+- Total balance
 - Available balance
 - Recent transactions
 - Account/routing number card
 - Quick actions: Send, Receive, Invoice, Transfer
+- Business banking modules for checking, savings future, and account details
+- Payments modules for ACH, wires, and real-time payments
+- Admin modules for KYB, compliance, risk, and partner-bank settings
 - Sandbox mode badge
 - Mobile-first responsive dashboard navigation
+
+## Brand palette
+
+- Black: `#0B0B0B`
+- Red: `#D90429`
+- Electric Blue: `#2563EB`
+- Gold: `#D4AF37`
+- Yellow: `#FFD60A`
+- White: `#F8F9FA`
 
 ## Invoice features
 
@@ -43,6 +60,8 @@ Supabase Auth/Database, and server-only Column sandbox route handlers.
 - Job description, amount, and due date validation
 - Send invoice placeholder
 - Download/print through browser print handling
+- Branded VP23 invoice preview
+- Customer history and future PDF export notes
 
 ## Column sandbox API layer
 
@@ -56,6 +75,7 @@ Routes:
 - `POST /api/column/accounts`
 - `GET /api/column/transfers`
 - `POST /api/column/transfers/simulate`
+- `GET /api/column/health`
 
 Service placeholders:
 
@@ -86,6 +106,10 @@ NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 COLUMN_API_KEY=your-column-sandbox-key
+COLUMN_BASE_URL=https://api.column.com
+COLUMN_ENVIRONMENT=sandbox
+COLUMN_PARTNER_BANK_ID=your-partner-bank-id
+SPONSOR_BANK_NAME=your-sponsor-bank-name
 ```
 
 Run the development server:

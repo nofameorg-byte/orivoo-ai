@@ -46,6 +46,8 @@ export default function SettingsPage() {
           <li>NEXT_PUBLIC_SUPABASE_URL is safe for browser use.</li>
           <li>NEXT_PUBLIC_SUPABASE_ANON_KEY is safe for browser use with RLS.</li>
           <li>COLUMN_API_KEY must remain server-only and never use NEXT_PUBLIC.</li>
+          <li>COLUMN_BASE_URL and COLUMN_ENVIRONMENT control sandbox/production targeting.</li>
+          <li>COLUMN_PARTNER_BANK_ID and SPONSOR_BANK_NAME model bank sponsor settings.</li>
           <li>
             TODO: Add production secrets rotation, webhook signatures, and audit
             logging before going live.

@@ -2,6 +2,7 @@
 
 import { FormEvent, useMemo, useState } from "react";
 import { Download, Printer, Send } from "lucide-react";
+import { VP23Logo } from "@/components/vp23-logo";
 
 type InvoiceState = {
   customerName: string;
@@ -189,6 +190,19 @@ export function InvoiceForm() {
       </form>
 
       <article className="metal-card rounded-[2rem] p-6">
+        <div className="mb-6 rounded-[1.5rem] border border-white/10 bg-black/45 p-4">
+          <div className="flex items-center justify-between gap-4">
+            <VP23Logo href="/dashboard" size="sm" />
+            <span className="rounded-full border border-electric-blue/30 bg-electric-blue/10 px-3 py-1 text-xs text-electric-blue-bright">
+              Branded PDF preview
+            </span>
+          </div>
+          <p className="mt-4 text-sm leading-6 text-muted">
+            Browser print opens a save-as-PDF flow for MVP export. TODO: replace
+            with server-generated PDFs and immutable invoice snapshots.
+          </p>
+        </div>
+
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-sm uppercase tracking-[0.28em] text-gold">

@@ -3,6 +3,8 @@ import { CircleDollarSign, Copy, RadioTower, ShieldCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import {
   accounts,
+  balanceMetrics,
+  bankingProducts,
   quickActions,
   recentTransactions,
   securityHighlights,
@@ -49,10 +51,10 @@ export default async function DashboardPage() {
           </div>
           <div className="metal-card rounded-[1.5rem] p-5">
             <p className="text-xs uppercase tracking-[0.28em] text-muted">
-              Available balance
+              Total balance
             </p>
             <p className="mt-3 text-4xl font-semibold text-white sm:text-5xl">
-              $128,430.18
+              $179,070.90
             </p>
             <div className="mt-5 flex items-center justify-between rounded-2xl border border-white/10 bg-black/45 p-4">
               <span className="text-sm text-muted">Column sandbox ledger</span>
@@ -62,6 +64,20 @@ export default async function DashboardPage() {
             </div>
           </div>
         </div>
+      </section>
+
+      <section className="grid gap-4 md:grid-cols-3">
+        {balanceMetrics.map((metric) => (
+          <article key={metric.label} className="bank-card rounded-3xl p-5">
+            <p className="text-xs uppercase tracking-[0.24em] text-muted">
+              {metric.label}
+            </p>
+            <p className="mt-3 text-3xl font-semibold text-white">
+              {metric.value}
+            </p>
+            <p className="mt-2 text-sm leading-6 text-muted">{metric.detail}</p>
+          </article>
+        ))}
       </section>
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -80,6 +96,36 @@ export default async function DashboardPage() {
             </p>
           </Link>
         ))}
+      </section>
+
+      <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6">
+        <div className="mb-5 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+          <div>
+            <p className="text-sm uppercase tracking-[0.28em] text-gold">
+              Business Banking
+            </p>
+            <h2 className="mt-2 text-2xl font-semibold text-white">
+              Checking, savings future, and account details
+            </h2>
+          </div>
+          <Link
+            href="/dashboard/business-banking"
+            className="text-sm font-semibold text-electric-blue-bright"
+          >
+            Manage banking
+          </Link>
+        </div>
+        <div className="grid gap-4 lg:grid-cols-3">
+          {bankingProducts.map((product) => (
+            <article key={product.title} className="rounded-3xl bg-black/45 p-5">
+              <div className="mb-4 flex size-11 items-center justify-center rounded-2xl border border-gold/25 bg-gold/10 text-gold">
+                <product.icon className="size-5" aria-hidden />
+              </div>
+              <h3 className="font-semibold text-white">{product.title}</h3>
+              <p className="mt-2 text-sm leading-6 text-muted">{product.body}</p>
+            </article>
+          ))}
+        </div>
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">

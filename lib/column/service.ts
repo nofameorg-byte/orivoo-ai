@@ -1,5 +1,10 @@
 import "server-only";
 
+import {
+  createIdempotencyKey,
+  getColumnConnectionStatus,
+} from "@/lib/column/client";
+
 type CreateEntityInput = {
   businessName: string;
   entityType: string;
@@ -20,7 +25,7 @@ type SimulateTransferInput = {
 function getSandboxMetadata() {
   return {
     mode: "sandbox",
-    columnConfigured: Boolean(process.env.COLUMN_API_KEY),
+    column: getColumnConnectionStatus(),
   };
 }
 
@@ -29,6 +34,7 @@ export async function createEntity(input: CreateEntityInput) {
   // idempotency keys, request signing, and audit logging before live Column use.
   return {
     id: "col_entity_sandbox_vp23",
+    idempotencyKey: createIdempotencyKey("entity"),
     businessName: input.businessName,
     entityType: input.entityType,
     email: input.email,
@@ -41,6 +47,7 @@ export async function createAccount(input: CreateAccountInput) {
   // TODO: Replace with Column account creation after compliance approval.
   return {
     id: "col_account_sandbox_operating",
+    idempotencyKey: createIdempotencyKey("account"),
     entityId: input.entityId,
     name: input.name,
     routingNumber: "121145349",
@@ -101,6 +108,7 @@ export async function simulateTransfer(input: SimulateTransferInput) {
   // idempotent retries before enabling real funds movement.
   return {
     id: "col_transfer_sandbox_simulated",
+    idempotencyKey: createIdempotencyKey("transfer"),
     fromAccountId: input.fromAccountId,
     destination: input.destination,
     amountCents: input.amountCents,

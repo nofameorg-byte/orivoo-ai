@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { FileText } from "lucide-react";
+import { FileText, ShieldCheck } from "lucide-react";
+import { invoiceCapabilities } from "@/lib/vp23/data";
 import { InvoiceForm } from "./invoice-form";
 
 export const metadata: Metadata = {
@@ -24,6 +25,15 @@ export default function InvoicesPage() {
           delivery, payment links, tax treatment, audit trails, and compliance
           review before live collections.
         </p>
+      </section>
+
+      <section className="grid gap-4 md:grid-cols-4">
+        {invoiceCapabilities.map((capability) => (
+          <article key={capability} className="bank-card rounded-3xl p-5">
+            <ShieldCheck className="mb-4 size-5 text-electric-blue-bright" aria-hidden />
+            <p className="text-sm leading-6 text-muted">{capability}</p>
+          </article>
+        ))}
       </section>
 
       <InvoiceForm />
