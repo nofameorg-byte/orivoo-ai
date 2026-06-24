@@ -4,7 +4,6 @@ import {
   ArrowUpRight,
   Building2,
   ClipboardCheck,
-  CreditCard,
   FileText,
   Gauge,
   Landmark,
@@ -17,13 +16,13 @@ import {
   ShieldEllipsis,
   SlidersHorizontal,
   Users,
-  WalletCards,
   Zap,
 } from "lucide-react";
 
 export const dashboardNavigation = [
   { name: "Dashboard", href: "/dashboard", icon: Gauge },
   { name: "Onboarding", href: "/dashboard/onboarding", icon: ClipboardCheck },
+  { name: "Documents", href: "/dashboard/documents", icon: FileText },
   { name: "Business Banking", href: "/dashboard/business-banking", icon: Landmark },
   { name: "Business profile", href: "/dashboard/business-profile", icon: Building2 },
   { name: "Accounts", href: "/dashboard/accounts", icon: Landmark },
@@ -47,7 +46,7 @@ export const recentTransactions = [
   },
   {
     id: "txn_002",
-    name: "Column sandbox transfer",
+    name: "Partner-review transfer",
     date: "Jun 23",
     amount: "-$2,125.20",
     tone: "text-metal-red-bright",
@@ -67,11 +66,11 @@ export const recentTransactions = [
     date: "Jun 21",
     amount: "-$6,000.00",
     tone: "text-muted",
-    icon: WalletCards,
+    icon: ArrowLeftRight,
   },
   {
     id: "txn_005",
-    name: "Real-time payment credit",
+    name: "Real-time payment activity",
     date: "Jun 20",
     amount: "+$3,275.84",
     tone: "text-electric-blue-bright",
@@ -86,7 +85,7 @@ export const accounts = [
     balance: "$128,430.18",
     routing: "121145349",
     account: "**** 2389",
-    status: "Sandbox",
+    status: "Draft",
     rail: "ACH, RTP eligible",
   },
   {
@@ -104,8 +103,8 @@ export const accounts = [
     balance: "$18,640.72",
     routing: "121145349",
     account: "**** 6054",
-    status: "Sandbox",
-    rail: "ACH debit/credit",
+    status: "Draft",
+    rail: "ACH transfer eligible",
   },
 ];
 
@@ -132,13 +131,13 @@ export const quickActions = [
 export const balanceMetrics = [
   { label: "Total Balance", value: "$179,070.90", detail: "Across checking, reserves, and payroll" },
   { label: "Available Balance", value: "$128,430.18", detail: "Ready for ACH, wire, RTP, and invoices" },
-  { label: "Pending Activity", value: "$10,575.20", detail: "2 debits · 1 incoming payment" },
+  { label: "Pending Activity", value: "$10,575.20", detail: "3 payment items awaiting review" },
 ];
 
 export const bankingProducts = [
   {
     title: "Checking Accounts",
-    status: "Live sandbox",
+    status: "Application ready",
     body: "Operating, payroll, and reserve checking with routing/account details and payment rail eligibility.",
     icon: LandmarkIcon,
   },
@@ -152,7 +151,7 @@ export const bankingProducts = [
     title: "Account Details",
     status: "Available",
     body: "Routing number, account mask, ledger balance, available balance, and Column entity mapping.",
-    icon: CreditCard,
+    icon: ShieldCheck,
   },
 ];
 
@@ -160,7 +159,7 @@ export const paymentRails = [
   {
     name: "ACH",
     speed: "Same day / next day",
-    status: "Sandbox ready",
+    status: "Application ready",
     limit: "$25,000 per transfer",
     icon: Network,
   },
@@ -173,7 +172,7 @@ export const paymentRails = [
   },
   {
     name: "Real-Time Payments",
-    speed: "Instant eligible credits",
+    speed: "Instant eligible transfers",
     status: "Future rail",
     limit: "$10,000 pilot limit",
     icon: Zap,
@@ -191,7 +190,7 @@ export const onboardingSteps = [
   { title: "User account", status: "Ready", body: "Supabase email/password session and protected routes." },
   { title: "Business profile", status: "In progress", body: "Legal entity, EIN last four, address, and industry intake." },
   { title: "KYB/KYC verification", status: "Required", body: "Beneficial owners, control person, sanctions screening, and document checks." },
-  { title: "Column entity mapping", status: "Sandbox", body: "Create entity/account placeholders and store Column identifiers server-side." },
+  { title: "Column entity mapping", status: "Prepared", body: "Prepare entity/account payloads and store Column identifiers server-side after approval." },
   { title: "Bank sponsor approval", status: "External dependency", body: "Partner-bank program approval before production money movement." },
 ];
 
@@ -226,17 +225,17 @@ export const securityHighlights = [
   "Supabase Auth protects dashboard routes",
   "RLS policies scope data to the authenticated owner",
   "Column API key is only read by server route handlers",
-  "Sandbox mode keeps bank movement simulated for MVP",
+  "Banking features remain gated until partner approval",
 ];
 
 export const complianceTodos = [
   "TODO: Add production KYB/KYC onboarding and beneficial owner collection before live money movement.",
   "TODO: Add compliance review, OFAC screening, and audit retention before enabling production Column transfers.",
-  "TODO: Replace sandbox placeholders with signed webhooks, idempotency keys, and reconciliation workflows.",
+  "TODO: Replace integration placeholders with signed webhooks, idempotency keys, and reconciliation workflows.",
 ];
 
 export const settingsCards = [
   { title: "Authentication", body: "Supabase email/password sessions with server-side route protection.", icon: ShieldCheck },
-  { title: "Cards & accounts", body: "Sandbox account data is isolated behind backend API routes.", icon: CreditCard },
+  { title: "Accounts", body: "Account application data is isolated behind backend API routes.", icon: Landmark },
   { title: "Database", body: "Profiles, businesses, customers, and invoices are RLS-protected.", icon: Landmark },
 ];

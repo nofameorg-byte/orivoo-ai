@@ -31,7 +31,7 @@ export default async function LoginPage({ searchParams }: AuthPageProps) {
             </h1>
             <p className="mt-5 leading-7 text-muted">
               Access balances, invoices, customers, transactions, and simulated
-              Column sandbox transfers from a protected Supabase session.
+              payment workflows from a protected Supabase session.
             </p>
           </div>
         </section>

@@ -1,7 +1,8 @@
 # VP23 Financial
 
 Premium fintech MVP built with Next.js 16, TypeScript, App Router, Tailwind CSS,
-Supabase Auth/Database, and server-only Column sandbox route handlers.
+Supabase Auth/Database, KYB onboarding, private document storage, and
+server-only banking integration preparation.
 
 ## Stack
 
@@ -20,6 +21,7 @@ Supabase Auth/Database, and server-only Column sandbox route handlers.
 - `/signup` - Supabase email/password signup
 - `/dashboard` - Protected dashboard
 - `/dashboard/onboarding`
+- `/dashboard/documents`
 - `/dashboard/business-banking`
 - `/dashboard/business-profile`
 - `/dashboard/accounts`
@@ -41,7 +43,6 @@ Supabase Auth/Database, and server-only Column sandbox route handlers.
 - Business banking modules for checking, savings future, and account details
 - Payments modules for ACH, wires, and real-time payments
 - Admin modules for KYB, compliance, risk, and partner-bank settings
-- Sandbox mode badge
 - Mobile-first responsive dashboard navigation
 
 ## Brand palette
@@ -63,7 +64,16 @@ Supabase Auth/Database, and server-only Column sandbox route handlers.
 - Branded VP23 invoice preview
 - Customer history and future PDF export notes
 
-## Column sandbox API layer
+## KYB and document vault
+
+- Complete KYB onboarding workflow for Versatile Partners 23, LLC.
+- Private Supabase Storage bucket: `business-documents`.
+- Document metadata table: `business_documents`.
+- Supported file types: PDF, PNG, JPG, JPEG.
+- Maximum file size: 10MB.
+- Owner-scoped RLS plus admin review policies.
+
+## Banking integration layer
 
 The Column integration lives only in server code. Keep `COLUMN_API_KEY` in
 server-side environment variables and never prefix it with `NEXT_PUBLIC_`.
@@ -77,13 +87,17 @@ Routes:
 - `POST /api/column/transfers/simulate`
 - `GET /api/column/health`
 
-Service placeholders:
+Service placeholders and preparation helpers:
 
 - `createEntity`
 - `createAccount`
 - `listAccounts`
 - `listTransfers`
 - `simulateTransfer`
+- `prepareColumnEntityPayload`
+- `prepareColumnBeneficialOwnersPayload`
+- `prepareColumnAccountPayload`
+- `submitToBankPartner`
 
 ## Getting started
 
@@ -105,7 +119,7 @@ Add environment values:
 NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
-COLUMN_API_KEY=your-column-sandbox-key
+COLUMN_API_KEY=your-column-key
 COLUMN_BASE_URL=https://api.column.com
 COLUMN_ENVIRONMENT=sandbox
 COLUMN_PARTNER_BANK_ID=your-partner-bank-id
@@ -123,7 +137,7 @@ Open [http://localhost:3000](http://localhost:3000).
 ## Supabase setup
 
 1. Create a Supabase project.
-2. Apply `supabase/migrations/20260618223900_initial_schema.sql`.
+2. Apply migrations in `supabase/migrations/` in timestamp order.
 3. In Supabase Auth settings, add redirect URLs:
    - `http://localhost:3000/auth/callback`
    - `https://your-vercel-domain.vercel.app/auth/callback`
@@ -136,6 +150,12 @@ The migration creates:
 - `business_profiles`
 - `customers`
 - `invoices`
+- `kyb_applications`
+- `beneficial_owners`
+- `business_documents`
+- `admin_review_notes`
+- `application_status_events`
+- Private `business-documents` storage bucket
 - Row Level Security policies
 - `updated_at` triggers
 - A new-user trigger that provisions a profile and workspace
@@ -145,7 +165,7 @@ The migration creates:
 - Add full KYB/KYC, beneficial owner collection, and control person review.
 - Add OFAC/sanctions screening, fraud controls, velocity limits, and approvals.
 - Add signed Column webhooks, idempotency keys, reconciliation, and audit logs.
-- Replace sandbox placeholders with production Column API calls after approval.
+- Replace integration placeholders with production Column API calls after approval.
 
 ## Scripts
 

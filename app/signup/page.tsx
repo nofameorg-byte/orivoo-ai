@@ -27,7 +27,7 @@ export default async function SignupPage({ searchParams }: AuthPageProps) {
             Create your VP23 workspace
           </h1>
           <p className="mt-3 text-sm text-muted">
-            Launch a sandbox financial dashboard with Supabase-secured
+            Launch a partner-ready financial platform with Supabase-secured
             authentication and RLS-ready business records.
           </p>
 
@@ -94,7 +94,7 @@ export default async function SignupPage({ searchParams }: AuthPageProps) {
         <section className="hidden bg-black/70 p-10 md:block">
           <div className="surface-card mt-12 rounded-[2rem] p-6">
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-gold">
-              Sandbox stack
+              Application stack
             </p>
             <h2 className="mt-4 text-4xl font-semibold text-white">
               Next.js 16, Supabase, Tailwind, Column-ready routes.

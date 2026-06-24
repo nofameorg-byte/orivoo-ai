@@ -23,7 +23,7 @@ export function VP23Logo({
   const mark = (
     <span className={`flex items-center gap-3 ${className}`}>
       <Image
-        src="/vp23-logo.svg"
+        src="/vp23-logo.png"
         width={240}
         height={80}
         alt="VP23 Financial"

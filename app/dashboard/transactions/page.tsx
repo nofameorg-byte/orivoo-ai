@@ -17,7 +17,7 @@ export default function TransactionsPage() {
           Transactions
         </h1>
         <p className="mt-3 max-w-3xl leading-7 text-muted">
-          Sandbox transaction activity for MVP review. Production activity must
+          Transaction activity for application review. Production activity must
           include webhook verification, immutable audit trails, and daily
           reconciliation.
         </p>

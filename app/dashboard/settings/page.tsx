@@ -14,7 +14,7 @@ export default function SettingsPage() {
           Settings
         </p>
         <h1 className="mt-3 text-3xl font-semibold text-white sm:text-4xl">
-          Security, sandbox, and environment controls.
+          Security, partner integration, and environment controls.
         </h1>
         <p className="mt-3 max-w-3xl leading-7 text-muted">
           Keep public Supabase values client-safe and store COLUMN_API_KEY only
@@ -46,7 +46,7 @@ export default function SettingsPage() {
           <li>NEXT_PUBLIC_SUPABASE_URL is safe for browser use.</li>
           <li>NEXT_PUBLIC_SUPABASE_ANON_KEY is safe for browser use with RLS.</li>
           <li>COLUMN_API_KEY must remain server-only and never use NEXT_PUBLIC.</li>
-          <li>COLUMN_BASE_URL and COLUMN_ENVIRONMENT control sandbox/production targeting.</li>
+          <li>COLUMN_BASE_URL and COLUMN_ENVIRONMENT control integration targeting.</li>
           <li>COLUMN_PARTNER_BANK_ID and SPONSOR_BANK_NAME model bank sponsor settings.</li>
           <li>
             TODO: Add production secrets rotation, webhook signatures, and audit
@@ -63,7 +63,7 @@ export default function SettingsPage() {
         <p className="mt-4 leading-7 text-muted">
           Profiles, business profiles, customers, and invoices are scoped to
           auth.uid() in Supabase policies. Server routes re-check authentication
-          before using Column sandbox placeholders.
+          before using banking integration placeholders.
         </p>
       </section>
     </div>

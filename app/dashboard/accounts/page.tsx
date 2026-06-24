@@ -13,15 +13,15 @@ export default function AccountsPage() {
         <div className="flex items-center gap-3 text-electric-blue-bright">
           <RadioTower className="size-5" aria-hidden />
           <span className="text-sm font-semibold uppercase tracking-[0.24em]">
-            Column sandbox
+            Account applications
           </span>
         </div>
         <h1 className="mt-4 text-3xl font-semibold text-white sm:text-4xl">
           Accounts
         </h1>
         <p className="mt-3 max-w-3xl leading-7 text-muted">
-          Placeholder account records mirror what the secure backend Column
-          routes will hydrate. The API key is never exposed to this client page.
+          Account records are prepared for secure backend banking integrations.
+          API keys are never exposed to this client page.
         </p>
       </section>
 

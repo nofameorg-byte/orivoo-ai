@@ -17,8 +17,8 @@ export default function PaymentsPage() {
           ACH, wires, and real-time payments.
         </h1>
         <p className="mt-3 max-w-3xl leading-7 text-muted">
-          Payment rails are presented like a bank product suite. Sandbox ACH can
-          be simulated; wires and RTP remain gated by sponsor-bank support,
+          Payment rails are presented as partner-ready application modules. ACH, wires,
+          and RTP remain gated by sponsor-bank support,
           compliance controls, and Column production approval.
         </p>
       </section>

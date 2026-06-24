@@ -6,7 +6,6 @@ import {
   FileText,
   Landmark,
   LockKeyhole,
-  RadioTower,
   ReceiptText,
   ShieldCheck,
   Siren,
@@ -16,7 +15,7 @@ import {
 import { VP23Logo } from "@/components/vp23-logo";
 
 const valueProps = [
-  "Column sandbox API access stays server-side",
+  "Banking integration settings stay server-side",
   "Supabase Auth and RLS-ready database foundation",
   "Mobile-first financial command center",
 ];
@@ -29,7 +28,7 @@ const platformCards = [
   },
   {
     title: "Move",
-    body: "Simulate transfers through a secure backend layer built for future Column production hardening.",
+    body: "Prepare payment workflows through a secure backend layer built for partner-bank approval.",
     icon: ArrowDownLeft,
   },
   {
@@ -72,7 +71,7 @@ export default function LandingPage() {
             href="/signup"
             className="rounded-full border border-gold/50 bg-white px-4 py-2 text-sm font-semibold text-black shadow-lg shadow-metal-red/20 transition hover:bg-gold-bright"
           >
-            Enter sandbox
+            Start application
           </Link>
         </div>
       </header>
@@ -81,16 +80,16 @@ export default function LandingPage() {
         <div>
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-metal-red/40 bg-metal-red/10 px-4 py-2 text-sm text-metal-red-bright">
             <Siren className="size-4" aria-hidden />
-            Premium sandbox banking for high-velocity operators
+            Premium fintech operations for high-velocity businesses
           </div>
           <h1 className="max-w-5xl text-5xl font-semibold tracking-tight text-white sm:text-6xl lg:text-7xl">
-            Move like a bank.{" "}
+            Operate with bank-grade discipline.{" "}
             <span className="text-vp23-gradient">Control like VP23.</span>
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-muted">
             VP23 Financial is a black-card fintech MVP with Supabase-secured
             identity, protected dashboard routes, invoices, customers,
-            transactions, transfers, and a server-only Column sandbox layer.
+            transactions, transfers, and server-only banking integration prep.
           </p>
           <div className="mt-10 flex flex-col gap-4 sm:flex-row">
             <Link
@@ -131,7 +130,7 @@ export default function LandingPage() {
                 </h2>
               </div>
               <div className="rounded-full border border-electric-blue/35 bg-electric-blue/10 px-3 py-1 text-xs text-electric-blue-bright">
-                Sandbox
+                Partner review
               </div>
             </div>
             <div className="rounded-[1.25rem] border border-white/10 bg-gradient-to-br from-metal-red/20 via-black to-electric-blue/20 p-6">
@@ -229,7 +228,7 @@ export default function LandingPage() {
           },
           {
             title: "Send placeholder",
-            body: "Sandbox action reserves room for email delivery after compliance and vendor setup.",
+            body: "Placeholder action reserves room for email delivery after compliance and vendor setup.",
           },
           {
             title: "Download or print",
@@ -283,10 +282,12 @@ export default function LandingPage() {
 
       <footer className="relative z-10 mx-auto flex w-full max-w-7xl flex-col gap-4 border-t border-white/10 px-6 py-8 text-sm text-muted sm:flex-row sm:items-center sm:justify-between lg:px-8">
         <VP23Logo size="sm" />
-        <div className="flex items-center gap-2">
-          <RadioTower className="size-4 text-metal-red-bright" aria-hidden />
-          Column sandbox integration is server-route only.
-        </div>
+        <p className="max-w-3xl text-xs leading-5">
+          VP23 is a financial technology platform operated by Versatile
+          Partners 23, LLC. Banking services are subject to approval by
+          regulated banking partners. Features shown may be in development and
+          are not available until partner approval.
+        </p>
       </footer>
     </main>
   );

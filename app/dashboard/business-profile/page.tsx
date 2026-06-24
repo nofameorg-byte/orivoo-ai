@@ -19,7 +19,7 @@ export default function BusinessProfilePage() {
               Business profile
             </p>
             <h1 className="mt-2 text-3xl font-semibold text-white sm:text-4xl">
-              Prepare the business record for sandbox banking.
+              Prepare the business record for partner-bank review.
             </h1>
             <p className="mt-4 max-w-3xl leading-7 text-muted">
               This profile is RLS-scoped to the authenticated owner. Production
@@ -119,7 +119,7 @@ export default function BusinessProfilePage() {
             type="button"
             className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-black transition hover:bg-gold-bright"
           >
-            Save sandbox profile
+            Save business profile
           </button>
         </div>
       </form>

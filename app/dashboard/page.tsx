@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CircleDollarSign, Copy, RadioTower, ShieldCheck } from "lucide-react";
+import { CircleDollarSign, Copy, ShieldCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import {
   accounts,
@@ -37,10 +37,6 @@ export default async function DashboardPage() {
         <div className="absolute bottom-0 left-0 h-72 w-72 rounded-full bg-metal-red/15 blur-3xl" />
         <div className="relative grid gap-8 lg:grid-cols-[1fr_0.8fr] lg:items-end">
           <div>
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-electric-blue/25 bg-electric-blue/10 px-4 py-2 text-sm text-electric-blue-bright">
-              <RadioTower className="size-4" aria-hidden />
-              Sandbox mode active
-            </div>
             <h1 className="max-w-4xl text-4xl font-semibold tracking-tight text-white sm:text-5xl">
               Welcome back, {displayName}. Your money command deck is armed.
             </h1>
@@ -57,7 +53,7 @@ export default async function DashboardPage() {
               $179,070.90
             </p>
             <div className="mt-5 flex items-center justify-between rounded-2xl border border-white/10 bg-black/45 p-4">
-              <span className="text-sm text-muted">Column sandbox ledger</span>
+              <span className="text-sm text-muted">Application ledger preview</span>
               <span className="text-sm font-semibold text-gold-bright">
                 +18.4%
               </span>
@@ -165,7 +161,7 @@ export default async function DashboardPage() {
               className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm text-muted transition hover:border-electric-blue/40 hover:text-white"
             >
               <Copy className="size-4" aria-hidden />
-              Copy sandbox details
+              Copy account details
             </button>
           </div>
         </article>

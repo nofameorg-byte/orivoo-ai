@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { LogOut, RadioTower } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { signOut } from "@/app/actions/auth";
 import { VP23Logo } from "@/components/vp23-logo";
 import { dashboardNavigation } from "@/lib/vp23/data";
@@ -42,17 +42,6 @@ export default async function DashboardLayout({
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-72 border-r border-white/10 bg-panel/95 p-4 backdrop-blur-xl lg:flex lg:flex-col">
         <div className="mb-6 px-2">
           <VP23Logo size="md" />
-        </div>
-
-        <div className="mb-5 rounded-3xl border border-electric-blue/25 bg-electric-blue/10 p-4">
-          <div className="flex items-center gap-2 text-sm font-semibold text-electric-blue-bright">
-            <RadioTower className="size-4" aria-hidden />
-            Sandbox mode
-          </div>
-          <p className="mt-2 text-xs leading-5 text-muted">
-            Column movement is simulated until production compliance, KYB/KYC,
-            and bank partner approvals are complete.
-          </p>
         </div>
 
         <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto pr-1">
@@ -130,6 +119,12 @@ export default async function DashboardLayout({
 
         <main className="min-h-screen px-5 py-6 sm:px-8 lg:px-10 lg:py-10">
           <div className="mx-auto max-w-7xl">{children}</div>
+          <footer className="mx-auto mt-10 max-w-7xl border-t border-white/10 pt-6 text-xs leading-5 text-muted">
+            VP23 is a financial technology platform operated by Versatile
+            Partners 23, LLC. Banking services are subject to approval by
+            regulated banking partners. Features shown may be in development and
+            are not available until partner approval.
+          </footer>
         </main>
       </div>
     </div>

@@ -75,7 +75,7 @@ export function InvoiceForm() {
       return;
     }
 
-    setMessage("Invoice created in sandbox preview.");
+    setMessage("Invoice created in preview.");
   }
 
   function handleSendPlaceholder() {
@@ -99,7 +99,7 @@ export function InvoiceForm() {
       >
         <h2 className="text-2xl font-semibold text-white">Create invoice</h2>
         <p className="mt-2 text-sm text-muted">
-          Required fields are validated before the sandbox preview is created.
+          Required fields are validated before the invoice preview is created.
         </p>
 
         <div className="mt-6 space-y-5">

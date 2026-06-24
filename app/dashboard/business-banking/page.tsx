@@ -16,8 +16,8 @@ export default function BusinessBankingPage() {
           JPMorgan-grade structure with Cash App speed.
         </h1>
         <p className="mt-3 max-w-3xl leading-7 text-muted">
-          Phase 2 separates real banking products from generic account cards:
-          checking today, savings as a sponsor-bank future, and account details
+          The application separates banking-product readiness from generic account cards:
+          checking preparation, savings as a sponsor-bank future, and account details
           tied to Column entity/account identifiers.
         </p>
       </section>
@@ -50,7 +50,7 @@ export default function BusinessBankingPage() {
             </h2>
           </div>
           <span className="rounded-full border border-electric-blue/30 bg-electric-blue/10 px-3 py-1 text-xs text-electric-blue-bright">
-            Column sandbox mapped
+            Integration mapping pending
           </span>
         </div>
         <div className="grid gap-4 lg:grid-cols-3">

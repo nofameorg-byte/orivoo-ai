@@ -4,6 +4,7 @@ import {
   createIdempotencyKey,
   getColumnConnectionStatus,
 } from "@/lib/column/client";
+import type { Database } from "@/lib/database.types";
 
 type CreateEntityInput = {
   businessName: string;
@@ -21,6 +22,9 @@ type SimulateTransferInput = {
   destination: string;
   amountCents: number;
 };
+
+type KybApplication = Database["public"]["Tables"]["kyb_applications"]["Row"];
+type BeneficialOwner = Database["public"]["Tables"]["beneficial_owners"]["Row"];
 
 function getSandboxMetadata() {
   return {
@@ -114,5 +118,74 @@ export async function simulateTransfer(input: SimulateTransferInput) {
     amountCents: input.amountCents,
     status: "simulated",
     ...getSandboxMetadata(),
+  };
+}
+
+export function prepareColumnEntityPayload(application: KybApplication) {
+  return {
+    idempotencyKey: createIdempotencyKey("column_entity_prepare"),
+    legalName: application.legal_business_name,
+    dbaName: application.dba_name,
+    ein: application.ein,
+    formationState: application.formation_state,
+    businessType: application.business_type,
+    industry: application.industry,
+    website: application.website,
+    contactEmail: application.contact_email,
+    phoneNumber: application.phone_number,
+    businessAddress: application.business_address,
+    mailingAddress: application.mailing_address,
+    expectedMonthlyTransactionVolume:
+      application.expected_monthly_transaction_volume,
+    expectedAverageTransactionSize:
+      application.expected_average_transaction_size,
+    sourceOfFunds: application.source_of_funds,
+    intendedUseOfAccount: application.intended_use_of_account,
+    status: "prepared_for_partner_review",
+    column: getColumnConnectionStatus(),
+  };
+}
+
+export function prepareColumnBeneficialOwnersPayload(
+  beneficialOwners: BeneficialOwner[],
+) {
+  return {
+    idempotencyKey: createIdempotencyKey("column_owners_prepare"),
+    owners: beneficialOwners.map((owner) => ({
+      fullName: owner.full_name,
+      title: owner.title,
+      ownershipPercentage: owner.ownership_percentage,
+      dateOfBirth: owner.date_of_birth,
+      address: owner.address,
+      ssnLast4Placeholder: owner.ssn_last4,
+    })),
+    status: "prepared_for_partner_review",
+    column: getColumnConnectionStatus(),
+  };
+}
+
+export function prepareColumnAccountPayload(application: KybApplication) {
+  return {
+    idempotencyKey: createIdempotencyKey("column_account_prepare"),
+    businessName: application.legal_business_name,
+    requestedProducts: ["business_checking"],
+    requestedRails: ["ach"],
+    applicationStatus: application.status,
+    status: "prepared_not_submitted",
+    column: getColumnConnectionStatus(),
+  };
+}
+
+export async function submitToBankPartner(application: KybApplication) {
+  // TODO: Submit only after approved KYB, sponsor-bank approval, signed program
+  // agreement, webhook reconciliation, and production Column credentials.
+  return {
+    applicationId: application.id,
+    legalBusinessName: application.legal_business_name,
+    status: "partner_submission_placeholder",
+    submitted: false,
+    reason:
+      "Banking services are subject to approval by regulated banking partners.",
+    column: getColumnConnectionStatus(),
   };
 }

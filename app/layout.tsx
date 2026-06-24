@@ -9,11 +9,11 @@ const geist = Geist({
 
 export const metadata: Metadata = {
   title: {
-    default: "VP23 Financial - Premium sandbox banking",
+    default: "VP23 Financial - Partner-ready fintech platform",
     template: "%s | VP23 Financial",
   },
   description:
-    "VP23 Financial is a Next.js 16 fintech MVP with Supabase auth, RLS-ready data, invoices, transfers, and secure Column sandbox backend routes.",
+    "VP23 Financial is a Next.js 16 fintech platform with Supabase auth, RLS-ready data, KYB onboarding, document review, and secure server-side banking integrations.",
   applicationName: "VP23 Financial",
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "VP23 Financial",
     description:
-      "Aggressive premium fintech banking dashboard powered by Next.js, Supabase, and Column sandbox APIs.",
+      "Premium fintech application platform powered by Next.js, Supabase, and server-side banking integration preparation.",
     siteName: "VP23 Financial",
     type: "website",
   },
