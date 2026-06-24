@@ -8,10 +8,11 @@ import type { Database } from "@/lib/database.types";
 type BusinessDocument =
   Database["public"]["Tables"]["business_documents"]["Row"];
 type DocumentCategory = BusinessDocument["category"];
+type AllowedMimeType = BusinessDocument["mime_type"];
 
 const bucketName = "business-documents";
 const maxFileSize = 10 * 1024 * 1024;
-const allowedMimeTypes = new Set([
+const allowedMimeTypes = new Set<AllowedMimeType>([
   "application/pdf",
   "image/png",
   "image/jpg",
@@ -31,6 +32,10 @@ const categories: DocumentCategory[] = [
 
 function normalizeFileName(fileName: string) {
   return fileName.replace(/[^a-zA-Z0-9._-]/g, "_");
+}
+
+function isAllowedMimeType(mimeType: string): mimeType is AllowedMimeType {
+  return allowedMimeTypes.has(mimeType as AllowedMimeType);
 }
 
 export function DocumentVault() {
@@ -93,10 +98,12 @@ export function DocumentVault() {
       return;
     }
 
-    if (!allowedMimeTypes.has(file.type)) {
+    if (!isAllowedMimeType(file.type)) {
       setMessage("Only PDF, PNG, JPG, and JPEG files are supported.");
       return;
     }
+
+    const mimeType = file.type;
 
     if (file.size > maxFileSize) {
       setMessage("Files must be 10MB or smaller.");
@@ -117,7 +124,7 @@ export function DocumentVault() {
       .upload(storagePath, file, {
         cacheControl: "3600",
         upsert: false,
-        contentType: file.type,
+        contentType: mimeType,
       });
 
     if (upload.error) {
@@ -135,7 +142,7 @@ export function DocumentVault() {
         .update({
           file_name: file.name,
           file_size: file.size,
-          mime_type: file.type,
+          mime_type: mimeType,
           storage_path: storagePath,
           verification_status: "unverified",
         })
@@ -151,7 +158,7 @@ export function DocumentVault() {
         category,
         file_name: file.name,
         file_size: file.size,
-        mime_type: file.type,
+        mime_type: mimeType,
         owner_id: userId,
         storage_path: storagePath,
         verification_status: "unverified",
