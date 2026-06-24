@@ -7,11 +7,8 @@ import {
   FileText,
   Landmark,
   LockKeyhole,
-  ReceiptText,
   ShieldCheck,
   Siren,
-  TrendingUp,
-  Users,
 } from "lucide-react";
 import { LanguageTabs } from "@/components/language-tabs";
 import { VP23Logo } from "@/components/vp23-logo";
@@ -115,18 +112,19 @@ export default function LandingPage() {
 
       <section className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-12 px-6 pb-20 pt-10 lg:grid-cols-[1.02fr_0.98fr] lg:px-8 lg:pb-28 lg:pt-16">
         <div>
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-metal-red/40 bg-metal-red/10 px-4 py-2 text-sm text-metal-red-bright">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-gold-bright">
             <Siren className="size-4" aria-hidden />
-            Business money operations for high-velocity operators
+            Business Command Center
           </div>
-          <h1 className="max-w-5xl text-5xl font-semibold tracking-tight text-white sm:text-6xl lg:text-7xl">
-            Business-grade control.{" "}
-            <span className="text-vp23-gradient">Built with VP23 energy.</span>
+          <h1 className="max-w-5xl text-5xl font-black leading-[0.92] tracking-tight text-white sm:text-6xl lg:text-7xl">
+            Move smarter.{" "}
+            <span className="text-gold-bright">Get paid faster.</span> Run
+            business with VP23.
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-muted">
             VP23 helps small businesses, contractors, and entrepreneurs organize
-            customers, invoices, documents, applications, ledger records, and
-            account-readiness workflows in one premium workspace.
+            customers, invoices, account applications, payment records,
+            documents, and business workflows from one secure command center.
           </p>
           <div className="mt-10 flex flex-col gap-4 sm:flex-row">
             <Link
@@ -156,63 +154,75 @@ export default function LandingPage() {
           </div>
         </div>
 
-        <div className="metal-card red-glow relative overflow-hidden rounded-[2rem] p-4">
-          <div className="absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-metal-red-bright via-40% to-electric-blue-bright" />
-          <div className="rounded-[1.5rem] border border-white/10 bg-black/70 p-4">
-            <div className="mb-4 flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted">VP23 splash screen</p>
-                <h2 className="text-xl font-semibold text-white">
-                  Business command center
-                </h2>
+        <div className="relative mx-auto w-full max-w-lg">
+          <div className="absolute inset-0 rounded-[1.35rem] bg-gold/10 blur-3xl" />
+          <div className="absolute inset-0 rounded-[1.35rem] bg-metal-red/10 blur-2xl" />
+          <div className="relative overflow-hidden rounded-[1.35rem] border border-white/10 bg-[#0a0a0a] shadow-2xl shadow-black/70">
+            <div className="flex items-center justify-between border-b border-white/10 bg-[#111111] px-4 py-3">
+              <div className="flex items-center gap-2">
+                <VP23Logo href="/" size="sm" showText={false} />
+                <span className="text-xs font-medium text-muted">
+                  Command Center
+                </span>
               </div>
-              <div className="rounded-full border border-electric-blue/35 bg-electric-blue/10 px-3 py-1 text-xs text-electric-blue-bright">
-                In development
+              <div className="flex gap-1.5">
+                <span className="size-2.5 rounded-full bg-metal-red" />
+                <span className="size-2.5 rounded-full bg-gold" />
+                <span className="size-2.5 rounded-full bg-electric-blue" />
               </div>
             </div>
-            <div className="rounded-[1.25rem] border border-white/10 bg-gradient-to-br from-metal-red/20 via-black to-electric-blue/20 p-6">
-              <VP23Logo
-                href="/"
-                size="lg"
-                showText={false}
-                className="justify-center"
-              />
-              <div className="mt-8 grid grid-cols-2 gap-3">
+
+            <div className="space-y-3 p-4">
+              <div className="grid grid-cols-2 gap-2">
+                <div className="rounded-lg border border-gold/20 bg-[#111111] p-3">
+                  <p className="mb-1 text-[0.62rem] font-bold uppercase tracking-[0.18em] text-muted">
+                    Total Balance
+                  </p>
+                  <p className="text-lg font-black text-gold-bright">$—,——</p>
+                  <p className="mt-0.5 text-[0.58rem] text-muted">Preview Mode</p>
+                </div>
+                <div className="rounded-lg border border-electric-blue/20 bg-[#111111] p-3">
+                  <p className="mb-1 text-[0.62rem] font-bold uppercase tracking-[0.18em] text-muted">
+                    Available
+                  </p>
+                  <p className="text-lg font-black text-electric-blue-bright">$—,——</p>
+                  <p className="mt-0.5 text-[0.58rem] text-muted">Pending Review</p>
+                </div>
+              </div>
+
+              <div className="rounded-lg border border-white/10 bg-[#111111] p-3">
+                <p className="mb-2 text-[0.62rem] font-black uppercase tracking-[0.2em] text-gold">
+                  Recent Activity
+                </p>
                 {[
-                  ["Available", "$128,430.18"],
-                  ["Routing", "121145349"],
-                  ["Invoices", "$23,350"],
-                  ["Transfers", "Prepared"],
-                ].map(([label, value]) => (
+                  ["Invoice #1042 — Prepared", "+$2,400", "text-emerald-400"],
+                  ["ACH Transfer — Pending", "-$850", "text-vp-yellow"],
+                  ["Invoice #1041 — Sent", "+$1,200", "text-emerald-400"],
+                ].map(([label, amount, color]) => (
                   <div
                     key={label}
-                    className="rounded-2xl border border-white/10 bg-black/55 p-4"
+                    className="flex items-center justify-between border-b border-white/5 py-1.5 last:border-0"
                   >
-                    <p className="text-xs uppercase tracking-[0.24em] text-muted">
-                      {label}
-                    </p>
-                    <p className="mt-2 text-lg font-semibold text-white">
-                      {value}
+                    <span className="text-[0.65rem] text-muted">{label}</span>
+                    <span className={`text-[0.65rem] font-black ${color}`}>
+                      {amount}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-3 gap-1.5">
+                {["Invoice", "Customer", "Document"].map((action) => (
+                  <div
+                    key={action}
+                    className="rounded-lg border border-white/10 bg-[#1a1a1a] p-2 text-center"
+                  >
+                    <p className="text-[0.58rem] font-semibold text-muted">
+                      {action}
                     </p>
                   </div>
                 ))}
               </div>
-            </div>
-            <div className="mt-5 grid grid-cols-2 gap-3">
-              {[
-                { name: "Accounts", icon: Landmark },
-                { name: "Transactions", icon: ReceiptText },
-                { name: "Transfers", icon: TrendingUp },
-                { name: "Customers", icon: Users },
-              ].map((item) => (
-                <div
-                  key={item.name}
-                  className="rounded-2xl border border-white/10 bg-white/[0.03] p-3"
-                >
-                  <item.icon className="mb-3 size-5 text-gold" aria-hidden />
-                  <p className="text-sm font-medium text-white">{item.name}</p>
-                </div>
-              ))}
             </div>
           </div>
         </div>
